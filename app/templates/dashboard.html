@@ -3,20 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Dashboard - DriftBridge</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7f6;
+            color: #222;
+        }
+
+        .navbar {
+            background: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logout {
+            text-decoration: none;
+            color: #d33;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .welcome {
+            margin-bottom: 30px;
+        }
+
+        .welcome h1 {
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #666;
+        }
+
+        .points-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .points {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .feature-card h3 {
+            margin-top: 0;
+        }
+
+        .feature-card p {
+            color: #666;
+            min-height: 45px;
+        }
+
+        .feature-card a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h1>Welcome to DriftBridge</h1>
+    <nav class="navbar">
+        <div class="logo">
+            DriftBridge
+        </div>
 
-    <h2>Hello, {{ current_user.username }}!</h2>
+        <a class="logout" href="{{ url_for('auth.logout') }}">
+            Logout
+        </a>
+    </nav>
 
-    <p>You are successfully logged in.</p>
+    <main class="container">
 
-    <a href="{{ url_for('auth.logout') }}">
-        <button>Logout</button>
-    </a>
+        <section class="welcome">
+            <h1>Hello, {{ current_user.username }}!</h1>
+
+            <p>
+                Welcome to your DriftBridge dashboard.
+            </p>
+        </section>
+
+        <section class="points-card">
+            <h3>Your Points</h3>
+
+            <div class="points">
+                {{ current_user.points }}
+            </div>
+        </section>
+
+        <section class="features">
+
+            <div class="feature-card">
+                <h3>My Profile</h3>
+
+                <p>
+                    View and update your personal information.
+                </p>
+
+                <a href="{{ url_for('profile.profile') }}">
+                    Open Profile →
+                </a>
+            </div>
+
+            <div class="feature-card">
+                <h3>Bottles</h3>
+
+                <p>
+                    Send and receive messages through the DriftBridge bottle system.
+                </p>
+
+                <a href="#">
+                    Coming Soon
+                </a>
+            </div>
+
+            <div class="feature-card">
+                <h3>Chats</h3>
+
+                <p>
+                    Connect and chat with people you meet on DriftBridge.
+                </p>
+
+                <a href="#">
+                    Coming Soon
+                </a>
+            </div>
+
+            <div class="feature-card">
+                <h3>Diary</h3>
+
+                <p>
+                    Keep your personal diary and share posts when you choose.
+                </p>
+
+                <a href="#">
+                    Coming Soon
+                </a>
+            </div>
+
+        </section>
+
+    </main>
 
 </body>
 </html>
