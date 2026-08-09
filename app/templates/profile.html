@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Profile - DriftBridge</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7f6;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .profile-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .profile-item {
+            margin: 20px 0;
+        }
+
+        .profile-item strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .profile-value {
+            padding: 10px;
+            background: #f1f3f3;
+            border-radius: 6px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #333;
+            color: white;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="profile-container">
+
+        <h1>My Profile</h1>
+
+        <div class="profile-item">
+            <strong>Username</strong>
+
+            <div class="profile-value">
+                {{ user.username }}
+            </div>
+        </div>
+
+        <div class="profile-item">
+            <strong>Email</strong>
+
+            <div class="profile-value">
+                {{ user.email }}
+            </div>
+        </div>
+
+        <form method="POST">
+
+            <div class="profile-item">
+                <strong>Bio</strong>
+
+                <textarea
+                    name="bio"
+                    maxlength="500"
+                    placeholder="Tell people something about yourself..."
+                >{{ user.bio or "" }}</textarea>
+            </div>
+
+            <div class="profile-item">
+                <strong>Interests</strong>
+
+                <input
+                    type="text"
+                    name="interests"
+                    maxlength="500"
+                    value="{{ user.interests or '' }}"
+                    placeholder="Example: Music, Coding, Travel"
+                >
+            </div>
+
+            <button type="submit">
+                Save Profile
+            </button>
+
+        </form>
+
+        <div class="profile-item">
+            <strong>Points</strong>
+
+            <div class="profile-value">
+                {{ user.points }}
+            </div>
+        </div>
+
+        <a class="back-link" href="/dashboard">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+</body>
+</html>
