@@ -60,14 +60,12 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and bcrypt.check_password_hash(
-            user.password_hash,
-            password
-        ):
-            login_user(user)
+          user.password_hash,
+          password
+    ):
+         login_user(user)
 
-            flash("Login successful.", "success")
-            return redirect(url_for("auth.dashboard"))
-
+        return redirect(url_for("auth.dashboard"))
         flash("Invalid email or password.", "error")
         return redirect(url_for("auth.login"))
 

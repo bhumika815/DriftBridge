@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Connections - DriftBridge</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7f6;
+            color: #222;
+        }
+
+        .navbar {
+            background: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #333;
+            margin-left: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .section {
+            margin-top: 35px;
+        }
+
+        .connection {
+            background: white;
+            padding: 25px;
+            margin-top: 15px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .connection h3 {
+            margin-top: 0;
+        }
+
+        .message {
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .empty {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="logo">
+            DriftBridge
+        </div>
+
+        <div>
+            <a href="{{ url_for('auth.dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('bottle.throw_bottle') }}">
+                Throw Bottle
+            </a>
+
+            <a href="{{ url_for('bottle.bottle_pool') }}">
+                Bottle Pool
+            </a>
+
+            <a href="{{ url_for('auth.logout') }}">
+                Logout
+            </a>
+        </div>
+
+    </nav>
+
+
+    <main class="container">
+
+        <h1>My Connections</h1>
+
+
+        <!-- Bottles I sent -->
+
+        <div class="section">
+
+            <h2>People Who Kept My Bottles</h2>
+
+            {% if sent_connections %}
+
+                {% for bottle in sent_connections %}
+
+                    <div class="connection">
+
+                        <h3>
+                            {{ bottle.receiver.username }}
+                        </h3>
+
+                        <div class="message">
+                            <strong>Your bottle:</strong>
+                            {{ bottle.message }}
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="empty">
+                    <p>
+                        Nobody has kept your bottles yet.
+                    </p>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- Bottles I received -->
+
+        <div class="section">
+
+            <h2>Bottles I Kept</h2>
+
+            {% if received_connections %}
+
+                {% for bottle in received_connections %}
+
+                    <div class="connection">
+
+                        <h3>
+                            {{ bottle.sender.username }}
+                        </h3>
+
+                        <div class="message">
+                            <strong>Their bottle:</strong>
+                            {{ bottle.message }}
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="empty">
+                    <p>
+                        You haven't kept anyone's bottle yet.
+                    </p>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </main>
+
+</body>
+</html>

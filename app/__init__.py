@@ -26,6 +26,9 @@ def create_app():
     socketio.init_app(app)
 
     from app.models.user import User
+    from app.models.bottle import Bottle
+    from app.models.conversation import Conversation
+    from app.routes.bottle import bottle_bp
     from app.routes.auth import auth_bp
     from app.routes.profile import profile_bp
 
@@ -35,6 +38,7 @@ def create_app():
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(profile_bp)
+    app.register_blueprint(bottle_bp)
 
     @app.route("/")
     def home():

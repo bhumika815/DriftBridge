@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Throw a Bottle - DriftBridge</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7f6;
+            color: #222;
+        }
+
+        .navbar {
+            background: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #333;
+            margin-left: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 180px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #555;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #222;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background: #f1f1f1;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            color: #333;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="logo">
+            DriftBridge
+        </div>
+
+        <div>
+            <a href="{{ url_for('auth.dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('auth.logout') }}">
+                Logout
+            </a>
+        </div>
+
+    </nav>
+
+    <main class="container">
+
+        <div class="card">
+
+            <h1>Throw a Bottle</h1>
+
+            <p class="description">
+                Write a message and throw your bottle into the DriftBridge pool.
+                Another person can keep the bottle and start a connection with you.
+            </p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div class="message">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+            <form method="POST">
+
+                <textarea
+                    name="message"
+                    placeholder="Write your message here..."
+                    maxlength="1000"
+                    required
+                ></textarea>
+
+                <button type="submit">
+                    Throw Bottle
+                </button>
+
+            </form>
+
+            <a class="back" href="{{ url_for('auth.dashboard') }}">
+                ← Back to Dashboard
+            </a>
+
+        </div>
+
+    </main>
+
+</body>
+</html>
