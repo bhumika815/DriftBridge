@@ -1,186 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
 
-    <title>Dashboard - DriftBridge</title>
+{% block title %}
+Dashboard - DriftBridge
+{% endblock %}
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+{% block content %}
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f7f6;
-            color: #222;
-        }
+<h1>Welcome back, {{ current_user.username }}!</h1>
 
-        .navbar {
-            background: white;
-            padding: 18px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        }
+<p>
+    Here's an overview of your DriftBridge account.
+</p>
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
 
-        .logout {
-            text-decoration: none;
-            color: #d33;
-        }
+<div class="dashboard-stats">
 
-        .container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 20px;
-        }
+    <div class="stat-card">
+        <h3>Points</h3>
+        <p>{{ current_user.points }}</p>
+    </div>
 
-        .welcome {
-            margin-bottom: 30px;
-        }
 
-        .welcome h1 {
-            margin-bottom: 8px;
-        }
+    <div class="stat-card">
+        <h3>Connections</h3>
+        <p>{{ connection_count }}</p>
+    </div>
 
-        .welcome p {
-            color: #666;
-        }
 
-        .points-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-        }
+    <div class="stat-card">
+        <h3>Bottles Thrown</h3>
+        <p>{{ bottles_thrown }}</p>
+    </div>
 
-        .points {
-            font-size: 28px;
-            font-weight: bold;
-        }
 
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-        }
+    <div class="stat-card">
+        <h3>Bottles Kept</h3>
+        <p>{{ bottles_kept }}</p>
+    </div>
 
-        .feature-card {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-        }
+</div>
 
-        .feature-card h3 {
-            margin-top: 0;
-        }
 
-        .feature-card p {
-            color: #666;
-            min-height: 45px;
-        }
+<div class="dashboard-section">
 
-        .feature-card a {
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-        }
-    </style>
-</head>
+    <h2>Welcome to DriftBridge</h2>
 
-<body>
+    <p>
+        Throw a bottle, discover someone's message,
+        keep a bottle, and start a new connection.
+    </p>
 
-    <nav class="navbar">
-        <div class="logo">
-            DriftBridge
-        </div>
+</div>
 
-        <a class="logout" href="{{ url_for('auth.logout') }}">
-            Logout
-        </a>
-    </nav>
 
-    <main class="container">
+<style>
 
-        <section class="welcome">
-            <h1>Hello, {{ current_user.username }}!</h1>
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-top: 30px;
+    }
 
-            <p>
-                Welcome to your DriftBridge dashboard.
-            </p>
-        </section>
+    .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
 
-        <section class="points-card">
-            <h3>Your Points</h3>
+    .stat-card h3 {
+        margin-top: 0;
+    }
 
-            <div class="points">
-                {{ current_user.points }}
-            </div>
-        </section>
+    .stat-card p {
+        font-size: 30px;
+        font-weight: bold;
+        margin-bottom: 0;
+    }
 
-        <section class="features">
+    .dashboard-section {
+        background: white;
+        margin-top: 30px;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
 
-            <div class="feature-card">
-                <h3>My Profile</h3>
+</style>
 
-                <p>
-                    View and update your personal information.
-                </p>
-
-                <a href="{{ url_for('profile.profile') }}">
-                    Open Profile →
-                </a>
-            </div>
-
-            <div class="feature-card">
-                <h3>Bottles</h3>
-
-                <p>
-                    Send and receive messages through the DriftBridge bottle system.
-                </p>
-
-                <a href="#">
-                    Coming Soon
-                </a>
-            </div>
-
-            <div class="feature-card">
-                <h3>Chats</h3>
-
-                <p>
-                    Connect and chat with people you meet on DriftBridge.
-                </p>
-
-                <a href="#">
-                    Coming Soon
-                </a>
-            </div>
-
-            <div class="feature-card">
-                <h3>Diary</h3>
-
-                <p>
-                    Keep your personal diary and share posts when you choose.
-                </p>
-
-                <a href="#">
-                    Coming Soon
-                </a>
-            </div>
-
-        </section>
-
-    </main>
-
-</body>
-</html>
+{% endblock %}

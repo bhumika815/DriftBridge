@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_user, login_required, logout_user
+from flask_login import current_user, login_user, login_required, logout_user
 
 from app import db, bcrypt
 from app.models.user import User
@@ -75,7 +75,34 @@ def login():
 @auth_bp.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html")
+
+    from app.models.bottle import Bottle
+    from app.models.conversation import Conversation
+
+    bottles_thrown = Bottle.query.filter_by(
+        sender_id=current_user.id
+    ).count()
+
+    bottles_kept = Bottle.query.filter_by(
+        receiver_id=current_user.id
+    ).count()
+
+    connection_count = Conversation.query.filter(
+        (
+            (Conversation.user1_id == current_user.id)
+        )
+        |
+        (
+            (Conversation.user2_id == current_user.id)
+        )
+    ).count()
+
+    return render_template(
+        "dashboard.html",
+        bottles_thrown=bottles_thrown,
+        bottles_kept=bottles_kept,
+        connection_count=connection_count
+    )
 
 
 @auth_bp.route("/logout")

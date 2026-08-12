@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}DriftBridge{% endblock %}</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f7f6;
+        }
+
+        .navbar {
+            background: white;
+            padding: 18px 30px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .navbar-container {
+            max-width: 1100px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .navbar-links a {
+            margin-left: 18px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .navbar-links a:hover {
+            text-decoration: underline;
+        }
+
+        .page-content {
+            max-width: 1100px;
+            margin: auto;
+            padding: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    {% if current_user.is_authenticated %}
+
+    <nav class="navbar">
+        <div class="navbar-container">
+
+            <h2>DriftBridge</h2>
+
+            <div class="navbar-links">
+
+                <a href="{{ url_for('auth.dashboard') }}">
+                    Dashboard
+                </a>
+
+                <a href="{{ url_for('profile.profile') }}">
+                    Profile
+                </a>
+
+                <a href="{{ url_for('bottle.throw_bottle') }}">
+                    Throw Bottle
+                </a>
+
+                <a href="{{ url_for('bottle.bottle_pool') }}">
+                    Bottle Pool
+                </a>
+
+                <a href="{{ url_for('bottle.connections') }}">
+                    Connections
+                </a>
+
+                <a href="{{ url_for('auth.logout') }}">
+                    Logout
+                </a>
+
+            </div>
+
+        </div>
+    </nav>
+
+    {% endif %}
+
+
+    <main class="page-content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <p>{{ message }}</p>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+</body>
+</html>

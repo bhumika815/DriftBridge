@@ -1,171 +1,103 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
 
-    <title>Bottle Pool - DriftBridge</title>
+{% block title %}
+Bottle Pool - DriftBridge
+{% endblock %}
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+{% block content %}
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f7f6;
-            color: #222;
-        }
+<style>
+    .container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+    }
 
-        .navbar {
-            background: white;
-            padding: 18px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        }
+    .intro {
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
+    .bottle {
+        background: white;
+        padding: 25px;
+        margin-bottom: 20px;
+        border-radius: 14px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    }
 
-        .navbar a {
-            text-decoration: none;
-            color: #333;
-            margin-left: 20px;
-        }
+    .message {
+        font-size: 17px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-        }
+    .keep-button {
+        display: inline-block;
+        padding: 11px 20px;
+        background: #222;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+    }
 
-        .intro {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .bottle {
-            background: white;
-            padding: 25px;
-            margin-bottom: 20px;
-            border-radius: 14px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .message {
-            font-size: 17px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .keep-button {
-            display: inline-block;
-            padding: 11px 20px;
-            background: #222;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-        }
-
-        .empty {
-            background: white;
-            padding: 30px;
-            text-align: center;
-            border-radius: 14px;
-        }
-    </style>
-</head>
-
-<body>
-
-    <nav class="navbar">
-
-        <div class="logo">
-            DriftBridge
-        </div>
-
-        <div>
-            <a href="{{ url_for('auth.dashboard') }}">
-                Dashboard
-            </a>
-
-            <a href="{{ url_for('bottle.throw_bottle') }}">
-                Throw Bottle
-            </a>
-
-            <a href="{{ url_for('auth.logout') }}">
-                Logout
-            </a>
-        </div>
-
-    </nav>
-
-    <main class="container">
-
-        <div class="intro">
-            <h1>Bottle Pool</h1>
-
-            <p>
-                These bottles are waiting for someone to keep them.
-            </p>
-        </div>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-
-            {% if messages %}
-
-                {% for category, message in messages %}
-
-                    <div class="bottle">
-                        {{ message }}
-                    </div>
-
-                {% endfor %}
-
-            {% endif %}
-
-        {% endwith %}
+    .empty {
+        background: white;
+        padding: 30px;
+        text-align: center;
+        border-radius: 14px;
+    }
+</style>
 
 
-        {% if bottles %}
+<main class="container">
 
-            {% for bottle in bottles %}
+    <div class="intro">
 
-                <div class="bottle">
+        <h1>Bottle Pool</h1>
 
-                    <div class="message">
-                        {{ bottle.message }}
-                    </div>
+        <p>
+            These bottles are waiting for someone to keep them.
+        </p>
 
-                    <a
-                        class="keep-button"
-                        href="{{ url_for('bottle.keep_bottle', bottle_id=bottle.id) }}"
-                    >
-                        Keep Bottle
-                    </a>
+    </div>
 
+
+    {% if bottles %}
+
+        {% for bottle in bottles %}
+
+            <div class="bottle">
+
+                <div class="message">
+                    {{ bottle.message }}
                 </div>
 
-            {% endfor %}
+                <a
+                    class="keep-button"
+                    href="{{ url_for('bottle.keep_bottle', bottle_id=bottle.id) }}"
+                >
+                    Keep Bottle
+                </a>
 
-        {% else %}
-
-            <div class="empty">
-                <h2>No bottles available right now.</h2>
-
-                <p>
-                    Throw your own bottle and wait for someone to find it.
-                </p>
             </div>
 
-        {% endif %}
+        {% endfor %}
 
-    </main>
+    {% else %}
 
-</body>
-</html>
+        <div class="empty">
+
+            <h2>No bottles available right now.</h2>
+
+            <p>
+                Throw your own bottle and wait for someone to find it.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</main>
+
+{% endblock %} 

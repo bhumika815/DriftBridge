@@ -1,193 +1,132 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
 
-    <title>My Connections - DriftBridge</title>
+{% block title %}
+My Connections - DriftBridge
+{% endblock %}
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+{% block content %}
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f7f6;
-            color: #222;
-        }
+<style>
+    .container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+    }
 
-        .navbar {
-            background: white;
-            padding: 18px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        }
+    h1 {
+        text-align: center;
+    }
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
+    .section {
+        margin-top: 35px;
+    }
 
-        .navbar a {
-            text-decoration: none;
-            color: #333;
-            margin-left: 20px;
-        }
+    .connection {
+        background: white;
+        padding: 25px;
+        margin-top: 15px;
+        border-radius: 14px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-        }
+    .connection h3 {
+        margin-top: 0;
+    }
 
-        h1 {
-            text-align: center;
-        }
+    .message {
+        margin: 15px 0;
+        line-height: 1.6;
+    }
 
-        .section {
-            margin-top: 35px;
-        }
-
-        .connection {
-            background: white;
-            padding: 25px;
-            margin-top: 15px;
-            border-radius: 14px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .connection h3 {
-            margin-top: 0;
-        }
-
-        .message {
-            margin: 15px 0;
-            line-height: 1.6;
-        }
-
-        .empty {
-            background: white;
-            padding: 25px;
-            border-radius: 14px;
-            text-align: center;
-        }
-    </style>
-</head>
-
-<body>
-
-    <nav class="navbar">
-
-        <div class="logo">
-            DriftBridge
-        </div>
-
-        <div>
-            <a href="{{ url_for('auth.dashboard') }}">
-                Dashboard
-            </a>
-
-            <a href="{{ url_for('bottle.throw_bottle') }}">
-                Throw Bottle
-            </a>
-
-            <a href="{{ url_for('bottle.bottle_pool') }}">
-                Bottle Pool
-            </a>
-
-            <a href="{{ url_for('auth.logout') }}">
-                Logout
-            </a>
-        </div>
-
-    </nav>
+    .empty {
+        background: white;
+        padding: 25px;
+        border-radius: 14px;
+        text-align: center;
+    }
+</style>
 
 
-    <main class="container">
+<main class="container">
 
-        <h1>My Connections</h1>
+    <h1>My Connections</h1>
 
 
-        <!-- Bottles I sent -->
+    <!-- Bottles I sent -->
 
-        <div class="section">
+    <div class="section">
 
-            <h2>People Who Kept My Bottles</h2>
+        <h2>People Who Kept My Bottles</h2>
 
-            {% if sent_connections %}
+        {% if sent_connections %}
 
-                {% for bottle in sent_connections %}
+            {% for bottle in sent_connections %}
 
-                    <div class="connection">
+                <div class="connection">
 
-                        <h3>
-                            {{ bottle.receiver.username }}
-                        </h3>
+                    <h3>
+                        {{ bottle.receiver.username }}
+                    </h3>
 
-                        <div class="message">
-                            <strong>Your bottle:</strong>
-                            {{ bottle.message }}
-                        </div>
-
+                    <div class="message">
+                        <strong>Your bottle:</strong>
+                        {{ bottle.message }}
                     </div>
 
-                {% endfor %}
-
-            {% else %}
-
-                <div class="empty">
-                    <p>
-                        Nobody has kept your bottles yet.
-                    </p>
                 </div>
 
-            {% endif %}
+            {% endfor %}
 
-        </div>
+        {% else %}
+
+            <div class="empty">
+                <p>
+                    Nobody has kept your bottles yet.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </div>
 
 
-        <!-- Bottles I received -->
+    <!-- Bottles I received -->
 
-        <div class="section">
+    <div class="section">
 
-            <h2>Bottles I Kept</h2>
+        <h2>Bottles I Kept</h2>
 
-            {% if received_connections %}
+        {% if received_connections %}
 
-                {% for bottle in received_connections %}
+            {% for bottle in received_connections %}
 
-                    <div class="connection">
+                <div class="connection">
 
-                        <h3>
-                            {{ bottle.sender.username }}
-                        </h3>
+                    <h3>
+                        {{ bottle.sender.username }}
+                    </h3>
 
-                        <div class="message">
-                            <strong>Their bottle:</strong>
-                            {{ bottle.message }}
-                        </div>
-
+                    <div class="message">
+                        <strong>Their bottle:</strong>
+                        {{ bottle.message }}
                     </div>
 
-                {% endfor %}
-
-            {% else %}
-
-                <div class="empty">
-                    <p>
-                        You haven't kept anyone's bottle yet.
-                    </p>
                 </div>
 
-            {% endif %}
+            {% endfor %}
 
-        </div>
+        {% else %}
 
-    </main>
+            <div class="empty">
+                <p>
+                    You haven't kept anyone's bottle yet.
+                </p>
+            </div>
 
-</body>
-</html>
+        {% endif %}
+
+    </div>
+
+</main>
+
+{% endblock %}
