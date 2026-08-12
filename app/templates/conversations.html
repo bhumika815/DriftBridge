@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}
+My Chats - DriftBridge
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .chat-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .chat-container h1 {
+        margin-bottom: 10px;
+    }
+
+    .chat-description {
+        color: #666;
+        margin-bottom: 30px;
+    }
+
+    .conversation-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .conversation-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        text-decoration: none;
+        color: #222;
+    }
+
+    .conversation-card:hover {
+        box-shadow: 0 5px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .conversation-card h3 {
+        margin: 0 0 8px;
+    }
+
+    .conversation-date {
+        color: #777;
+        font-size: 14px;
+    }
+
+    .empty {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        color: #666;
+    }
+</style>
+
+
+<main class="chat-container">
+
+    <h1>My Chats</h1>
+
+    <p class="chat-description">
+        Your DriftBridge conversations will appear here.
+    </p>
+
+
+    {% if conversations %}
+
+        <div class="conversation-list">
+
+            {% for conversation in conversations %}
+
+                <a
+                    class="conversation-card"
+                     href="{{ url_for('chat.chat', conversation_id=conversation.id) }}"
+
+                >
+
+                    {% if conversation.user1_id == current_user.id %}
+
+                        <h3>
+                            {{ conversation.user2.username }}
+                        </h3>
+
+                    {% else %}
+
+                        <h3>
+                            {{ conversation.user1.username }}
+                        </h3>
+
+                    {% endif %}
+
+                    <div class="conversation-date">
+                        Connected on {{ conversation.created_at.strftime("%d %b %Y") }}
+                    </div>
+
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty">
+
+            <h2>No conversations yet.</h2>
+
+            <p>
+                Keep someone's bottle to create your first connection.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</main>
+
+{% endblock %}
