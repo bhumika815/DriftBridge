@@ -1,11 +1,19 @@
 import os
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+
 class Config:
-    SECRET_KEY = os.getenv("SECRET_KEY", "driftbridge-secret-key")
+    SECRET_KEY = os.getenv(
+        "SECRET_KEY",
+        "driftbridge-secret-key"
+    )
 
     SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL",
-        "sqlite:///driftbridge.db"
+        "DATABASE_URL"
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_user, login_required, logout_user
 
 from app import db, bcrypt
+from app.models import user
 from app.models.user import User
 
 
@@ -43,6 +44,11 @@ def register():
 
         db.session.add(user)
         db.session.commit()
+
+        print("USER CREATED:")
+        print("ID:", user.id)
+        print("USERNAME:", user.username)
+        print("EMAIL:", user.email)
 
         flash("Registration successful. You can now log in.", "success")
         return redirect(url_for("auth.login"))
