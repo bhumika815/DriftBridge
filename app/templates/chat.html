@@ -33,6 +33,7 @@ Chat with {{ other_user.username }} - DriftBridge
         background: #f1f3f3;
         min-height: 400px;
         padding: 25px;
+        overflow-y: auto;
     }
 
     .message {
@@ -41,6 +42,7 @@ Chat with {{ other_user.username }} - DriftBridge
         margin-bottom: 12px;
         border-radius: 10px;
         max-width: 70%;
+        word-wrap: break-word;
     }
 
     .message.mine {
@@ -112,71 +114,170 @@ Chat with {{ other_user.username }} - DriftBridge
         </h1>
 
         <p>
-            DriftBridge Connection
+            DriftBridge connection
         </p>
 
     </div>
 
 
-   <div class="messages">
-
-    {% if messages %}
-
-        {% for message in messages %}
-
-            <div
-                class="message {% if message.sender_id == current_user.id %}mine{% endif %}"
-            >
-
-                <div class="message-info">
-                    {{ message.sender.username }}
-                </div>
-
-                <div>
-                    {{ message.content }}
-                </div>
-
-            </div>
-
-        {% endfor %}
-
-    {% else %}
-
-        <div class="empty-chat">
-
-            <h2>No messages yet</h2>
-
-            <p>
-                Start your conversation with {{ other_user.username }}.
-            </p>
-
-        </div>
-
-    {% endif %}
-
-</div>
-
-
-<form
-    class="message-form"
-    method="POST"
->
-
-    <input
-        type="text"
-        name="content"
-        placeholder="Write a message..."
-        maxlength="2000"
-        required
-        autocomplete="off"
+    <div
+        class="messages"
+        id="messages"
     >
 
-    <button type="submit">
-        Send
-    </button>
+        {% if messages %}
 
-</form>
+            {% for message in messages %}
+
+                <div
+                    class="message {% if message.sender_id == current_user.id %}mine{% endif %}"
+                >
+
+                    <div class="message-info">
+                        {{ message.sender.username }}
+                        ·
+                        {{ message.created_at.strftime("%d %b %Y, %I:%M %p") }}
+                    </div>
+
+                    <div>
+                        {{ message.content }}
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div
+                class="empty-chat"
+                id="empty-chat"
+            >
+                No messages yet.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <form
+        class="message-form"
+        id="message-form"
+    >
+
+        <input
+            type="text"
+            id="message-input"
+            placeholder="Write a message..."
+            autocomplete="off"
+        >
+
+        <button type="submit">
+            Send
+        </button>
+
+    </form>
 
 </main>
+
+
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+<script>
+
+    const conversationId = {{ conversation.id }};
+    const currentUserId = {{ current_user.id }};
+
+    const socket = io();
+
+
+    socket.emit("join_chat", {
+        conversation_id: conversationId
+    });
+
+
+    const messageForm =
+        document.getElementById("message-form");
+
+    const messageInput =
+        document.getElementById("message-input");
+
+    const messagesContainer =
+        document.getElementById("messages");
+
+
+    messageForm.addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        const content = messageInput.value.trim();
+
+        if (!content) {
+            return;
+        }
+
+        socket.emit("send_message", {
+            conversation_id: conversationId,
+            content: content
+        });
+
+        messageInput.value = "";
+        messageInput.focus();
+
+    });
+
+
+    socket.on("new_message", function(data) {
+
+        const emptyChat =
+            document.getElementById("empty-chat");
+
+        if (emptyChat) {
+            emptyChat.remove();
+        }
+
+
+        const messageElement =
+            document.createElement("div");
+
+        messageElement.classList.add("message");
+
+
+        if (data.sender_id === currentUserId) {
+            messageElement.classList.add("mine");
+        }
+
+
+        const infoElement =
+            document.createElement("div");
+
+        infoElement.classList.add("message-info");
+
+        infoElement.textContent =
+            data.sender_username +
+            " · " +
+            data.created_at;
+
+
+        const contentElement =
+            document.createElement("div");
+
+        contentElement.textContent =
+            data.content;
+
+
+        messageElement.appendChild(infoElement);
+        messageElement.appendChild(contentElement);
+
+        messagesContainer.appendChild(messageElement);
+
+
+        messagesContainer.scrollTop =
+            messagesContainer.scrollHeight;
+
+    });
+
+</script>
 
 {% endblock %}
