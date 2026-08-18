@@ -34,6 +34,7 @@ def create_app():
     from app.models.message import Message
     from app.models.content_flag import ContentFlag
     from app.models.journal import Journal
+    from app.models.story import Story, StoryView
 
     from app.routes.bottle import bottle_bp
     from app.routes.auth import auth_bp
