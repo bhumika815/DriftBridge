@@ -72,6 +72,7 @@ def handle_send_message(data):
     emit(
         "new_message",
         {
+            "sender_id": current_user.id,
             "sender": current_user.username,
             "content": message.content,
             "created_at": message.created_at.strftime("%H:%M")

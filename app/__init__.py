@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from flask_socketio import SocketIO
+from importlib import import_module
 
 from app.config import Config
 
@@ -16,7 +17,9 @@ socketio = SocketIO()
 
 
 def create_app():
+
     app = Flask(__name__)
+
     app.config.from_object(Config)
 
     db.init_app(app)
@@ -29,6 +32,7 @@ def create_app():
     from app.models.bottle import Bottle
     from app.models.conversation import Conversation
     from app.models.message import Message
+
     from app.routes.bottle import bottle_bp
     from app.routes.auth import auth_bp
     from app.routes.profile import profile_bp
@@ -42,6 +46,9 @@ def create_app():
     app.register_blueprint(profile_bp)
     app.register_blueprint(bottle_bp)
     app.register_blueprint(chat_bp)
+
+    # Load Socket.IO event handlers
+    import_module("app.sockets.chat_socket")
 
     @app.route("/")
     def home():
