@@ -13,6 +13,7 @@ def profile():
     if request.method == "POST":
         current_user.bio = request.form.get("bio", "").strip()
         current_user.interests = request.form.get("interests", "").strip()
+        current_user.preferred_language = request.form.get("preferred_language", "en")
 
         db.session.commit()
 

@@ -229,6 +229,7 @@ Chat with {{ other_user.username }} - DriftBridge
         const messageElement = document.createElement("div");
 
         messageElement.classList.add("message");
+        messageElement.setAttribute("data-message-id", data.message_id);
 
 
         if (data.sender_id === currentUserId) {
@@ -247,6 +248,7 @@ Chat with {{ other_user.username }} - DriftBridge
 
 
         const contentElement = document.createElement("div");
+        contentElement.classList.add("message-content");
 
         contentElement.textContent = data.content;
 
@@ -261,6 +263,29 @@ Chat with {{ other_user.username }} - DriftBridge
         messagesContainer.scrollTop =
             messagesContainer.scrollHeight;
 
+    });
+
+
+    // Handle translated messages
+    socket.on("translated_message", function (data) {
+        const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
+        
+        if (messageElement) {
+            const contentElement = messageElement.querySelector(".message-content");
+            if (contentElement) {
+                // Show translated content
+                contentElement.textContent = data.translated_content;
+                
+                // Add translation indicator
+                const translationBadge = document.createElement("small");
+                translationBadge.style.display = "block";
+                translationBadge.style.marginTop = "5px";
+                translationBadge.style.opacity = "0.6";
+                translationBadge.style.fontSize = "11px";
+                translationBadge.textContent = "🌐 Translated";
+                contentElement.appendChild(translationBadge);
+            }
+        }
     });
 
 

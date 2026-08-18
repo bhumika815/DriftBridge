@@ -40,6 +40,13 @@ class User(UserMixin, db.Model):
         nullable=True
     )
 
+    # Language preference for translation
+    preferred_language = db.Column(
+        db.String(10),
+        default='en',
+        nullable=False
+    )
+
     points = db.Column(
         db.Integer,
         default=0,

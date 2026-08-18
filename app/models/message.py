@@ -28,6 +28,13 @@ class Message(db.Model):
         nullable=False
     )
 
+    # Original language of the message
+    original_language = db.Column(
+        db.String(10),
+        default='en',
+        nullable=False
+    )
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow,

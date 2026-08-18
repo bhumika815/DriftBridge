@@ -107,6 +107,31 @@ My Profile - DriftBridge
         </div>
 
 
+        <div class="profile-item">
+            <strong>Preferred Language</strong>
+            <select name="preferred_language" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                <option value="en" {% if user.preferred_language == 'en' %}selected{% endif %}>English</option>
+                <option value="hi" {% if user.preferred_language == 'hi' %}selected{% endif %}>Hindi (हिंदी)</option>
+                <option value="es" {% if user.preferred_language == 'es' %}selected{% endif %}>Spanish (Español)</option>
+                <option value="fr" {% if user.preferred_language == 'fr' %}selected{% endif %}>French (Français)</option>
+                <option value="de" {% if user.preferred_language == 'de' %}selected{% endif %}>German (Deutsch)</option>
+                <option value="ja" {% if user.preferred_language == 'ja' %}selected{% endif %}>Japanese (日本語)</option>
+                <option value="zh" {% if user.preferred_language == 'zh' %}selected{% endif %}>Chinese (中文)</option>
+                <option value="ar" {% if user.preferred_language == 'ar' %}selected{% endif %}>Arabic (العربية)</option>
+                <option value="pt" {% if user.preferred_language == 'pt' %}selected{% endif %}>Portuguese (Português)</option>
+                <option value="ru" {% if user.preferred_language == 'ru' %}selected{% endif %}>Russian (Русский)</option>
+                <option value="bn" {% if user.preferred_language == 'bn' %}selected{% endif %}>Bengali (বাংলা)</option>
+                <option value="mr" {% if user.preferred_language == 'mr' %}selected{% endif %}>Marathi (मराठी)</option>
+                <option value="ta" {% if user.preferred_language == 'ta' %}selected{% endif %}>Tamil (தமிழ்)</option>
+                <option value="te" {% if user.preferred_language == 'te' %}selected{% endif %}>Telugu (తెలుగు)</option>
+                <option value="gu" {% if user.preferred_language == 'gu' %}selected{% endif %}>Gujarati (ગુજરાતી)</option>
+            </select>
+            <small style="color: #666; display: block; margin-top: 5px;">
+                Messages will be automatically translated to your preferred language
+            </small>
+        </div>
+
+
         <button type="submit">
             Save Profile
         </button>
