@@ -32,6 +32,7 @@ def create_app():
     from app.models.bottle import Bottle
     from app.models.conversation import Conversation
     from app.models.message import Message
+    from app.models.content_flag import ContentFlag
 
     from app.routes.bottle import bottle_bp
     from app.routes.auth import auth_bp

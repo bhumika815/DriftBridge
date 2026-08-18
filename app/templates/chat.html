@@ -289,6 +289,12 @@ Chat with {{ other_user.username }} - DriftBridge
     });
 
 
+    // Handle blocked messages
+    socket.on("message_blocked", function (data) {
+        alert("⚠️ " + data.error + "\n\n" + data.reason);
+    });
+
+
     messageForm.addEventListener("submit", function (event) {
 
         event.preventDefault();

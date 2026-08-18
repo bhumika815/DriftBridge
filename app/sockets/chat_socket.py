@@ -5,7 +5,7 @@ from app import db, socketio
 from app.models.conversation import Conversation
 from app.models.message import Message
 from app.models.user import User
-from app.services import translate_message
+from app.services import translate_message, check_content_safety
 
 
 @socketio.on("join_conversation")
@@ -60,6 +60,19 @@ def handle_send_message(data):
         conversation.user1_id != current_user.id
         and conversation.user2_id != current_user.id
     ):
+        return
+
+    # Check content safety (hate speech detection)
+    is_safe, safety_reason = check_content_safety(content)
+    
+    if not is_safe:
+        emit(
+            "message_blocked",
+            {
+                "error": "Your message contains inappropriate content and cannot be sent.",
+                "reason": "Please maintain respectful communication."
+            }
+        )
         return
 
     # Get sender's language preference

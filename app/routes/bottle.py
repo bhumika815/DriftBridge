@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from app import db
 from app.models.bottle import Bottle
 from app.models.conversation import Conversation
+from app.services import check_content_safety
 
 
 bottle_bp = Blueprint(
@@ -23,6 +24,16 @@ def throw_bottle():
         if not message:
             flash(
                 "Please write a message before throwing your bottle.",
+                "error"
+            )
+            return redirect(url_for("bottle.throw_bottle"))
+
+        # Check content safety (hate speech detection)
+        is_safe, safety_reason = check_content_safety(message)
+        
+        if not is_safe:
+            flash(
+                "Your bottle message contains inappropriate content. Please maintain respectful communication.",
                 "error"
             )
             return redirect(url_for("bottle.throw_bottle"))
