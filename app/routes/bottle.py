@@ -5,6 +5,7 @@ from app import db
 from app.models.bottle import Bottle
 from app.models.conversation import Conversation
 from app.services import check_content_safety
+from app.services.reputation_service import award_points
 
 
 bottle_bp = Blueprint(
@@ -45,6 +46,9 @@ def throw_bottle():
 
         db.session.add(bottle)
         db.session.commit()
+
+        # Award reputation points
+        award_points(current_user.id, 'bottle_thrown')
 
         flash("Your bottle has been thrown!", "success")
 
@@ -125,6 +129,9 @@ def keep_bottle(bottle_id):
 
     # Save the bottle claim and conversation together
     db.session.commit()
+
+    # Award reputation points
+    award_points(current_user.id, 'bottle_kept')
 
     flash("Bottle kept successfully!", "success")
 

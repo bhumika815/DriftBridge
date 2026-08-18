@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import login_required, current_user
 
 from app import db
+from app.services.reputation_service import get_user_trust_info
 
 
 profile_bp = Blueprint("profile", __name__)
@@ -19,4 +20,5 @@ def profile():
 
         return redirect(url_for("profile.profile"))
 
-    return render_template("profile.html", user=current_user)
+    trust_info = get_user_trust_info(current_user.id)
+    return render_template("profile.html", user=current_user, trust_info=trust_info)

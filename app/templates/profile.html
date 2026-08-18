@@ -147,6 +147,23 @@ My Profile - DriftBridge
         </div>
     </div>
 
+    {% if trust_info %}
+    <div class="profile-item">
+        <strong>Trust Level</strong>
+        <div class="profile-value">
+            {{ trust_info.level.badge }} {{ trust_info.level.name }}
+            <div style="margin-top: 8px;">
+                <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                    <div style="background: #4CAF50; height: 100%; width: {{ trust_info.level.progress }}%;"></div>
+                </div>
+                <small style="color: #666; font-size: 12px;">
+                    {{ trust_info.level.progress|round(1) }}% to next level
+                </small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 </div>
 
 {% endblock %}
