@@ -31,11 +31,27 @@ My Connections - DriftBridge
 
     .connection h3 {
         margin-top: 0;
+        margin-bottom: 10px;
     }
 
     .message {
         margin: 15px 0;
         line-height: 1.6;
+    }
+
+    .chat-button {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 10px 20px;
+        background: #222;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .chat-button:hover {
+        background: #444;
     }
 
     .empty {
@@ -72,6 +88,13 @@ My Connections - DriftBridge
                         <strong>Your bottle:</strong>
                         {{ bottle.message }}
                     </div>
+
+                    {% if sent_conversations.get(bottle.id) %}
+                        <a href="{{ url_for('chat.chat', conversation_id=sent_conversations[bottle.id]) }}" 
+                           class="chat-button">
+                            💬 Chat with {{ bottle.receiver.username }}
+                        </a>
+                    {% endif %}
 
                 </div>
 
@@ -110,6 +133,13 @@ My Connections - DriftBridge
                         <strong>Their bottle:</strong>
                         {{ bottle.message }}
                     </div>
+
+                    {% if received_conversations.get(bottle.id) %}
+                        <a href="{{ url_for('chat.chat', conversation_id=received_conversations[bottle.id]) }}" 
+                           class="chat-button">
+                            💬 Chat with {{ bottle.sender.username }}
+                        </a>
+                    {% endif %}
 
                 </div>
 

@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}
+Create Journal - DriftBridge
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .journal-form-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .journal-form-container h1 {
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
+
+    .form-group textarea {
+        min-height: 300px;
+        resize: vertical;
+    }
+
+    .form-group small {
+        display: block;
+        margin-top: 5px;
+        color: #666;
+        font-size: 13px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: #222;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #444;
+    }
+
+    .btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .btn-secondary:hover {
+        background: #e0e0e0;
+    }
+
+    .privacy-options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .privacy-option {
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .privacy-option:hover {
+        border-color: #222;
+    }
+
+    .privacy-option input[type="radio"] {
+        width: auto;
+        margin-right: 10px;
+    }
+
+    .privacy-option.selected {
+        border-color: #222;
+        background: #f9f9f9;
+    }
+</style>
+
+<div class="journal-form-container">
+    <h1>✍️ Create New Journal</h1>
+
+    <form method="POST">
+        
+        <div class="form-group">
+            <label for="title">Title *</label>
+            <input 
+                type="text" 
+                id="title" 
+                name="title" 
+                maxlength="200" 
+                required
+                placeholder="Give your journal a meaningful title"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="content">Content *</label>
+            <textarea 
+                id="content" 
+                name="content" 
+                required
+                placeholder="Write your thoughts, experiences, or reflections..."
+            ></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="mood">Mood (Optional)</label>
+            <input 
+                type="text" 
+                id="mood" 
+                name="mood" 
+                maxlength="50"
+                placeholder="Happy, Reflective, Excited, etc."
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="tags">Tags (Optional)</label>
+            <input 
+                type="text" 
+                id="tags" 
+                name="tags" 
+                maxlength="500"
+                placeholder="travel, personal, coding, thoughts (comma-separated)"
+            >
+        </div>
+
+        <div class="form-group">
+            <label>Privacy Setting *</label>
+            <div class="privacy-options">
+                
+                <label class="privacy-option">
+                    <input type="radio" name="privacy" value="private" checked>
+                    <strong>🔒 Private</strong> - Only you can see this journal
+                </label>
+
+                <label class="privacy-option">
+                    <input type="radio" name="privacy" value="connections">
+                    <strong>👥 Connections</strong> - Only people you've connected with can see this
+                </label>
+
+                <label class="privacy-option">
+                    <input type="radio" name="privacy" value="public">
+                    <strong>🌍 Public</strong> - Anyone on DriftBridge can see this
+                </label>
+
+            </div>
+            <small>You can change this later</small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Journal</button>
+            <a href="{{ url_for('journal.my_journals') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    // Add visual feedback for privacy selection
+    document.querySelectorAll('.privacy-option input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.privacy-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            this.closest('.privacy-option').classList.add('selected');
+        });
+    });
+
+    // Set initial selected state
+    document.querySelector('.privacy-option input[type="radio"]:checked')
+        .closest('.privacy-option').classList.add('selected');
+</script>
+
+{% endblock %}

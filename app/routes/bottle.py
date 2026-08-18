@@ -145,8 +145,43 @@ def connections():
         status="claimed"
     ).all()
 
+    # Get conversation IDs for each connection
+    sent_conversations = {}
+    for bottle in sent_connections:
+        conversation = Conversation.query.filter(
+            (
+                (Conversation.user1_id == current_user.id) &
+                (Conversation.user2_id == bottle.receiver_id)
+            )
+            |
+            (
+                (Conversation.user1_id == bottle.receiver_id) &
+                (Conversation.user2_id == current_user.id)
+            )
+        ).first()
+        if conversation:
+            sent_conversations[bottle.id] = conversation.id
+
+    received_conversations = {}
+    for bottle in received_connections:
+        conversation = Conversation.query.filter(
+            (
+                (Conversation.user1_id == current_user.id) &
+                (Conversation.user2_id == bottle.sender_id)
+            )
+            |
+            (
+                (Conversation.user1_id == bottle.sender_id) &
+                (Conversation.user2_id == current_user.id)
+            )
+        ).first()
+        if conversation:
+            received_conversations[bottle.id] = conversation.id
+
     return render_template(
         "connections.html",
         sent_connections=sent_connections,
-        received_connections=received_connections
+        received_connections=received_connections,
+        sent_conversations=sent_conversations,
+        received_conversations=received_conversations
     )

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}
+Discover Journals - DriftBridge
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .journals-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .journals-header h1 {
+        margin-bottom: 30px;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #eee;
+    }
+
+    .tab {
+        padding: 12px 20px;
+        text-decoration: none;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .tab.active {
+        color: #222;
+        border-bottom-color: #222;
+    }
+
+    .journals-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .journal-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s;
+        cursor: pointer;
+    }
+
+    .journal-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .journal-author {
+        font-size: 13px;
+        color: #0066cc;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .journal-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #222;
+    }
+
+    .journal-excerpt {
+        color: #666;
+        margin-bottom: 15px;
+        font-size: 14px;
+        line-height: 1.5;
+        max-height: 60px;
+        overflow: hidden;
+    }
+
+    .journal-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: #999;
+        margin-top: 10px;
+    }
+
+    .mood-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        background: #f5f5f5;
+        border-radius: 12px;
+        font-size: 12px;
+        margin-top: 8px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+</style>
+
+<div class="journals-container">
+    
+    <div class="journals-header">
+        <h1>🌍 Discover Public Journals</h1>
+    </div>
+
+    <div class="tabs">
+        <a href="{{ url_for('journal.my_journals') }}" class="tab">My Journals</a>
+        <a href="{{ url_for('journal.connections_journals') }}" class="tab">Connections</a>
+        <a href="{{ url_for('journal.discover_journals') }}" class="tab active">Discover</a>
+    </div>
+
+    {% if journals %}
+        <div class="journals-grid">
+            {% for journal in journals %}
+                <a href="{{ url_for('journal.view_journal', journal_id=journal.id) }}" style="text-decoration: none;">
+                    <div class="journal-card">
+                        <div class="journal-author">📝 {{ journal.author.username }}</div>
+                        
+                        <div class="journal-title">{{ journal.title }}</div>
+                        
+                        <div class="journal-excerpt">
+                            {{ journal.content[:100] }}{% if journal.content|length > 100 %}...{% endif %}
+                        </div>
+
+                        {% if journal.mood %}
+                            <div class="mood-badge">😊 {{ journal.mood }}</div>
+                        {% endif %}
+
+                        <div class="journal-meta">
+                            <span>{{ journal.created_at.strftime("%b %d, %Y") }}</span>
+                            <span>🌍 Public</span>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>No public journals yet</h2>
+            <p>Be the first to share your story with the world!</p>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}
