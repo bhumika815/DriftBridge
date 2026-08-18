@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}
+Story - DriftBridge
+{% endblock %}
+
+{% block content %}
+
+<style>
+    body {
+        background: #000;
+    }
+
+    .story-view-container {
+        max-width: 600px;
+        margin: 0 auto;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .story-card {
+        width: 100%;
+        height: 80vh;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        position: relative;
+    }
+
+    .story-content {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 32px;
+        font-weight: bold;
+        text-align: center;
+        padding: 40px;
+        line-height: 1.4;
+    }
+
+    .story-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 20px;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .story-author {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .story-time {
+        font-size: 13px;
+        opacity: 0.8;
+    }
+
+    .close-btn {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+    .story-nav {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .nav-btn {
+        padding: 12px 24px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 0 10px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .nav-btn:hover {
+        background: rgba(255,255,255,0.3);
+    }
+</style>
+
+<div class="story-view-container">
+    
+    <div class="story-card">
+        <div class="story-header">
+            <div>
+                <div class="story-author">{{ story.author.username }}</div>
+                <div class="story-time">{{ story.created_at.strftime("%I:%M %p") }}</div>
+            </div>
+            <a href="{{ url_for('story.feed') }}">
+                <button class="close-btn">×</button>
+            </a>
+        </div>
+
+        <div class="story-content" style="background: {{ story.background_color or '#222' }};">
+            {{ story.text_content }}
+        </div>
+    </div>
+
+    <div class="story-nav">
+        <a href="{{ url_for('story.feed') }}" class="nav-btn">← Back to Feed</a>
+        {% if story.user_id == current_user.id %}
+            <a href="{{ url_for('story.story_viewers', story_id=story.id) }}" class="nav-btn">
+                👁️ {{ story.view_count() }} Views
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

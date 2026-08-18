@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}
+My Stories - DriftBridge
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .stories-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .stories-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .btn-create {
+        padding: 12px 24px;
+        background: #222;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+    }
+
+    .stories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .story-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .story-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .story-preview {
+        width: 100%;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .story-info {
+        padding: 15px;
+    }
+
+    .story-meta {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .story-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-delete {
+        padding: 6px 12px;
+        background: #c00;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #eee;
+    }
+
+    .tab {
+        padding: 12px 20px;
+        text-decoration: none;
+        color: #666;
+        border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+        color: #222;
+        border-bottom-color: #222;
+    }
+</style>
+
+<div class="stories-container">
+    
+    <div class="stories-header">
+        <h1>My Stories</h1>
+        <a href="{{ url_for('story.create_story') }}" class="btn-create">
+            + New Story
+        </a>
+    </div>
+
+    <div class="tabs">
+        <a href="{{ url_for('story.feed') }}" class="tab">Feed</a>
+        <a href="{{ url_for('story.my_stories') }}" class="tab active">My Stories</a>
+    </div>
+
+    {% if stories %}
+        <div class="stories-grid">
+            {% for story in stories %}
+                <div class="story-card">
+                    <a href="{{ url_for('story.view_story', story_id=story.id) }}" style="text-decoration: none;">
+                        <div class="story-preview" style="background: {{ story.background_color or '#222' }};">
+                            {{ story.text_content[:50] }}{% if story.text_content|length > 50 %}...{% endif %}
+                        </div>
+                    </a>
+                    
+                    <div class="story-info">
+                        <div class="story-meta">
+                            Posted {{ story.created_at.strftime("%b %d at %I:%M %p") }}
+                            <br>
+                            Expires {{ story.expires_at.strftime("%b %d at %I:%M %p") }}
+                        </div>
+                        
+                        <div class="story-stats">
+                            <a href="{{ url_for('story.story_viewers', story_id=story.id) }}" style="text-decoration: none; color: #0066cc;">
+                                👁️ {{ story.view_count() }} views
+                            </a>
+                            
+                            <form method="POST" 
+                                  action="{{ url_for('story.delete_story', story_id=story.id) }}" 
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Delete this story?');">
+                                <button type="submit" class="btn-delete">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>No active stories</h2>
+            <p>Create your first story to share with your connections!</p>
+            <a href="{{ url_for('story.create_story') }}" class="btn-create" style="display: inline-block; margin-top: 20px;">
+                Create Story
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

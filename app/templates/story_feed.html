@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}
+Stories - DriftBridge
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .stories-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .stories-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .btn-create {
+        padding: 12px 24px;
+        background: #222;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+    }
+
+    .btn-create:hover {
+        background: #444;
+    }
+
+    .stories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .story-ring {
+        position: relative;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .story-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        padding: 3px;
+    }
+
+    .story-avatar-inner {
+        width: 94px;
+        height: 94px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        font-weight: bold;
+        color: #666;
+    }
+
+    .story-avatar.viewed {
+        background: #ccc;
+    }
+
+    .story-username {
+        font-size: 13px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .my-story-card {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .add-story {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        border: 3px dashed #999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-size: 40px;
+        color: #666;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #eee;
+    }
+
+    .tab {
+        padding: 12px 20px;
+        text-decoration: none;
+        color: #666;
+        border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+        color: #222;
+        border-bottom-color: #222;
+    }
+</style>
+
+<div class="stories-container">
+    
+    <div class="stories-header">
+        <h1>📸 Stories</h1>
+        <a href="{{ url_for('story.create_story') }}" class="btn-create">
+            + New Story
+        </a>
+    </div>
+
+    <div class="tabs">
+        <a href="{{ url_for('story.feed') }}" class="tab active">Feed</a>
+        <a href="{{ url_for('story.my_stories') }}" class="tab">My Stories</a>
+    </div>
+
+    {% if users_with_stories %}
+        <div class="stories-grid">
+            
+            <!-- My Story -->
+            <div class="my-story-card">
+                <a href="{{ url_for('story.my_stories') }}" style="text-decoration: none;">
+                    <div class="add-story">
+                        +
+                    </div>
+                    <div class="story-username">Your Story</div>
+                </a>
+            </div>
+
+            <!-- Friends' Stories -->
+            {% for user_id, data in users_with_stories.items() %}
+                <div class="story-ring">
+                    <a href="{{ url_for('story.user_stories', user_id=user_id) }}" style="text-decoration: none;">
+                        <div class="story-avatar {% if not data.has_unviewed %}viewed{% endif %}">
+                            <div class="story-avatar-inner">
+                                {{ data.user.username[0].upper() }}
+                            </div>
+                        </div>
+                        <div class="story-username">{{ data.user.username }}</div>
+                    </a>
+                </div>
+            {% endfor %}
+
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>No stories yet</h2>
+            <p>Stories from your connections will appear here.</p>
+            <p>Connect with people by keeping their bottles!</p>
+            <a href="{{ url_for('story.create_story') }}" class="btn-create" style="display: inline-block; margin-top: 20px;">
+                Create Your First Story
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

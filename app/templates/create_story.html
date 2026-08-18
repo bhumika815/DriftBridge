@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}
+Create Story - DriftBridge
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .story-create-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .story-create-container h1 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .story-preview {
+        width: 100%;
+        height: 500px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .story-text {
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        text-align: center;
+        padding: 40px;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 16px;
+        box-sizing: border-box;
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .color-picker {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .color-option {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .color-option:hover {
+        transform: scale(1.1);
+    }
+
+    .color-option.selected {
+        border-color: white;
+        box-shadow: 0 0 0 2px #222;
+    }
+
+    .btn {
+        padding: 14px 30px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        width: 100%;
+    }
+
+    .btn-primary {
+        background: #222;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #444;
+    }
+
+    .character-count {
+        text-align: right;
+        color: #666;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .info-box {
+        background: #f0f8ff;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        color: #555;
+    }
+</style>
+
+<div class="story-create-container">
+    <h1>📸 Create Story</h1>
+
+    <div class="info-box">
+        ⏰ Stories disappear after 24 hours • Only your connections can see your stories
+    </div>
+
+    <form method="POST" id="story-form">
+        <input type="hidden" name="story_type" value="text">
+        
+        <!-- Story Preview -->
+        <div class="story-preview" id="story-preview" style="background: #222222;">
+            <div class="story-text" id="story-text-preview">
+                Your story text will appear here...
+            </div>
+        </div>
+
+        <!-- Text Content -->
+        <div class="form-group">
+            <label for="text_content">Story Text *</label>
+            <textarea 
+                id="text_content" 
+                name="text_content" 
+                maxlength="280"
+                required
+                placeholder="What's on your mind?"
+            ></textarea>
+            <div class="character-count">
+                <span id="char-count">0</span>/280 characters
+            </div>
+        </div>
+
+        <!-- Background Color -->
+        <div class="form-group">
+            <label>Background Color</label>
+            <input type="hidden" name="background_color" id="background_color" value="#222222">
+            <div class="color-picker">
+                <div class="color-option selected" style="background: #222222;" data-color="#222222"></div>
+                <div class="color-option" style="background: #e74c3c;" data-color="#e74c3c"></div>
+                <div class="color-option" style="background: #3498db;" data-color="#3498db"></div>
+                <div class="color-option" style="background: #2ecc71;" data-color="#2ecc71"></div>
+                <div class="color-option" style="background: #9b59b6;" data-color="#9b59b6"></div>
+                <div class="color-option" style="background: #f39c12;" data-color="#f39c12"></div>
+                <div class="color-option" style="background: #1abc9c;" data-color="#1abc9c"></div>
+                <div class="color-option" style="background: #34495e;" data-color="#34495e"></div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Post Story</button>
+    </form>
+</div>
+
+<script>
+    const textInput = document.getElementById('text_content');
+    const textPreview = document.getElementById('story-text-preview');
+    const storyPreview = document.getElementById('story-preview');
+    const charCount = document.getElementById('char-count');
+    const bgColorInput = document.getElementById('background_color');
+
+    // Update preview on text input
+    textInput.addEventListener('input', function() {
+        const text = this.value.trim();
+        textPreview.textContent = text || 'Your story text will appear here...';
+        charCount.textContent = this.value.length;
+    });
+
+    // Color picker
+    document.querySelectorAll('.color-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const color = this.dataset.color;
+            
+            // Update selected state
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            this.classList.add('selected');
+            
+            // Update preview and hidden input
+            storyPreview.style.background = color;
+            bgColorInput.value = color;
+        });
+    });
+</script>
+
+{% endblock %}

@@ -41,6 +41,7 @@ def create_app():
     from app.routes.profile import profile_bp
     from app.routes.chat import chat_bp
     from app.routes.journal import journal_bp
+    from app.routes.story import story_bp
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -51,6 +52,7 @@ def create_app():
     app.register_blueprint(bottle_bp)
     app.register_blueprint(chat_bp)
     app.register_blueprint(journal_bp)
+    app.register_blueprint(story_bp)
 
     # Load Socket.IO event handlers
     import_module("app.sockets.chat_socket")

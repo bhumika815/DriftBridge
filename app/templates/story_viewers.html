@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}
+Story Viewers - DriftBridge
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .viewers-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .viewers-header {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .viewers-header h1 {
+        margin: 0 0 10px;
+    }
+
+    .viewer-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .viewer-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .viewer-name {
+        font-weight: bold;
+        color: #222;
+    }
+
+    .viewer-time {
+        font-size: 13px;
+        color: #999;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+    }
+
+    .back-link {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #f0f0f0;
+        color: #333;
+        text-decoration: none;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+</style>
+
+<div class="viewers-container">
+    
+    <div class="viewers-header">
+        <h1>👁️ Story Viewers</h1>
+        <p style="color: #666;">{{ viewers|length }} people viewed your story</p>
+    </div>
+
+    {% if viewers %}
+        <ul class="viewer-list">
+            {% for view in viewers %}
+                <li class="viewer-item">
+                    <span class="viewer-name">{{ view.viewer.username }}</span>
+                    <span class="viewer-time">{{ view.viewed_at.strftime("%b %d at %I:%M %p") }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="empty-state">
+            <p>No one has viewed this story yet</p>
+        </div>
+    {% endif %}
+
+    <a href="{{ url_for('story.my_stories') }}" class="back-link">← Back to My Stories</a>
+
+</div>
+
+{% endblock %}
