@@ -99,8 +99,10 @@ def handle_send_message(data):
     other_user_language = other_user.preferred_language or 'en'
 
     # Translate message if languages are different
-    translated_content = content
-    if sender_language != other_user_language:
+    translated_content = None
+    needs_translation = sender_language != other_user_language
+    
+    if needs_translation:
         try:
             translated_content = translate_message(
                 content,
@@ -109,9 +111,13 @@ def handle_send_message(data):
             )
         except Exception as e:
             print(f"Translation error: {e}")
-            translated_content = content
+            translated_content = None
 
-    # Emit message to both users
+    # Award reputation points for sending message
+    from app.services.reputation_service import award_points
+    award_points(current_user.id, 'send_message')
+
+    # Emit original message to sender
     emit(
         "new_message",
         {
@@ -125,14 +131,16 @@ def handle_send_message(data):
         room=f"conversation_{conversation.id}"
     )
 
-    # Send translated version to the other user only
-    emit(
-        "translated_message",
-        {
-            "message_id": message.id,
-            "translated_content": translated_content,
-            "target_language": other_user_language
-        },
-        room=f"conversation_{conversation.id}",
-        skip_sid=current_user.get_id()
-    )
+    # Send translation data to the other user if needed
+    if needs_translation and translated_content:
+        emit(
+            "translated_message",
+            {
+                "message_id": message.id,
+                "translated_content": translated_content,
+                "target_language": other_user_language,
+                "original_content": content
+            },
+            room=f"conversation_{conversation.id}",
+            skip_sid=current_user.get_id()
+        )

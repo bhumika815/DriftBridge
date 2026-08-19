@@ -44,6 +44,9 @@ Chat with {{ other_user.username }} - DriftBridge
         border-radius: 10px;
         max-width: 70%;
         word-wrap: break-word;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
     }
 
     .message.mine {
@@ -52,10 +55,96 @@ Chat with {{ other_user.username }} - DriftBridge
         color: white;
     }
 
+    .message.translatable {
+        border: 2px solid #4CAF50;
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+    }
+
+    .message.translatable:hover {
+        background: #f8f8f8;
+        transform: scale(1.02);
+    }
+
+    .message.mine.translatable:hover {
+        background: #333;
+    }
+
     .message-info {
         font-size: 12px;
         margin-bottom: 5px;
         opacity: 0.7;
+    }
+
+    .message-content {
+        position: relative;
+    }
+
+    .translation-badge {
+        display: inline-block;
+        margin-left: 8px;
+        padding: 2px 8px;
+        background: #4CAF50;
+        color: white;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: bold;
+    }
+
+    .translation-popup {
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        right: 0;
+        background: #222;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        z-index: 1000;
+        animation: slideUp 0.3s ease;
+    }
+
+    .translation-popup::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 20px;
+        border: 8px solid transparent;
+        border-top-color: #222;
+    }
+
+    .translation-popup strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #4CAF50;
+        font-size: 11px;
+        text-transform: uppercase;
+    }
+
+    .translation-popup p {
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+    .translation-hint {
+        display: block;
+        font-size: 11px;
+        color: #4CAF50;
+        margin-top: 5px;
+        opacity: 0.8;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .empty-chat {
@@ -230,6 +319,8 @@ Chat with {{ other_user.username }} - DriftBridge
 
         messageElement.classList.add("message");
         messageElement.setAttribute("data-message-id", data.message_id);
+        messageElement.setAttribute("data-original", data.content);
+        messageElement.setAttribute("data-original-lang", data.original_language || 'en');
 
 
         if (data.sender_id === currentUserId) {
@@ -272,21 +363,69 @@ Chat with {{ other_user.username }} - DriftBridge
         
         if (messageElement) {
             const contentElement = messageElement.querySelector(".message-content");
-            if (contentElement) {
-                // Show translated content
-                contentElement.textContent = data.translated_content;
+            if (contentElement && data.translated_content) {
+                // Store translation data
+                messageElement.setAttribute("data-translated", data.translated_content);
+                messageElement.setAttribute("data-target-lang", data.target_language);
+                messageElement.classList.add("translatable");
                 
-                // Add translation indicator
-                const translationBadge = document.createElement("small");
-                translationBadge.style.display = "block";
-                translationBadge.style.marginTop = "5px";
-                translationBadge.style.opacity = "0.6";
-                translationBadge.style.fontSize = "11px";
-                translationBadge.textContent = "🌐 Translated";
-                contentElement.appendChild(translationBadge);
+                // Add translation hint
+                const hint = document.createElement("small");
+                hint.classList.add("translation-hint");
+                hint.textContent = "🌐 Click to see translation";
+                contentElement.appendChild(hint);
+                
+                // Add click handler to show translation
+                messageElement.addEventListener("click", function(e) {
+                    toggleTranslation(messageElement);
+                });
             }
         }
     });
+
+    // Toggle between original and translated text
+    function toggleTranslation(messageElement) {
+        const contentElement = messageElement.querySelector(".message-content");
+        const originalText = messageElement.getAttribute("data-original");
+        const translatedText = messageElement.getAttribute("data-translated");
+        const isShowingTranslation = messageElement.getAttribute("data-showing-translation") === "true";
+        
+        // Remove existing popup if any
+        const existingPopup = messageElement.querySelector(".translation-popup");
+        if (existingPopup) {
+            existingPopup.remove();
+            messageElement.removeAttribute("data-showing-translation");
+            return;
+        }
+        
+        // Create translation popup
+        const popup = document.createElement("div");
+        popup.classList.add("translation-popup");
+        
+        const title = document.createElement("strong");
+        title.textContent = "Translation";
+        
+        const text = document.createElement("p");
+        text.textContent = translatedText;
+        
+        popup.appendChild(title);
+        popup.appendChild(text);
+        
+        messageElement.style.position = "relative";
+        messageElement.appendChild(popup);
+        messageElement.setAttribute("data-showing-translation", "true");
+        
+        // Close popup when clicking outside
+        setTimeout(() => {
+            document.addEventListener("click", function closePopup(e) {
+                if (!messageElement.contains(e.target)) {
+                    popup.remove();
+                    messageElement.removeAttribute("data-showing-translation");
+                    document.removeEventListener("click", closePopup);
+                }
+            });
+        }, 100);
+    }
 
 
     // Handle blocked messages
