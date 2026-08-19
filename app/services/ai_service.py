@@ -4,7 +4,7 @@ Handles Google Gemini API integration for translation and content moderation
 """
 
 import os
-import google.generativeai as genai
+import requests
 from typing import Optional, Dict, Any
 
 
@@ -13,16 +13,47 @@ class AIService:
 
     def __init__(self):
         """Initialize Gemini AI with API key from environment"""
-        api_key = os.getenv("GEMINI_API_KEY")
+        self.api_key = os.getenv("GEMINI_API_KEY")
         
-        if not api_key or api_key == "your-gemini-api-key-here":
+        if not self.api_key or self.api_key == "your-gemini-api-key-here":
             raise ValueError(
                 "GEMINI_API_KEY not configured. "
                 "Please add your Google Gemini API key to .env file"
             )
         
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-pro')
+        self.api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
+
+    def _make_request(self, prompt: str) -> str:
+        """Make API request to Gemini"""
+        headers = {
+            "Content-Type": "application/json",
+        }
+        
+        payload = {
+            "contents": [{
+                "parts": [{
+                    "text": prompt
+                }]
+            }]
+        }
+        
+        # Add API key as query parameter
+        url = f"{self.api_url}?key={self.api_key}"
+        
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
+        
+        data = response.json()
+        
+        # Extract text from response
+        if "candidates" in data and len(data["candidates"]) > 0:
+            candidate = data["candidates"][0]
+            if "content" in candidate and "parts" in candidate["content"]:
+                parts = candidate["content"]["parts"]
+                if len(parts) > 0 and "text" in parts[0]:
+                    return parts[0]["text"]
+        
+        raise ValueError("Invalid response from Gemini API")
 
     def translate_text(
         self,
@@ -53,11 +84,11 @@ Only provide the translated text, no explanations or additional commentary.
 
 Text: {text}"""
 
-            response = self.model.generate_content(prompt)
+            translated = self._make_request(prompt)
             
             return {
                 "success": True,
-                "translated_text": response.text.strip(),
+                "translated_text": translated.strip(),
                 "original_text": text,
                 "target_language": target_language,
                 "source_language": source_language
@@ -92,8 +123,7 @@ Respond in JSON format with:
 
 Text to analyze: {text}"""
 
-            response = self.model.generate_content(prompt)
-            result_text = response.text.strip()
+            result_text = self._make_request(prompt)
             
             # Parse the response (basic parsing, can be improved)
             if "true" in result_text.lower() and "is_inappropriate" in result_text.lower():
