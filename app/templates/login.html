@@ -1,53 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - DriftBridge</title>
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}Login — DriftBridge{% endblock %}
 
-    <h1>Welcome Back to DriftBridge</h1>
+{% block content %}
+<div style="max-width: 420px; margin: 48px auto; padding: 0 16px;">
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <p>{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    <div style="text-align: center; margin-bottom: 32px;">
+        <svg width="56" height="56" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 12px;">
+            <path d="M20 38c0-6.6 5.4-12 12-12s12 5.4 12 12" stroke="#2b7de9" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="32" cy="24" r="5" fill="#2b7de9"/>
+            <path d="M16 44h32" stroke="#2dd4bf" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <h1>Welcome Back</h1>
+        <p style="color: var(--neutral-500); margin-top: 4px;">Sign in to your DriftBridge account</p>
+    </div>
 
-    <form method="POST">
+    <div class="card">
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required autofocus>
+            </div>
 
-        <label for="email">Email</label>
-        <input
-            type="email"
-            id="email"
-            name="email"
-            required
-        >
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <div style="position: relative;">
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    <button type="button" onclick="togglePassword('password', this)"
+                            style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+                                   background: none; border: none; cursor: pointer; color: var(--neutral-400); font-size: 14px;">
+                        Show
+                    </button>
+                </div>
+            </div>
 
-        <br><br>
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 8px;">Sign In</button>
+        </form>
+    </div>
 
-        <label for="password">Password</label>
-        <input
-            type="password"
-            id="password"
-            name="password"
-            required
-        >
-
-        <br><br>
-
-        <button type="submit">Login</button>
-
-    </form>
-
-    <p>
-        Don't have an account?
-        <a href="{{ url_for('auth.register') }}">Create Account</a>
+    <p style="text-align: center; margin-top: 24px; color: var(--neutral-500);">
+        Don't have an account? <a href="{{ url_for('auth.register') }}">Create one</a>
     </p>
+</div>
 
-</body>
-</html>
+<script>
+function togglePassword(id, btn) {
+    var input = document.getElementById(id);
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = 'Hide'; }
+    else { input.type = 'password'; btn.textContent = 'Show'; }
+}
+</script>
+{% endblock %}

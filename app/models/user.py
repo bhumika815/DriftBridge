@@ -53,6 +53,13 @@ class User(UserMixin, db.Model):
         nullable=False
     )
 
+    is_admin = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False,
+        server_default="0"
+    )
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow

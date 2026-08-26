@@ -3,50 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
     <title>{% block title %}DriftBridge{% endblock %}</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background: #f4f7f6;
-        }
-
-        .navbar {
-            background: white;
-            padding: 18px 30px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .navbar-container {
-            max-width: 1100px;
-            margin: auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .navbar h2 {
-            margin: 0;
-        }
-
-        .navbar-links a {
-            margin-left: 18px;
-            text-decoration: none;
-            color: #333;
-        }
-
-        .navbar-links a:hover {
-            text-decoration: underline;
-        }
-
-        .page-content {
-            max-width: 1100px;
-            margin: auto;
-            padding: 30px;
-        }
-    </style>
+    {% block head %}{% endblock %}
 </head>
 
 <body>
@@ -55,76 +20,48 @@
 
     <nav class="navbar">
         <div class="navbar-container">
+            <a href="{{ url_for('auth.dashboard') }}" class="navbar-brand">
+                <svg width="24" height="24" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 38c0-6.6 5.4-12 12-12s12 5.4 12 12" stroke="#2b7de9" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="32" cy="24" r="5" fill="#2b7de9"/>
+                    <path d="M16 44h32" stroke="#2dd4bf" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+                DriftBridge
+            </a>
 
-            <h2>DriftBridge</h2>
+            <button class="navbar-toggle" aria-label="Toggle navigation">&#9776;</button>
 
             <div class="navbar-links">
-
-                <a href="{{ url_for('auth.dashboard') }}">
-                    Dashboard
-                </a>
-
-                <a href="{{ url_for('profile.profile') }}">
-                    Profile
-                </a>
-
-                <a href="{{ url_for('bottle.throw_bottle') }}">
-                    Throw Bottle
-                </a>
-
-                <a href="{{ url_for('bottle.bottle_pool') }}">
-                    Bottle Pool
-                </a>
-
-                <a href="{{ url_for('bottle.connections') }}">
-                    Connections
-                </a>
-
-                <a href="{{ url_for('chat.conversations') }}">
-                    Chats
-                </a>
-
-                <a href="{{ url_for('journal.my_journals') }}">
-                    Journals
-                </a>
-
-                <a href="{{ url_for('story.feed') }}">
-                    Stories
-                </a>
-
-                <a href="{{ url_for('auth.logout') }}">
-                    Logout
-                </a>
-
+                <a href="{{ url_for('auth.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('bottle.bottle_pool') }}">Discover</a>
+                <a href="{{ url_for('bottle.connections') }}">Connections</a>
+                <a href="{{ url_for('chat.conversations') }}">Chats</a>
+                <a href="{{ url_for('journal.my_journals') }}">Journals</a>
+                <a href="{{ url_for('story.feed') }}">Stories</a>
+                <a href="{{ url_for('profile.profile') }}">Profile</a>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
             </div>
-
         </div>
     </nav>
 
     {% endif %}
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <main class="page-content">
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-
-            {% if messages %}
-
-                {% for category, message in messages %}
-
-                    <p>{{ message }}</p>
-
-                {% endfor %}
-
-            {% endif %}
-
-        {% endwith %}
-
-
         {% block content %}
         {% endblock %}
-
     </main>
 
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

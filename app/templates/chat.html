@@ -433,6 +433,21 @@ Chat with {{ other_user.username }} - DriftBridge
         alert("⚠️ " + data.error + "\n\n" + data.reason);
     });
 
+    // Handle translation failure — do NOT show a fake "Translated" badge
+    socket.on("translation_failed", function (data) {
+        const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
+        if (messageElement) {
+            const hint = document.createElement("small");
+            hint.classList.add("translation-hint");
+            hint.style.color = "#999";
+            hint.textContent = "🌐 Translation unavailable";
+            const contentElement = messageElement.querySelector(".message-content");
+            if (contentElement) {
+                contentElement.appendChild(hint);
+            }
+        }
+    });
+
 
     messageForm.addEventListener("submit", function (event) {
 

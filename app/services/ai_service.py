@@ -1,59 +1,105 @@
 """
 AI Service Module for DriftBridge
-Handles Google Gemini API integration for translation and content moderation
+Handles Google Gemini API integration for translation and content moderation.
+
+Uses the current google-genai SDK (NOT the deprecated google.generativeai).
+The service degrades gracefully when GEMINI_API_KEY is not configured:
+non-AI features keep working and callers receive a clear "unavailable"
+result instead of a silent fallback.
 """
 
+import json
+import logging
 import os
-import requests
-from typing import Optional, Dict, Any
+import re
+from typing import Optional, Dict, Any, Tuple
+
+from google import genai
+from google.genai import errors as genai_errors
+
+
+logger = logging.getLogger(__name__)
+
+
+SUPPORTED_LANGUAGES = {
+    'en': 'English',
+    'hi': 'Hindi',
+    'mr': 'Marathi',
+    'es': 'Spanish',
+    'fr': 'French',
+    'de': 'German',
+    'it': 'Italian',
+    'pt': 'Portuguese',
+    'ru': 'Russian',
+    'ja': 'Japanese',
+    'ko': 'Korean',
+    'zh': 'Chinese',
+    'ar': 'Arabic',
+    'bn': 'Bengali',
+    'ta': 'Tamil',
+    'te': 'Telugu',
+    'gu': 'Gujarati',
+    'kn': 'Kannada',
+    'ml': 'Malayalam',
+    'pa': 'Punjabi',
+    'ur': 'Urdu',
+}
+
+
+def get_language_name(language_code: str) -> str:
+    """Convert an ISO language code to a full language name."""
+    return SUPPORTED_LANGUAGES.get(language_code, language_code.upper())
 
 
 class AIService:
-    """Service class for AI-powered features using Google Gemini API"""
+    """Service class for AI-powered features using Google Gemini API."""
+
+    # A fast, inexpensive text model suitable for translation + moderation.
+    MODEL_ID = "gemini-2.0-flash"
 
     def __init__(self):
-        """Initialize Gemini AI with API key from environment"""
         self.api_key = os.getenv("GEMINI_API_KEY")
-        
-        if not self.api_key or self.api_key == "your-gemini-api-key-here":
-            raise ValueError(
-                "GEMINI_API_KEY not configured. "
-                "Please add your Google Gemini API key to .env file"
+        if not self.api_key or self.api_key.strip() == "":
+            logger.warning(
+                "GEMINI_API_KEY is not configured. AI features "
+                "(translation and moderation) will be unavailable."
             )
-        
-        self.api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
+            self.client = None
+            self.available = False
+        else:
+            try:
+                self.client = genai.Client(api_key=self.api_key)
+                self.available = True
+            except Exception as exc:
+                logger.error("Failed to initialize Gemini client: %s", exc)
+                self.client = None
+                self.available = False
 
-    def _make_request(self, prompt: str) -> str:
-        """Make API request to Gemini"""
-        headers = {
-            "Content-Type": "application/json",
-        }
-        
-        payload = {
-            "contents": [{
-                "parts": [{
-                    "text": prompt
-                }]
-            }]
-        }
-        
-        # Add API key as query parameter
-        url = f"{self.api_url}?key={self.api_key}"
-        
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        
-        data = response.json()
-        
-        # Extract text from response
-        if "candidates" in data and len(data["candidates"]) > 0:
-            candidate = data["candidates"][0]
-            if "content" in candidate and "parts" in candidate["content"]:
-                parts = candidate["content"]["parts"]
-                if len(parts) > 0 and "text" in parts[0]:
-                    return parts[0]["text"]
-        
-        raise ValueError("Invalid response from Gemini API")
+    # ------------------------------------------------------------------
+    # Low-level helpers
+    # ------------------------------------------------------------------
+
+    def _generate(self, prompt: str) -> Optional[str]:
+        """Send a prompt to Gemini and return the raw text response."""
+        if not self.available:
+            return None
+        try:
+            response = self.client.models.generate_content(
+                model=self.MODEL_ID,
+                contents=prompt,
+            )
+            text = response.text
+            return text.strip() if text else None
+        except genai_errors.APIError as exc:
+            logger.error("Gemini API error: %s", exc)
+            return None
+        except Exception as exc:
+            logger.error("Unexpected Gemini error: %s", exc)
+            return None
+
+    # ------------------------------------------------------------------
+    # Translation
+    # ------------------------------------------------------------------
 
     def translate_text(
         self,
@@ -61,208 +107,232 @@ class AIService:
         target_language: str,
         source_language: Optional[str] = None
     ) -> Dict[str, Any]:
+        """Translate text to target_language using Gemini.
+
+        Returns a dict with:
+          success: bool
+          translated_text: str (only if success)
+          error: str (only if not success)
         """
-        Translate text to target language using Gemini AI
-        
-        Args:
-            text: The text to translate
-            target_language: Target language code (e.g., 'hi', 'es', 'fr')
-            source_language: Optional source language code
-            
-        Returns:
-            Dictionary with translated text and metadata
-        """
-        try:
-            if source_language:
-                prompt = f"""Translate the following text from {source_language} to {target_language}.
-Only provide the translated text, no explanations or additional commentary.
-
-Text: {text}"""
-            else:
-                prompt = f"""Translate the following text to {target_language}.
-Only provide the translated text, no explanations or additional commentary.
-
-Text: {text}"""
-
-            translated = self._make_request(prompt)
-            
-            return {
-                "success": True,
-                "translated_text": translated.strip(),
-                "original_text": text,
-                "target_language": target_language,
-                "source_language": source_language
-            }
-            
-        except Exception as e:
+        if not self.available:
             return {
                 "success": False,
-                "error": str(e),
-                "original_text": text
+                "error": "AI translation is currently unavailable. "
+                         "Please configure the Gemini API key.",
             }
+
+        target_name = get_language_name(target_language)
+
+        if source_language:
+            source_name = get_language_name(source_language)
+            prompt = (
+                f"Translate the following text from {source_name} to "
+                f"{target_name}. Reply with ONLY the translated text, "
+                f"no explanations, no quotes, no extra commentary.\n\n"
+                f"Text: {text}"
+            )
+        else:
+            prompt = (
+                f"Translate the following text to {target_name}. "
+                f"Reply with ONLY the translated text, no explanations, "
+                f"no quotes, no extra commentary.\n\n"
+                f"Text: {text}"
+            )
+
+        translated = self._generate(prompt)
+
+        if not translated:
+            return {
+                "success": False,
+                "error": "Translation request failed. "
+                         "The AI service may be unavailable.",
+            }
+
+        # Strip wrapping quotes Gemini sometimes adds.
+        translated = translated.strip().strip('"').strip("'").strip()
+
+        if not translated:
+            return {
+                "success": False,
+                "error": "Translation returned empty content.",
+            }
+
+        return {
+            "success": True,
+            "translated_text": translated,
+        }
+
+    # ------------------------------------------------------------------
+    # Content moderation / hate-speech detection
+    # ------------------------------------------------------------------
 
     def detect_hate_speech(self, text: str) -> Dict[str, Any]:
+        """Analyze text for inappropriate content.
+
+        Returns a dict with:
+          success: bool
+          is_inappropriate: bool
+          severity: str  ("none"|"low"|"medium"|"high")
+          categories: list[str]
+          reason: str
         """
-        Detect hate speech, offensive content, or inappropriate language
-        
-        Args:
-            text: The text to analyze
-            
-        Returns:
-            Dictionary with detection results and severity
-        """
-        try:
-            prompt = f"""Analyze the following text for hate speech, harassment, discrimination, 
-offensive language, threats, or any inappropriate content.
-
-Respond in JSON format with:
-- "is_inappropriate": true/false
-- "severity": "none", "low", "medium", or "high"
-- "categories": list of issue types found (e.g., ["hate_speech", "harassment"])
-- "reason": brief explanation if inappropriate
-
-Text to analyze: {text}"""
-
-            result_text = self._make_request(prompt)
-            
-            # Parse the response (basic parsing, can be improved)
-            if "true" in result_text.lower() and "is_inappropriate" in result_text.lower():
-                is_inappropriate = True
-            else:
-                is_inappropriate = False
-            
-            # Extract severity
-            severity = "none"
-            if "high" in result_text.lower():
-                severity = "high"
-            elif "medium" in result_text.lower():
-                severity = "medium"
-            elif "low" in result_text.lower():
-                severity = "low"
-            
-            return {
-                "success": True,
-                "is_inappropriate": is_inappropriate,
-                "severity": severity,
-                "raw_analysis": result_text,
-                "original_text": text
-            }
-            
-        except Exception as e:
+        if not self.available:
             return {
                 "success": False,
-                "error": str(e),
+                "error": "Content moderation service is unavailable.",
                 "is_inappropriate": False,
-                "severity": "none"
+                "severity": "none",
+                "categories": [],
+                "reason": "",
             }
 
-    def get_language_name(self, language_code: str) -> str:
-        """
-        Convert language code to full language name
-        
-        Args:
-            language_code: ISO language code (e.g., 'hi', 'es')
-            
-        Returns:
-            Full language name
-        """
-        language_map = {
-            'en': 'English',
-            'hi': 'Hindi',
-            'es': 'Spanish',
-            'fr': 'French',
-            'de': 'German',
-            'it': 'Italian',
-            'pt': 'Portuguese',
-            'ru': 'Russian',
-            'ja': 'Japanese',
-            'ko': 'Korean',
-            'zh': 'Chinese',
-            'ar': 'Arabic',
-            'bn': 'Bengali',
-            'mr': 'Marathi',
-            'ta': 'Tamil',
-            'te': 'Telugu',
-            'gu': 'Gujarati',
-            'kn': 'Kannada',
-            'ml': 'Malayalam',
-            'pa': 'Punjabi',
-            'ur': 'Urdu'
+        prompt = (
+            "You are a content moderation system. Analyze the following text "
+            "for hate speech, harassment, threats, discrimination, or abusive "
+            "content.\n\n"
+            "Respond with ONLY a JSON object (no markdown, no code fences) in "
+            "exactly this format:\n"
+            '{\n'
+            '  "is_inappropriate": false,\n'
+            '  "severity": "none",\n'
+            '  "categories": [],\n'
+            '  "reason": ""\n'
+            '}\n\n'
+            "Rules:\n"
+            '- "is_inappropriate": boolean\n'
+            '- "severity": one of "none", "low", "medium", "high"\n'
+            '- "categories": list of strings, e.g. ["hate_speech", '
+            '"harassment", "threat", "discrimination"]\n'
+            '- "reason": brief explanation if inappropriate, otherwise empty\n\n'
+            f"Text to analyze: {text}"
+        )
+
+        raw = self._generate(prompt)
+
+        if not raw:
+            return {
+                "success": False,
+                "error": "Moderation request failed.",
+                "is_inappropriate": False,
+                "severity": "none",
+                "categories": [],
+                "reason": "",
+            }
+
+        parsed = self._parse_moderation_json(raw)
+        if parsed is None:
+            logger.warning("Could not parse moderation response: %s", raw[:200])
+            return {
+                "success": False,
+                "error": "Moderation returned an unparseable response.",
+                "is_inappropriate": False,
+                "severity": "none",
+                "categories": [],
+                "reason": "",
+            }
+
+        return {
+            "success": True,
+            "is_inappropriate": parsed.get("is_inappropriate", False),
+            "severity": parsed.get("severity", "none"),
+            "categories": parsed.get("categories", []),
+            "reason": parsed.get("reason", ""),
         }
-        
-        return language_map.get(language_code, language_code.upper())
+
+    @staticmethod
+    def _parse_moderation_json(raw: str) -> Optional[Dict[str, Any]]:
+        """Safely extract a JSON object from the model's text response."""
+        if not raw:
+            return None
+
+        # Strip markdown code fences if present.
+        cleaned = raw.strip()
+        if cleaned.startswith("```"):
+            # Remove first line (```json or ```) and trailing fence.
+            lines = cleaned.splitlines()
+            if lines and lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].strip() == "```":
+                lines = lines[:-1]
+            cleaned = "\n".join(lines)
+
+        # Try direct JSON parse first.
+        try:
+            return json.loads(cleaned)
+        except json.JSONDecodeError:
+            pass
+
+        # Fallback: extract the first {...} block.
+        match = re.search(r"\{.*\}", cleaned, re.DOTALL)
+        if match:
+            try:
+                return json.loads(match.group(0))
+            except json.JSONDecodeError:
+                return None
+
+        return None
 
 
-# Global AI service instance
-ai_service = None
+# ----------------------------------------------------------------------
+# Module-level convenience functions
+# ----------------------------------------------------------------------
+
+_ai_service: Optional[AIService] = None
 
 
 def get_ai_service() -> AIService:
-    """
-    Get or create the global AI service instance
-    
-    Returns:
-        AIService instance
-    """
-    global ai_service
-    
-    if ai_service is None:
-        ai_service = AIService()
-    
-    return ai_service
+    """Return a lazily-initialized singleton AIService."""
+    global _ai_service
+    if _ai_service is None:
+        _ai_service = AIService()
+    return _ai_service
 
 
 def translate_message(
     text: str,
     target_language: str,
-    source_language: Optional[str] = None
-) -> str:
+    source_language: Optional[str] = None,
+    message_id: Optional[int] = None,
+) -> Tuple[bool, str]:
+    """Translate text.
+
+    Returns (success, translated_text_or_error_message).
+    Logs failures with context. Never silently returns the original text.
     """
-    Convenience function to translate text
-    
-    Args:
-        text: Text to translate
-        target_language: Target language code
-        source_language: Optional source language code
-        
-    Returns:
-        Translated text or original if translation fails
-    """
-    try:
-        service = get_ai_service()
-        result = service.translate_text(text, target_language, source_language)
-        
-        if result["success"]:
-            return result["translated_text"]
-        else:
-            return text
-            
-    except Exception:
-        return text
+    service = get_ai_service()
+    result = service.translate_text(text, target_language, source_language)
+
+    if not result.get("success"):
+        logger.warning(
+            "Translation failed — message_id=%s source=%s target=%s error=%s",
+            message_id,
+            source_language,
+            target_language,
+            result.get("error"),
+        )
+        return False, result.get("error", "Translation failed.")
+
+    return True, result["translated_text"]
 
 
-def check_content_safety(text: str) -> tuple[bool, str]:
+def check_content_safety(text: str) -> Tuple[bool, str]:
+    """Check if content is safe.
+
+    Returns (is_safe, reason).
+    Policy when the AI service is unavailable: fail open (allow content)
+    to avoid blocking all user content during an AI outage, but log loudly
+    so it is not silent.
     """
-    Check if content is safe and appropriate
-    
-    Args:
-        text: Text to check
-        
-    Returns:
-        Tuple of (is_safe, reason)
-    """
-    try:
-        service = get_ai_service()
-        result = service.detect_hate_speech(text)
-        
-        if result["success"]:
-            is_safe = not result["is_inappropriate"]
-            reason = result.get("raw_analysis", "Content flagged as inappropriate")
-            return is_safe, reason
-        else:
-            # If check fails, allow content (fail open)
-            return True, ""
-            
-    except Exception:
-        # If check fails, allow content (fail open)
+    service = get_ai_service()
+    result = service.detect_hate_speech(text)
+
+    if not result.get("success"):
+        logger.warning(
+            "Content moderation unavailable — allowing content. reason=%s",
+            result.get("error"),
+        )
         return True, ""
+
+    is_safe = not result["is_inappropriate"]
+    reason = result.get("reason", "")
+    return is_safe, reason

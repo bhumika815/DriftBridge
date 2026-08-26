@@ -1,16 +1,22 @@
+import logging
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_user, login_required, logout_user
 
 from app import db, bcrypt
-from app.models import user
 from app.models.user import User
 
+
+logger = logging.getLogger(__name__)
 
 auth_bp = Blueprint("auth", __name__)
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
+
+    if current_user.is_authenticated:
+        return redirect(url_for("auth.dashboard"))
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
@@ -45,10 +51,7 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        print("USER CREATED:")
-        print("ID:", user.id)
-        print("USERNAME:", user.username)
-        print("EMAIL:", user.email)
+        logger.info("New user registered: id=%s username=%s", user.id, user.username)
 
         flash("Registration successful. You can now log in.", "success")
         return redirect(url_for("auth.login"))
@@ -59,19 +62,24 @@ def register():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
 
+    if current_user.is_authenticated:
+        return redirect(url_for("auth.dashboard"))
+
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
+        if not email or not password:
+            flash("Please enter both email and password.", "error")
+            return redirect(url_for("auth.login"))
+
         user = User.query.filter_by(email=email).first()
 
-        if user and bcrypt.check_password_hash(
-          user.password_hash,
-          password
-    ):
-         login_user(user)
+        if user and bcrypt.check_password_hash(user.password_hash, password):
+            login_user(user)
+            logger.info("User logged in: id=%s username=%s", user.id, user.username)
+            return redirect(url_for("auth.dashboard"))
 
-        return redirect(url_for("auth.dashboard"))
         flash("Invalid email or password.", "error")
         return redirect(url_for("auth.login"))
 
@@ -84,6 +92,10 @@ def dashboard():
 
     from app.models.bottle import Bottle
     from app.models.conversation import Conversation
+    from app.models.message import Message
+    from app.models.story import Story
+    from app.services.reputation_service import get_user_trust_info
+    from datetime import datetime
 
     bottles_thrown = Bottle.query.filter_by(
         sender_id=current_user.id
@@ -94,20 +106,51 @@ def dashboard():
     ).count()
 
     connection_count = Conversation.query.filter(
-        (
-            (Conversation.user1_id == current_user.id)
-        )
-        |
-        (
-            (Conversation.user2_id == current_user.id)
-        )
+        (Conversation.user1_id == current_user.id)
+        | (Conversation.user2_id == current_user.id)
     ).count()
+
+    conversations = Conversation.query.filter(
+        (Conversation.user1_id == current_user.id)
+        | (Conversation.user2_id == current_user.id)
+    ).order_by(Conversation.created_at.desc()).limit(5).all()
+
+    recent_conversations = []
+    for conv in conversations:
+        other_user = conv.user2 if conv.user1_id == current_user.id else conv.user1
+        last_msg = Message.query.filter_by(
+            conversation_id=conv.id
+        ).order_by(Message.created_at.desc()).first()
+        recent_conversations.append({
+            "conversation": conv,
+            "other_user": other_user,
+            "last_message": last_msg
+        })
+
+    connection_ids = set()
+    for conv in conversations:
+        if conv.user1_id == current_user.id:
+            connection_ids.add(conv.user2_id)
+        else:
+            connection_ids.add(conv.user1_id)
+
+    active_stories = []
+    if connection_ids:
+        active_stories = Story.query.filter(
+            Story.user_id.in_(connection_ids),
+            Story.expires_at > datetime.utcnow()
+        ).order_by(Story.created_at.desc()).limit(8).all()
+
+    trust_info = get_user_trust_info(current_user.id)
 
     return render_template(
         "dashboard.html",
         bottles_thrown=bottles_thrown,
         bottles_kept=bottles_kept,
-        connection_count=connection_count
+        connection_count=connection_count,
+        recent_conversations=recent_conversations,
+        active_stories=active_stories,
+        trust_info=trust_info
     )
 
 
@@ -115,6 +158,5 @@ def dashboard():
 @login_required
 def logout():
     logout_user()
-
     flash("You have been logged out.", "success")
     return redirect(url_for("auth.login"))

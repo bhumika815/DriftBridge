@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, abort, flash
 from flask_login import login_required, current_user
 
 from app import db
 from app.models.conversation import Conversation
 from app.models.message import Message
+from app.services import check_content_safety
+from app.services.reputation_service import award_points
 
 
 chat_bp = Blueprint(
@@ -37,12 +39,12 @@ def chat(conversation_id):
 
     conversation = Conversation.query.get_or_404(conversation_id)
 
-    # Make sure the logged-in user belongs to this conversation
+    # Authorization: only participants can access this conversation.
     if (
         conversation.user1_id != current_user.id
         and conversation.user2_id != current_user.id
     ):
-        return "Unauthorized", 403
+        abort(403)
 
     # Find the other person in the conversation
     if conversation.user1_id == current_user.id:
@@ -50,33 +52,45 @@ def chat(conversation_id):
     else:
         other_user = conversation.user1
 
-    # Handle sending a message
+    # Handle sending a message (HTTP fallback — same rules as Socket.IO)
     if request.method == "POST":
 
         content = request.form.get("content", "").strip()
 
         if not content:
+            flash("Message cannot be empty.", "error")
             return redirect(
-                url_for(
-                    "chat.chat",
-                    conversation_id=conversation.id
-                )
+                url_for("chat.chat", conversation_id=conversation.id)
             )
+
+        # Content moderation
+        is_safe, safety_reason = check_content_safety(content)
+        if not is_safe:
+            flash(
+                "Your message contains inappropriate content and cannot "
+                "be sent.",
+                "error"
+            )
+            return redirect(
+                url_for("chat.chat", conversation_id=conversation.id)
+            )
+
+        sender_language = current_user.preferred_language or 'en'
 
         message = Message(
             conversation_id=conversation.id,
             sender_id=current_user.id,
-            content=content
+            content=content,
+            original_language=sender_language
         )
 
         db.session.add(message)
         db.session.commit()
 
+        award_points(current_user.id, 'message_sent')
+
         return redirect(
-            url_for(
-                "chat.chat",
-                conversation_id=conversation.id
-            )
+            url_for("chat.chat", conversation_id=conversation.id)
         )
 
     # Get all messages in this conversation
