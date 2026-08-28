@@ -131,6 +131,7 @@ Create Story - DriftBridge
     </div>
 
     <form method="POST" id="story-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="story_type" value="text">
         
         <!-- Story Preview -->

@@ -122,6 +122,7 @@ Create Journal - DriftBridge
     <h1>✍️ Create New Journal</h1>
 
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         
         <div class="form-group">
             <label for="title">Title *</label>

@@ -5,6 +5,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 
 from app import db, bcrypt
 from app.models.user import User
+from app.services.ai_service import SUPPORTED_LANGUAGES
 
 
 logger = logging.getLogger(__name__)
@@ -32,6 +33,10 @@ def register():
             flash("Passwords do not match.", "error")
             return redirect(url_for("auth.register"))
 
+        preferred_language = request.form.get("preferred_language", "en")
+        if preferred_language not in SUPPORTED_LANGUAGES:
+            preferred_language = "en"
+
         existing_user = User.query.filter(
             (User.username == username) | (User.email == email)
         ).first()
@@ -45,7 +50,8 @@ def register():
         user = User(
             username=username,
             email=email,
-            password_hash=password_hash
+            password_hash=password_hash,
+            preferred_language=preferred_language
         )
 
         db.session.add(user)
@@ -56,7 +62,10 @@ def register():
         flash("Registration successful. You can now log in.", "success")
         return redirect(url_for("auth.login"))
 
-    return render_template("register.html")
+    return render_template(
+        "register.html",
+        languages=SUPPORTED_LANGUAGES
+    )
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])

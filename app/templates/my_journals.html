@@ -217,6 +217,7 @@ My Journals - DriftBridge
                               action="{{ url_for('journal.delete_journal', journal_id=journal.id) }}" 
                               style="display: inline;"
                               onsubmit="return confirm('Are you sure you want to delete this journal?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn-small btn-delete">Delete</button>
                         </form>
                     </div>

@@ -81,6 +81,7 @@ My Profile - DriftBridge
 
 
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="profile-item">
             <strong>Bio</strong>

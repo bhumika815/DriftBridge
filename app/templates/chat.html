@@ -258,7 +258,9 @@ Chat with {{ other_user.username }} - DriftBridge
     <form
         class="message-form"
         id="message-form"
+        method="POST"
     >
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <input
             type="text"

@@ -152,6 +152,7 @@ My Stories - DriftBridge
                                   action="{{ url_for('story.delete_story', story_id=story.id) }}" 
                                   style="display: inline;"
                                   onsubmit="return confirm('Delete this story?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn-delete">Delete</button>
                             </form>
                         </div>
