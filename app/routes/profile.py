@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 
 from app import db
 from app.services.reputation_service import get_user_trust_info
+from app.services.ai_service import SUPPORTED_LANGUAGES
 
 
 profile_bp = Blueprint("profile", __name__)
@@ -21,4 +22,9 @@ def profile():
         return redirect(url_for("profile.profile"))
 
     trust_info = get_user_trust_info(current_user.id)
-    return render_template("profile.html", user=current_user, trust_info=trust_info)
+    return render_template(
+        "profile.html",
+        user=current_user,
+        trust_info=trust_info,
+        languages=SUPPORTED_LANGUAGES,
+    )
