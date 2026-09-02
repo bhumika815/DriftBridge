@@ -62,6 +62,14 @@ def chat(conversation_id):
             return redirect(
                 url_for("chat.chat", conversation_id=conversation.id)
             )
+        if len(content) > 2000:
+            flash(
+                "Message is too long. Maximum 2000 characters allowed.",
+                "error"
+            )
+            return redirect(
+                url_for("chat.chat", conversation_id=conversation.id)
+            )
 
         # Content moderation
         is_safe, safety_reason = check_content_safety(content)
@@ -84,14 +92,21 @@ def chat(conversation_id):
             original_language=sender_language
         )
 
-        db.session.add(message)
+    db.session.add(message)
+
+    try:
         db.session.commit()
-
-        award_points(current_user.id, 'message_sent')
-
-        return redirect(
-            url_for("chat.chat", conversation_id=conversation.id)
+    except Exception:
+        db.session.rollback()
+        emit(
+            "message_error",
+            {
+                "error": "Message could not be sent. Please try again."
+            }
         )
+        return
+
+    # --- Determine the other participant ---
 
     # Get all messages in this conversation
     messages = Message.query.filter_by(
