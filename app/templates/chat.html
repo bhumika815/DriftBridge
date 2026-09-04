@@ -268,6 +268,7 @@ Chat with {{ other_user.username }} - DriftBridge
             name="content"
             placeholder="Write a message..."
             autocomplete="off"
+            maxlength="2000"
         >
 
         <button type="submit">
@@ -288,6 +289,7 @@ Chat with {{ other_user.username }} - DriftBridge
     const currentUsername = {{ current_user.username | tojson }};
 
     const socket = io();
+    let socketConnected = false;
 
     const messagesContainer = document.getElementById("messages");
     const messageForm = document.getElementById("message-form");
@@ -296,6 +298,7 @@ Chat with {{ other_user.username }} - DriftBridge
 
     socket.on("connect", function () {
 
+        socketConnected = true;
         console.log("Connected to DriftBridge chat");
 
         socket.emit(
@@ -305,6 +308,11 @@ Chat with {{ other_user.username }} - DriftBridge
             }
         );
 
+    });
+
+    socket.on("disconnect", function () {
+        socketConnected = false;
+        console.warn("Socket.IO disconnected — messages will use HTTP fallback");
     });
 
 
@@ -430,6 +438,11 @@ Chat with {{ other_user.username }} - DriftBridge
     }
 
 
+    // Handle generic message errors (DB failure, length violation, etc.)
+    socket.on("message_error", function (data) {
+        alert(data.error || "An error occurred while sending your message.");
+    });
+
     // Handle blocked messages
     socket.on("message_blocked", function (data) {
         alert("⚠️ " + data.error + "\n\n" + data.reason);
@@ -453,30 +466,35 @@ Chat with {{ other_user.username }} - DriftBridge
 
     messageForm.addEventListener("submit", function (event) {
 
-        event.preventDefault();
-
-
-        const content =
-            messageInput.value.trim();
-
+        var content = messageInput.value.trim();
 
         if (!content) {
+            event.preventDefault();
             return;
         }
 
+        if (content.length > 2000) {
+            event.preventDefault();
+            alert("Messages must be 2000 characters or fewer.");
+            return;
+        }
 
-        socket.emit(
-            "send_message",
-            {
-                conversation_id: conversationId,
-                content: content
-            }
-        );
+        if (socketConnected) {
+            event.preventDefault();
 
+            socket.emit(
+                "send_message",
+                {
+                    conversation_id: conversationId,
+                    content: content
+                }
+            );
 
-        messageInput.value = "";
-
-        messageInput.focus();
+            messageInput.value = "";
+            messageInput.focus();
+        }
+        // If Socket.IO is NOT connected, let the form submit normally
+        // via HTTP POST to the /chat/<id> fallback route.
 
     });
 

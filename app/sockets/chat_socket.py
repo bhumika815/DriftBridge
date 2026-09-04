@@ -63,6 +63,10 @@ def handle_send_message(data):
     if not conversation_id or not content:
         return
 
+    if len(content) > 2000:
+        emit("message_error", {"error": "Messages must be 2000 characters or fewer."})
+        return
+
     conversation = db.session.get(Conversation, int(conversation_id))
     if conversation is None:
         return
@@ -99,8 +103,17 @@ def handle_send_message(data):
         content=content,
         original_language=sender_language
     )
-    db.session.add(message)
-    db.session.commit()
+    try:
+        db.session.add(message)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        logger.exception(
+            "Failed to persist message in conversation %s",
+            conversation.id,
+        )
+        emit("message_error", {"error": "Failed to send message. Please try again."})
+        return
 
     # --- Determine the other participant ---
     other_user_id = (
@@ -123,7 +136,7 @@ def handle_send_message(data):
             "sender": current_user.username,
             "content": message.content,
             "original_language": sender_language,
-            "created_at": message.created_at.strftime("%H:%M")
+            "created_at": message.created_at.strftime("%d %b %Y, %I:%M %p")
         },
         room=f"conversation_{conversation.id}"
     )
