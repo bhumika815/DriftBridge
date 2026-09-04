@@ -6,86 +6,35 @@ Throw a Bottle - DriftBridge
 
 {% block content %}
 
-<style>
-    .container {
-        max-width: 700px;
-        margin: 50px auto;
-        padding: 20px;
-    }
+<div class="throw-container">
 
-    .card {
-        background: white;
-        padding: 30px;
-        border-radius: 14px;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    h1 {
-        margin-top: 0;
-    }
-
-    .description {
-        color: #666;
-        line-height: 1.6;
-    }
-
-    textarea {
-        width: 100%;
-        min-height: 180px;
-        padding: 15px;
-        margin-top: 15px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        resize: vertical;
-        font-family: Arial, sans-serif;
-        font-size: 15px;
-    }
-
-    textarea:focus {
-        outline: none;
-        border-color: #555;
-    }
-
-    button {
-        margin-top: 20px;
-        padding: 12px 24px;
-        border: none;
-        border-radius: 8px;
-        background: #222;
-        color: white;
-        font-size: 15px;
-        cursor: pointer;
-    }
-
-    button:hover {
-        opacity: 0.85;
-    }
-</style>
-
-
-<main class="container">
-
-    <div class="card">
+    <div class="throw-card">
 
         <h1>Throw a Bottle</h1>
 
-        <p class="description">
+        <p class="throw-description">
             Write a message and throw your bottle into the DriftBridge pool.
             Another person can keep the bottle and start a connection with you.
         </p>
 
-
         <form method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <textarea
-                name="message"
-                placeholder="Write your message here..."
-                maxlength="1000"
-                required
-            ></textarea>
+            <div class="form-group">
+                <label class="form-label" for="message">Your Message</label>
+                <textarea
+                    class="form-control"
+                    name="message"
+                    id="message"
+                    placeholder="Write your message here..."
+                    maxlength="1000"
+                    required
+                    style="min-height: 180px;"
+                ></textarea>
+                <small class="form-hint">Max 1000 characters</small>
+            </div>
 
-            <button type="submit">
+            <button type="submit" class="btn btn-primary btn-lg btn-block">
                 Throw Bottle
             </button>
 
@@ -93,6 +42,6 @@ Throw a Bottle - DriftBridge
 
     </div>
 
-</main>
+</div>
 
 {% endblock %}

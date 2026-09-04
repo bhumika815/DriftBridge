@@ -3,9 +3,9 @@ AI Service Module for DriftBridge
 Handles Google Gemini API integration for translation and content moderation.
 
 Uses the current google-genai SDK (NOT the deprecated google.generativeai).
-The service degrades gracefully when GEMINI_API_KEY is not configured:
-non-AI features keep working and callers receive a clear "unavailable"
-result instead of a silent fallback.
+The service degrades gracefully when GEMINI_API_KEY is not configured or the
+SDK is not installed: non-AI features keep working and callers receive a clear
+"unavailable" result instead of a crash.
 """
 
 import json
@@ -14,11 +14,22 @@ import os
 import re
 from typing import Optional, Dict, Any, Tuple
 
-from google import genai
-from google.genai import errors as genai_errors
-
-
 logger = logging.getLogger(__name__)
+
+# Try to import the Gemini SDK. If it's not installed, the app still works
+# — AI features are just disabled.
+try:
+    from google import genai
+    from google.genai import errors as genai_errors
+    _GENAI_AVAILABLE = True
+except ImportError:
+    logger.warning(
+        "google-genai SDK is not installed. "
+        "AI features (translation and moderation) will be unavailable."
+    )
+    _GENAI_AVAILABLE = False
+    genai = None
+    genai_errors = None
 
 
 SUPPORTED_LANGUAGES = {
@@ -59,11 +70,12 @@ class AIService:
 
     def __init__(self):
         self.api_key = os.getenv("GEMINI_API_KEY")
-        if not self.api_key or self.api_key.strip() == "":
-            logger.warning(
-                "GEMINI_API_KEY is not configured. AI features "
-                "(translation and moderation) will be unavailable."
-            )
+        if not _GENAI_AVAILABLE or not self.api_key or self.api_key.strip() == "":
+            if _GENAI_AVAILABLE:
+                logger.warning(
+                    "GEMINI_API_KEY is not configured. AI features "
+                    "(translation and moderation) will be unavailable."
+                )
             self.client = None
             self.available = False
         else:

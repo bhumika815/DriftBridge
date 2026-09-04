@@ -6,152 +6,92 @@ My Profile - DriftBridge
 
 {% block content %}
 
-<style>
-    .profile-container {
-        max-width: 600px;
-        margin: 40px auto;
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    }
-
-    .profile-item {
-        margin: 20px 0;
-    }
-
-    .profile-item strong {
-        display: block;
-        margin-bottom: 8px;
-    }
-
-    .profile-value {
-        padding: 10px;
-        background: #f1f3f3;
-        border-radius: 6px;
-    }
-
-    input,
-    textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        box-sizing: border-box;
-        font-family: inherit;
-    }
-
-    textarea {
-        min-height: 100px;
-        resize: vertical;
-    }
-
-    button {
-        margin-top: 10px;
-        padding: 10px 18px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        background: #333;
-        color: white;
-    }
-</style>
-
-
 <div class="profile-container">
 
-    <h1>My Profile</h1>
+    <div class="profile-card">
 
-    <div class="profile-item">
-        <strong>Username</strong>
-
-        <div class="profile-value">
-            {{ user.username }}
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {{ user.username[0]|upper }}
+            </div>
+            <h1>My Profile</h1>
         </div>
-    </div>
-
-
-    <div class="profile-item">
-        <strong>Email</strong>
-
-        <div class="profile-value">
-            {{ user.email }}
-        </div>
-    </div>
-
-
-    <form method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="profile-item">
-            <strong>Bio</strong>
-
-            <textarea
-                name="bio"
-                maxlength="500"
-                placeholder="Tell people something about yourself..."
-            >{{ user.bio or "" }}</textarea>
+            <span class="profile-item-label">Username</span>
+            <div class="profile-value">{{ user.username }}</div>
         </div>
-
 
         <div class="profile-item">
-            <strong>Interests</strong>
-
-            <input
-                type="text"
-                name="interests"
-                maxlength="500"
-                value="{{ user.interests or '' }}"
-                placeholder="Example: Music, Coding, Travel"
-            >
-
+            <span class="profile-item-label">Email</span>
+            <div class="profile-value">{{ user.email }}</div>
         </div>
 
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="profile-item">
+                <label class="form-label" for="bio">Bio</label>
+                <textarea
+                    class="form-control"
+                    name="bio"
+                    id="bio"
+                    maxlength="500"
+                    placeholder="Tell people something about yourself..."
+                >{{ user.bio or "" }}</textarea>
+            </div>
+
+            <div class="profile-item">
+                <label class="form-label" for="interests">Interests</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    name="interests"
+                    id="interests"
+                    maxlength="500"
+                    value="{{ user.interests or '' }}"
+                    placeholder="Example: Music, Coding, Travel"
+                >
+            </div>
+
+            <div class="profile-item">
+                <label class="form-label" for="preferred_language">Preferred Language</label>
+                <select class="form-control" name="preferred_language" id="preferred_language">
+                    {% for code, name in languages|dictsort %}
+                    <option value="{{ code }}" {% if user.preferred_language == code %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+                <small class="form-hint">Messages will be automatically translated to your preferred language</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 16px;">
+                Save Profile
+            </button>
+        </form>
 
         <div class="profile-item">
-            <strong>Preferred Language</strong>
-            <select name="preferred_language" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
-                {% for code, name in languages|dictsort %}
-                <option value="{{ code }}" {% if user.preferred_language == code %}selected{% endif %}>{{ name }}</option>
-                {% endfor %}
-            </select>
-            <small style="color: #666; display: block; margin-top: 5px;">
-                Messages will be automatically translated to your preferred language
-            </small>
+            <span class="profile-item-label">Points</span>
+            <div class="profile-value">{{ user.points }}</div>
         </div>
 
-
-        <button type="submit">
-            Save Profile
-        </button>
-
-    </form>
-
-
-    <div class="profile-item">
-        <strong>Points</strong>
-
-        <div class="profile-value">
-            {{ user.points }}
-        </div>
-    </div>
-
-    {% if trust_info %}
-    <div class="profile-item">
-        <strong>Trust Level</strong>
-        <div class="profile-value">
-            {{ trust_info.level.badge }} {{ trust_info.level.name }}
-            <div style="margin-top: 8px;">
-                <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
-                    <div style="background: #4CAF50; height: 100%; width: {{ trust_info.level.progress }}%;"></div>
+        {% if trust_info %}
+        <div class="profile-item">
+            <span class="profile-item-label">Trust Level</span>
+            <div class="profile-value">
+                {{ trust_info.level.badge }} {{ trust_info.level.name }}
+                <div style="margin-top: 8px;">
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: {{ trust_info.level.progress }}%;"></div>
+                    </div>
+                    <small style="color: var(--neutral-500); font-size: 12px; display: block; margin-top: 4px;">
+                        {{ trust_info.level.progress|round(1) }}% to next level
+                    </small>
                 </div>
-                <small style="color: #666; font-size: 12px;">
-                    {{ trust_info.level.progress|round(1) }}% to next level
-                </small>
             </div>
         </div>
+        {% endif %}
+
     </div>
-    {% endif %}
 
 </div>
 

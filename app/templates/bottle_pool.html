@@ -6,79 +6,34 @@ Bottle Pool - DriftBridge
 
 {% block content %}
 
-<style>
-    .container {
-        max-width: 800px;
-        margin: 40px auto;
-        padding: 20px;
-    }
+<div class="bottle-pool-container">
 
-    .intro {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    .bottle {
-        background: white;
-        padding: 25px;
-        margin-bottom: 20px;
-        border-radius: 14px;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    .message {
-        font-size: 17px;
-        line-height: 1.6;
-        margin-bottom: 20px;
-    }
-
-    .keep-button {
-        display: inline-block;
-        padding: 11px 20px;
-        background: #222;
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-    }
-
-    .empty {
-        background: white;
-        padding: 30px;
-        text-align: center;
-        border-radius: 14px;
-    }
-</style>
-
-
-<main class="container">
-
-    <div class="intro">
-
+    <div class="page-header">
         <h1>Bottle Pool</h1>
-
-        <p>
-            These bottles are waiting for someone to keep them.
-        </p>
-
+        <p>These bottles are waiting for someone to keep them.</p>
     </div>
-
 
     {% if bottles %}
 
         {% for bottle in bottles %}
 
-            <div class="bottle">
+            <div class="bottle-card">
 
-                <div class="message">
+                <div class="bottle-message">
                     {{ bottle.message }}
                 </div>
 
-                <a
-                    class="keep-button"
-                    href="{{ url_for('bottle.keep_bottle', bottle_id=bottle.id) }}"
-                >
-                    Keep Bottle
-                </a>
+                <div class="bottle-meta">
+                    <span class="bottle-author">
+                        {{ bottle.created_at.strftime("%b %d, %Y") }}
+                    </span>
+                    <a
+                        class="btn btn-primary btn-sm"
+                        href="{{ url_for('bottle.keep_bottle', bottle_id=bottle.id) }}"
+                    >
+                        Keep Bottle
+                    </a>
+                </div>
 
             </div>
 
@@ -86,18 +41,16 @@ Bottle Pool - DriftBridge
 
     {% else %}
 
-        <div class="empty">
-
+        <div class="empty-state">
             <h2>No bottles available right now.</h2>
-
-            <p>
-                Throw your own bottle and wait for someone to find it.
-            </p>
-
+            <p>Throw your own bottle and wait for someone to find it.</p>
+            <a href="{{ url_for('bottle.throw_bottle') }}" class="btn btn-primary" style="margin-top: 16px;">
+                Throw a Bottle
+            </a>
         </div>
 
     {% endif %}
 
-</main>
+</div>
 
-{% endblock %} 
+{% endblock %}

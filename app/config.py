@@ -9,13 +9,10 @@ load_dotenv()
 def _build_database_uri():
     """Return the SQLAlchemy database URI from the environment.
 
-    DriftBridge is designed for MySQL (mysql+pymysql://...). If a
-    Supabase/Postgres DATABASE_URL is provided in the environment, we
-    transparently rewrite it to the psycopg2 driver so the same code
-    runs in both local MySQL and hosted Postgres environments without
-    hard-coding credentials.
+    Checks DATABASE_URL first, then falls back to SUPABASE_DB_URL.
+    Normalizes Postgres-style URLs to the psycopg2 driver.
     """
-    uri = os.getenv("DATABASE_URL")
+    uri = os.getenv("DATABASE_URL") or os.getenv("SUPABASE_DB_URL")
     if not uri:
         return None
 
