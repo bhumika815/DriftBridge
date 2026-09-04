@@ -35,6 +35,9 @@ def create_app():
     socketio.init_app(app)
     csrf.init_app(app)
 
+    login_manager.login_view = "auth.login"
+    login_manager.login_message_category = "error"
+
     from app.models.user import User
     from app.models.bottle import Bottle
     from app.models.conversation import Conversation

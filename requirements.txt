@@ -27,4 +27,3 @@ typing_extensions==4.11.0
 Werkzeug==3.0.3
 wsproto==1.2.0
 google-genai==1.0.0
-https://stackblitz.com/storage/blobs/redirect/eyJfcmFpbHMiOnsiZGF0YSI6MTg0MTQ0MTc0LCJwdXIiOiJibG9iX2lkIn19--990867eb59f02fccbb6963112a767fdcb083bac4/requirements.txt
