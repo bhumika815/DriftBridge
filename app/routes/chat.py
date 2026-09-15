@@ -84,7 +84,7 @@ def chat(conversation_id):
                 url_for("chat.chat", conversation_id=conversation.id)
             )
 
-        sender_language = current_user.preferred_language or 'en'
+        sender_language = current_user.preferred_language or "en"
 
         message = Message(
             conversation_id=conversation.id,
@@ -93,17 +93,21 @@ def chat(conversation_id):
             original_language=sender_language
         )
 
+        db.session.add(message)
+
         try:
-            db.session.add(message)
             db.session.commit()
         except Exception:
             db.session.rollback()
-            flash("Failed to send message. Please try again.", "error")
+            flash(
+                "Message could not be sent. Please try again.",
+                "error"
+            )
             return redirect(
                 url_for("chat.chat", conversation_id=conversation.id)
             )
 
-        award_points(current_user.id, 'message_sent')
+        award_points(current_user.id, "message_sent")
 
         return redirect(
             url_for("chat.chat", conversation_id=conversation.id)

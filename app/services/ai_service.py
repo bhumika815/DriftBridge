@@ -1,35 +1,22 @@
 """
 AI Service Module for DriftBridge
-Handles Google Gemini API integration for translation and content moderation.
 
-Uses the current google-genai SDK (NOT the deprecated google.generativeai).
-The service degrades gracefully when GEMINI_API_KEY is not configured or the
-SDK is not installed: non-AI features keep working and callers receive a clear
-"unavailable" result instead of a crash.
+Provides local language detection and translation using
+langdetect and Argos Translate.
 """
 
 import json
 import logging
-import os
 import re
 from typing import Optional, Dict, Any, Tuple
 
-logger = logging.getLogger(__name__)
+from langdetect import detect, DetectorFactory
 
-# Try to import the Gemini SDK. If it's not installed, the app still works
-# — AI features are just disabled.
-try:
-    from google import genai
-    from google.genai import errors as genai_errors
-    _GENAI_AVAILABLE = True
-except ImportError:
-    logger.warning(
-        "google-genai SDK is not installed. "
-        "AI features (translation and moderation) will be unavailable."
-    )
-    _GENAI_AVAILABLE = False
-    genai = None
-    genai_errors = None
+from sqlalchemy import text
+
+DetectorFactory.seed = 0
+
+logger = logging.getLogger(__name__)
 
 
 SUPPORTED_LANGUAGES = {
@@ -54,60 +41,66 @@ SUPPORTED_LANGUAGES = {
     'ml': 'Malayalam',
     'pa': 'Punjabi',
     'ur': 'Urdu',
+    'tr': 'Turkish',
 }
 
 
 def get_language_name(language_code: str) -> str:
     """Convert an ISO language code to a full language name."""
-    return SUPPORTED_LANGUAGES.get(language_code, language_code.upper())
+    return SUPPORTED_LANGUAGES.get(
+        language_code,
+        language_code.upper()
+    )
 
 
 class AIService:
-    """Service class for AI-powered features using Google Gemini API."""
-
-    # A fast, inexpensive text model suitable for translation + moderation.
-    MODEL_ID = "gemini-2.0-flash"
+    """Service class for local language detection and translation."""
 
     def __init__(self):
-        self.api_key = os.getenv("GEMINI_API_KEY")
-        if not _GENAI_AVAILABLE or not self.api_key or self.api_key.strip() == "":
-            if _GENAI_AVAILABLE:
-                logger.warning(
-                    "GEMINI_API_KEY is not configured. AI features "
-                    "(translation and moderation) will be unavailable."
-                )
-            self.client = None
-            self.available = False
-        else:
-            try:
-                self.client = genai.Client(api_key=self.api_key)
-                self.available = True
-            except Exception as exc:
-                logger.error("Failed to initialize Gemini client: %s", exc)
-                self.client = None
-                self.available = False
+        # Local translation and language detection do not require
+        # an external API key or internet connection.
+        self.available = True
 
     # ------------------------------------------------------------------
-    # Low-level helpers
+    # Language detection
     # ------------------------------------------------------------------
 
-    def _generate(self, prompt: str) -> Optional[str]:
-        """Send a prompt to Gemini and return the raw text response."""
-        if not self.available:
-            return None
+    def detect_message_language(
+        self,
+        text: str,
+        preferred_language: Optional[str] = None
+    ) -> str:
+        """Detect the actual language of a message locally."""
+
+        if not text or not text.strip():
+            return preferred_language or "en"
+
         try:
-            response = self.client.models.generate_content(
-                model=self.MODEL_ID,
-                contents=prompt,
+            detected_language = detect(text.strip())
+
+            # Normalize langdetect's regional Chinese code.
+            if detected_language == "zh-cn":
+                detected_language = "zh"
+
+            # Only use languages supported by DriftBridge.
+            if detected_language in SUPPORTED_LANGUAGES:
+                return detected_language
+
+            logger.warning(
+                "Detected unsupported language '%s'. "
+                "Falling back to English.",
+                detected_language
             )
-            text = response.text
-            return text.strip() if text else None
-        except genai_errors.APIError as exc:
-            logger.error("Gemini API error: %s", exc)
-            return None
+            return "en"
+
         except Exception as exc:
-            logger.error("Unexpected Gemini error: %s", exc)
-            return None
+            logger.warning(
+                "Local language detection failed: %s. "
+                "Falling back to '%s'.",
+                exc,
+                preferred_language or "en"
+            )
+            return preferred_language or "en"
 
     # ------------------------------------------------------------------
     # Translation
@@ -119,170 +112,254 @@ class AIService:
         target_language: str,
         source_language: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Translate text to target_language using Gemini.
+        """Translate text locally using Argos Translate."""
 
-        Returns a dict with:
-          success: bool
-          translated_text: str (only if success)
-          error: str (only if not success)
-        """
-        if not self.available:
+        if not text or not text.strip():
             return {
                 "success": False,
-                "error": "AI translation is currently unavailable. "
-                         "Please configure the Gemini API key.",
+                "error": "Text cannot be empty.",
             }
 
-        target_name = get_language_name(target_language)
-
-        if source_language:
-            source_name = get_language_name(source_language)
-            prompt = (
-                f"Translate the following text from {source_name} to "
-                f"{target_name}. Reply with ONLY the translated text, "
-                f"no explanations, no quotes, no extra commentary.\n\n"
-                f"Text: {text}"
-            )
-        else:
-            prompt = (
-                f"Translate the following text to {target_name}. "
-                f"Reply with ONLY the translated text, no explanations, "
-                f"no quotes, no extra commentary.\n\n"
-                f"Text: {text}"
-            )
-
-        translated = self._generate(prompt)
-
-        if not translated:
+        if not target_language:
             return {
                 "success": False,
-                "error": "Translation request failed. "
-                         "The AI service may be unavailable.",
+                "error": "Target language is required.",
             }
 
-        # Strip wrapping quotes Gemini sometimes adds.
-        translated = translated.strip().strip('"').strip("'").strip()
-
-        if not translated:
-            return {
-                "success": False,
-                "error": "Translation returned empty content.",
-            }
-
-        return {
-            "success": True,
-            "translated_text": translated,
-        }
-
-    # ------------------------------------------------------------------
-    # Content moderation / hate-speech detection
-    # ------------------------------------------------------------------
-
-    def detect_hate_speech(self, text: str) -> Dict[str, Any]:
-        """Analyze text for inappropriate content.
-
-        Returns a dict with:
-          success: bool
-          is_inappropriate: bool
-          severity: str  ("none"|"low"|"medium"|"high")
-          categories: list[str]
-          reason: str
-        """
-        if not self.available:
-            return {
-                "success": False,
-                "error": "Content moderation service is unavailable.",
-                "is_inappropriate": False,
-                "severity": "none",
-                "categories": [],
-                "reason": "",
-            }
-
-        prompt = (
-            "You are a content moderation system. Analyze the following text "
-            "for hate speech, harassment, threats, discrimination, or abusive "
-            "content.\n\n"
-            "Respond with ONLY a JSON object (no markdown, no code fences) in "
-            "exactly this format:\n"
-            '{\n'
-            '  "is_inappropriate": false,\n'
-            '  "severity": "none",\n'
-            '  "categories": [],\n'
-            '  "reason": ""\n'
-            '}\n\n'
-            "Rules:\n"
-            '- "is_inappropriate": boolean\n'
-            '- "severity": one of "none", "low", "medium", "high"\n'
-            '- "categories": list of strings, e.g. ["hate_speech", '
-            '"harassment", "threat", "discrimination"]\n'
-            '- "reason": brief explanation if inappropriate, otherwise empty\n\n'
-            f"Text to analyze: {text}"
-        )
-
-        raw = self._generate(prompt)
-
-        if not raw:
-            return {
-                "success": False,
-                "error": "Moderation request failed.",
-                "is_inappropriate": False,
-                "severity": "none",
-                "categories": [],
-                "reason": "",
-            }
-
-        parsed = self._parse_moderation_json(raw)
-        if parsed is None:
-            logger.warning("Could not parse moderation response: %s", raw[:200])
-            return {
-                "success": False,
-                "error": "Moderation returned an unparseable response.",
-                "is_inappropriate": False,
-                "severity": "none",
-                "categories": [],
-                "reason": "",
-            }
-
-        return {
-            "success": True,
-            "is_inappropriate": parsed.get("is_inappropriate", False),
-            "severity": parsed.get("severity", "none"),
-            "categories": parsed.get("categories", []),
-            "reason": parsed.get("reason", ""),
-        }
-
-    @staticmethod
-    def _parse_moderation_json(raw: str) -> Optional[Dict[str, Any]]:
-        """Safely extract a JSON object from the model's text response."""
-        if not raw:
-            return None
-
-        # Strip markdown code fences if present.
-        cleaned = raw.strip()
-        if cleaned.startswith("```"):
-            # Remove first line (```json or ```) and trailing fence.
-            lines = cleaned.splitlines()
-            if lines and lines[0].startswith("```"):
-                lines = lines[1:]
-            if lines and lines[-1].strip() == "```":
-                lines = lines[:-1]
-            cleaned = "\n".join(lines)
-
-        # Try direct JSON parse first.
         try:
-            return json.loads(cleaned)
-        except json.JSONDecodeError:
-            pass
+            result = self.translate_text_with_word_mapping(
+                text=text,
+                target_language=target_language,
+                source_language=source_language,
+            )
 
-        # Fallback: extract the first {...} block.
-        match = re.search(r"\{.*\}", cleaned, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group(0))
-            except json.JSONDecodeError:
-                return None
+            if not result.get("success"):
+                return result
 
-        return None
+            translated = (
+                result.get("translated_text") or ""
+            ).strip()
+
+            if not translated:
+                return {
+                    "success": False,
+                    "error": "Translation returned empty content.",
+                }
+
+            return {
+                "success": True,
+                "translated_text": translated,
+            }
+
+        except Exception as exc:
+            logger.exception(
+                "Local translation failed: %s",
+                exc,
+            )
+
+            return {
+                "success": False,
+                "error": "Local translation failed.",
+            }
+
+    # ------------------------------------------------------------------
+    # Translation mapping
+    # ------------------------------------------------------------------
+
+    def translate_text_with_word_mapping(
+        self,
+        text: str,
+        target_language: str,
+        source_language: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Translate text locally using Argos Translate.
+
+        Uses a direct language pair when available.
+        If no direct pair exists, falls back through English.
+        """
+
+        if not text or not text.strip():
+            return {
+                "success": False,
+                "error": "Cannot translate empty text."
+            }
+
+        try:
+            import argostranslate.translate as argos_translate
+
+            source_code = (
+                source_language.lower().strip()
+                if source_language
+                else "en"
+            )
+
+            target_code = target_language.lower().strip()
+
+            # Nothing to translate.
+            if source_code == target_code:
+                return {
+                    "success": True,
+                    "translated_text": text,
+                    "words": [
+                        {
+                            "original": word.strip(),
+                            "translated": word.strip()
+                        }
+                        for word in text.split()
+                        if word.strip()
+                    ]
+                }
+
+            def has_direct_translation(
+                from_code: str,
+                to_code: str
+            ) -> bool:
+                """Check whether Argos has the requested local pair."""
+                try:
+                    translation = (
+                        argos_translate.get_translation_from_codes(
+                            from_code,
+                            to_code
+                        )
+                    )
+                    return translation is not None
+                except Exception:
+                    return False
+
+            # ----------------------------------------------------------
+            # 1. Try direct translation first.
+            # ----------------------------------------------------------
+            if has_direct_translation(source_code, target_code):
+                translated_text = argos_translate.translate(
+                    text,
+                    source_code,
+                    target_code
+                )
+
+            # ----------------------------------------------------------
+            # 2. Fall back through English.
+            # ----------------------------------------------------------
+            elif (
+                source_code != "en"
+                and target_code != "en"
+                and has_direct_translation(source_code, "en")
+                and has_direct_translation("en", target_code)
+            ):
+                english_text = argos_translate.translate(
+                    text,
+                    source_code,
+                    "en"
+                )
+
+                if not english_text or not english_text.strip():
+                    return {
+                        "success": False,
+                        "error": (
+                            f"Intermediate translation failed for "
+                            f"{source_code} -> en."
+                        )
+                    }
+
+                translated_text = argos_translate.translate(
+                    english_text,
+                    "en",
+                    target_code
+                )
+
+            # ----------------------------------------------------------
+            # 3. No usable local route.
+            # ----------------------------------------------------------
+            else:
+                return {
+                    "success": False,
+                    "error": (
+                        f"No local translation route available for "
+                        f"{source_code} -> {target_code}."
+                    )
+                }
+
+            if not translated_text or not translated_text.strip():
+                return {
+                    "success": False,
+                    "error": "Argos Translate returned empty content."
+                }
+
+            # ----------------------------------------------------------
+            # Build word-level mappings.
+            # ----------------------------------------------------------
+            original_words = re.findall(r"\S+", text)
+            words = []
+
+            for original_word in original_words:
+                clean_original = original_word.strip()
+
+                if not clean_original:
+                    continue
+
+                token_match = re.match(
+                    r"^([^\w\u0080-\uFFFF]*)(.*?)([^\w\u0080-\uFFFF]*)$",
+                    clean_original,
+                    re.UNICODE
+                )
+
+                if token_match:
+                    prefix, core, suffix = token_match.groups()
+                else:
+                    prefix = ""
+                    core = clean_original
+                    suffix = ""
+
+                if not core:
+                    words.append({
+                        "original": clean_original,
+                        "translated": clean_original
+                    })
+                    continue
+
+                try:
+                    token_translation = argos_translate.translate(
+                        core,
+                        source_code,
+                        target_code
+                    )
+
+                    token_translation = (
+                        token_translation.strip()
+                        if token_translation
+                        else core
+                    )
+
+                except Exception:
+                    token_translation = core
+
+                words.append({
+                    "original": clean_original,
+                    "translated": (
+                        f"{prefix}{token_translation}{suffix}"
+                    )
+                })
+
+            return {
+                "success": True,
+                "translated_text": translated_text.strip(),
+                "words": words
+            }
+
+        except Exception as exc:
+            logger.exception(
+                "Argos translation failed: source=%s target=%s error=%s",
+                source_language,
+                target_language,
+                exc
+            )
+
+            return {
+                "success": False,
+                "error": (
+                    "Local translation is unavailable for "
+                    f"{source_language or 'auto'} -> {target_language}."
+                )
+            }
 
 
 # ----------------------------------------------------------------------
@@ -292,11 +369,27 @@ class AIService:
 _ai_service: Optional[AIService] = None
 
 
+def detect_message_language(
+    text: str,
+    preferred_language: Optional[str] = None
+) -> str:
+    """Detect a message's actual language using the local detector."""
+    service = get_ai_service()
+
+    return service.detect_message_language(
+        text,
+        preferred_language
+    )
+
+
 def get_ai_service() -> AIService:
     """Return a lazily-initialized singleton AIService."""
+
     global _ai_service
+
     if _ai_service is None:
         _ai_service = AIService()
+
     return _ai_service
 
 
@@ -308,43 +401,80 @@ def translate_message(
 ) -> Tuple[bool, str]:
     """Translate text.
 
-    Returns (success, translated_text_or_error_message).
-    Logs failures with context. Never silently returns the original text.
+    Returns:
+        (success, translated_text_or_error_message)
     """
+
     service = get_ai_service()
-    result = service.translate_text(text, target_language, source_language)
+
+    result = service.translate_text(
+        text,
+        target_language,
+        source_language
+    )
 
     if not result.get("success"):
         logger.warning(
-            "Translation failed — message_id=%s source=%s target=%s error=%s",
+            "Translation failed - message_id=%s source=%s "
+            "target=%s error=%s",
             message_id,
             source_language,
             target_language,
             result.get("error"),
         )
-        return False, result.get("error", "Translation failed.")
+
+        return False, result.get(
+            "error",
+            "Translation failed."
+        )
 
     return True, result["translated_text"]
 
 
-def check_content_safety(text: str) -> Tuple[bool, str]:
-    """Check if content is safe.
+def translate_message_with_word_mapping(
+    text: str,
+    target_language: str,
+    source_language: Optional[str] = None,
+    message_id: Optional[int] = None,
+) -> Tuple[bool, Any]:
+    """Translate text and return word-level translation mapping."""
 
-    Returns (is_safe, reason).
-    Policy when the AI service is unavailable: fail open (allow content)
-    to avoid blocking all user content during an AI outage, but log loudly
-    so it is not silent.
-    """
     service = get_ai_service()
-    result = service.detect_hate_speech(text)
+
+    result = service.translate_text_with_word_mapping(
+        text,
+        target_language,
+        source_language
+    )
 
     if not result.get("success"):
         logger.warning(
-            "Content moderation unavailable — allowing content. reason=%s",
+            "Word-level translation failed - "
+            "message_id=%s source=%s target=%s error=%s",
+            message_id,
+            source_language,
+            target_language,
             result.get("error"),
         )
+
+        return False, result.get(
+            "error",
+            "Word-level translation failed."
+        )
+
+    return True, result
+
+
+def check_content_safety(
+    text: str
+) -> Tuple[bool, str]:
+    """Check content safety without using an external AI service.
+
+    External content moderation has been removed from DriftBridge.
+    Content is currently allowed by default.
+    """
+
+    if not text or not text.strip():
         return True, ""
 
-    is_safe = not result["is_inappropriate"]
-    reason = result.get("reason", "")
-    return is_safe, reason
+    return True, ""

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}
 Chat with {{ other_user.username }} - DriftBridge
@@ -197,9 +197,8 @@ Chat with {{ other_user.username }} - DriftBridge
         class="back-link"
         href="{{ url_for('chat.conversations') }}"
     >
-        ← Back to Chats
+        &larr; Back to Chats
     </a>
-
 
     <div class="chat-header">
 
@@ -221,27 +220,30 @@ Chat with {{ other_user.username }} - DriftBridge
 
         {% if messages %}
 
-            {% for message in messages %}
+    {% for message in messages %}
 
-                <div
-                    class="message {% if message.sender_id == current_user.id %}mine{% endif %}"
-                >
+        <div
+            class="message {% if message.sender_id == current_user.id %}mine{% endif %}"
+            data-message-id="{{ message.id }}"
+            data-original="{{ message.content }}"
+            data-original-lang="{{ message.original_language or 'en' }}"
+        >
 
-                    <div class="message-info">
-                        {{ message.sender.username }}
-                        ·
-                        {{ message.created_at.strftime("%d %b %Y, %I:%M %p") }}
-                    </div>
+            <div class="message-info">
+                {{ message.sender.username }}
+                &middot;
+                {{ message.created_at.strftime("%d %b %Y, %I:%M %p") }}
+            </div>
 
-                    <div>
-                        {{ message.content }}
-                    </div>
+            <div class="message-content">
+                {{ message.content }}
+            </div>
 
-                </div>
+        </div>
 
-            {% endfor %}
+    {% endfor %}
 
-        {% else %}
+{% else %}
 
             <div
                 class="empty-chat"
@@ -365,78 +367,126 @@ Chat with {{ other_user.username }} - DriftBridge
             messagesContainer.scrollHeight;
 
     });
+    // Handle translation request when recipient clicks a message
+    messagesContainer.addEventListener("click", function (event) {
+        const messageElement = event.target.closest(".message");
 
-
-    // Handle translated messages
-    socket.on("translated_message", function (data) {
-        const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
-        
-        if (messageElement) {
-            const contentElement = messageElement.querySelector(".message-content");
-            if (contentElement && data.translated_content) {
-                // Store translation data
-                messageElement.setAttribute("data-translated", data.translated_content);
-                messageElement.setAttribute("data-target-lang", data.target_language);
-                messageElement.classList.add("translatable");
-                
-                // Add translation hint
-                const hint = document.createElement("small");
-                hint.classList.add("translation-hint");
-                hint.textContent = "🌐 Click to see translation";
-                contentElement.appendChild(hint);
-                
-                // Add click handler to show translation
-                messageElement.addEventListener("click", function(e) {
-                    toggleTranslation(messageElement);
-                });
-            }
-        }
-    });
-
-    // Toggle between original and translated text
-    function toggleTranslation(messageElement) {
-        const contentElement = messageElement.querySelector(".message-content");
-        const originalText = messageElement.getAttribute("data-original");
-        const translatedText = messageElement.getAttribute("data-translated");
-        const isShowingTranslation = messageElement.getAttribute("data-showing-translation") === "true";
-        
-        // Remove existing popup if any
-        const existingPopup = messageElement.querySelector(".translation-popup");
-        if (existingPopup) {
-            existingPopup.remove();
-            messageElement.removeAttribute("data-showing-translation");
+        if (!messageElement) {
             return;
         }
-        
-        // Create translation popup
-        const popup = document.createElement("div");
-        popup.classList.add("translation-popup");
-        
-        const title = document.createElement("strong");
-        title.textContent = "Translation";
-        
-        const text = document.createElement("p");
-        text.textContent = translatedText;
-        
-        popup.appendChild(title);
-        popup.appendChild(text);
-        
-        messageElement.style.position = "relative";
-        messageElement.appendChild(popup);
-        messageElement.setAttribute("data-showing-translation", "true");
-        
-        // Close popup when clicking outside
-        setTimeout(() => {
-            document.addEventListener("click", function closePopup(e) {
-                if (!messageElement.contains(e.target)) {
-                    popup.remove();
-                    messageElement.removeAttribute("data-showing-translation");
-                    document.removeEventListener("click", closePopup);
-                }
-            });
-        }, 100);
-    }
 
+        // Do not translate your own messages
+        if (messageElement.classList.contains("mine")) {
+            return;
+        }
+
+        // Ignore clicks on translation-related elements
+        if (
+            event.target.classList.contains("original-word") ||
+            event.target.classList.contains("translated-word") ||
+            event.target.classList.contains("translation-hint")
+        ) {
+            return;
+        }
+
+        const messageId =
+            messageElement.getAttribute("data-message-id");
+
+        if (!messageId) {
+            return;
+        }
+
+        // Prevent duplicate translation requests
+        if (messageElement.dataset.translationPending === "true") {
+            return;
+        }
+
+        // If translation is already visible, hide it
+        const existingTranslation =
+            messageElement.querySelector(".message-translation");
+
+        if (existingTranslation) {
+            existingTranslation.remove();
+            messageElement.classList.remove("translation-visible");
+            return;
+        }
+
+        // Mark this message as waiting for a translation response
+        messageElement.dataset.translationPending = "true";
+
+        // Ask the server for translation
+        socket.emit("request_translation", {
+            message_id: Number(messageId)
+        });
+    });
+
+
+    // Receive translation from server
+    socket.on("translation_result", function (data) {
+
+        const messageElement =
+            document.querySelector(
+                `[data-message-id="${data.message_id}"]`
+            );
+
+        if (!messageElement) {
+            return;
+        }
+
+        // Translation request has completed.
+        messageElement.dataset.translationPending = "false";
+
+        // Remove any previous translation.
+        const oldTranslation =
+            messageElement.querySelector(".message-translation");
+
+        if (oldTranslation) {
+            oldTranslation.remove();
+        }
+
+        /*
+         * IMPORTANT:
+         * Always display the complete translated sentence returned
+         * by the translation service.
+         *
+         * Do NOT build the visible translation from data.words.
+         * The word mapping is only metadata for hover behavior.
+         */
+        const translationElement =
+            document.createElement("div");
+
+        translationElement.classList.add(
+            "message-translation"
+        );
+
+        const translatedElement =
+            document.createElement("div");
+
+        translatedElement.classList.add(
+            "translated-text"
+        );
+
+        translatedElement.textContent =
+            data.translated_content || "";
+
+        translationElement.appendChild(
+            translatedElement
+        );
+
+        // Translation appears ABOVE the original message.
+        const contentElement =
+            messageElement.querySelector(".message-content");
+
+        if (contentElement) {
+            contentElement.before(
+                translationElement
+            );
+        }
+
+        messageElement.classList.add(
+            "translation-visible"
+        );
+    });
 
     // Handle generic message errors (DB failure, length violation, etc.)
     socket.on("message_error", function (data) {
@@ -445,21 +495,43 @@ Chat with {{ other_user.username }} - DriftBridge
 
     // Handle blocked messages
     socket.on("message_blocked", function (data) {
-        alert("⚠️ " + data.error + "\n\n" + data.reason);
+        alert("\u26A0\uFE0F " + data.error + "\n\n" + data.reason);
     });
 
-    // Handle translation failure — do NOT show a fake "Translated" badge
+    // Handle translation failure without stacking duplicate hints
     socket.on("translation_failed", function (data) {
-        const messageElement = document.querySelector(`[data-message-id="${data.message_id}"]`);
-        if (messageElement) {
-            const hint = document.createElement("small");
-            hint.classList.add("translation-hint");
-            hint.style.color = "#999";
-            hint.textContent = "🌐 Translation unavailable";
-            const contentElement = messageElement.querySelector(".message-content");
-            if (contentElement) {
-                contentElement.appendChild(hint);
-            }
+        const messageElement =
+            document.querySelector(
+                `[data-message-id="${data.message_id}"]`
+            );
+
+        if (!messageElement) {
+            return;
+        }
+
+        // Translation request completed
+        messageElement.dataset.translationPending = "false";
+
+        // Remove any previous translation failure hint
+        const oldHint =
+            messageElement.querySelector(".translation-hint");
+
+        if (oldHint) {
+            oldHint.remove();
+        }
+
+        const hint =
+            document.createElement("small");
+
+        hint.classList.add("translation-hint");
+        hint.textContent =
+            "Translation unavailable";
+
+        const contentElement =
+            messageElement.querySelector(".message-content");
+
+        if (contentElement) {
+            contentElement.appendChild(hint);
         }
     });
 
@@ -505,3 +577,7 @@ Chat with {{ other_user.username }} - DriftBridge
 </script>
 
 {% endblock %}
+
+
+
+

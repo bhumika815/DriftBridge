@@ -12,7 +12,6 @@ POINTS = {
     'bottle_thrown': 5,
     'bottle_kept': 10,
     'message_sent': 2,
-    'journal_created': 15,
     'story_created': 10,
     'profile_completed': 25,
     'daily_login': 5,
@@ -146,7 +145,6 @@ def get_user_trust_info(user_id: int) -> dict:
         'points': user.points,
         'level': trust_level,
         'can_share_media': user.points >= 100,  # Unlock at 100 points
-        'can_create_public_journals': user.points >= 50,  # Unlock at 50 points
         'can_send_voice_messages': user.points >= 150,  # Unlock at 150 points
         'max_daily_bottles': get_max_daily_bottles(user.points),
         'max_active_stories': get_max_active_stories(user.points)
@@ -212,7 +210,6 @@ def check_feature_unlock(user_id: int, feature: str) -> bool:
     feature_map = {
         'media_sharing': trust_info['can_share_media'],
         'voice_messages': trust_info['can_send_voice_messages'],
-        'public_journals': trust_info['can_create_public_journals']
     }
     
     return feature_map.get(feature, False)

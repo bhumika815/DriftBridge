@@ -32,8 +32,6 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Gemini AI
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
     # Session security
     SESSION_COOKIE_HTTPONLY = True

@@ -43,14 +43,12 @@ def create_app():
     from app.models.conversation import Conversation
     from app.models.message import Message
     from app.models.content_flag import ContentFlag
-    from app.models.journal import Journal
     from app.models.story import Story, StoryView
 
     from app.routes.bottle import bottle_bp
     from app.routes.auth import auth_bp
     from app.routes.profile import profile_bp
     from app.routes.chat import chat_bp
-    from app.routes.journal import journal_bp
     from app.routes.story import story_bp
 
     @login_manager.user_loader
@@ -61,7 +59,6 @@ def create_app():
     app.register_blueprint(profile_bp)
     app.register_blueprint(bottle_bp)
     app.register_blueprint(chat_bp)
-    app.register_blueprint(journal_bp)
     app.register_blueprint(story_bp)
 
     # Load Socket.IO event handlers

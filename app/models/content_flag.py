@@ -21,7 +21,7 @@ class ContentFlag(db.Model):
     content_type = db.Column(
         db.String(50),
         nullable=False
-    )  # 'message', 'bottle', 'journal', 'story'
+    )  # 'message', 'bottle', 'story'
 
     content_id = db.Column(
         db.Integer,

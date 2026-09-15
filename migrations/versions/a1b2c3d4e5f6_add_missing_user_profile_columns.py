@@ -17,17 +17,20 @@ depends_on = None
 
 
 def upgrade():
-    # The User model declares bio and interests, but no migration ever
-    # created those columns. Add them now as nullable so existing rows
-    # are unaffected. Also add is_admin for the moderation module.
+    # Bio and interests already exist in the users table
+    # from the earlier profile-fields migration.
+    # Only is_admin is missing.
     with op.batch_alter_table('users', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('bio', sa.String(length=500), nullable=True))
-        batch_op.add_column(sa.Column('interests', sa.String(length=500), nullable=True))
-        batch_op.add_column(sa.Column('is_admin', sa.Boolean(), nullable=False, server_default='0'))
+        batch_op.add_column(
+            sa.Column(
+                'is_admin',
+                sa.Boolean(),
+                nullable=False,
+                server_default='0'
+            )
+        )
 
 
 def downgrade():
     with op.batch_alter_table('users', schema=None) as batch_op:
         batch_op.drop_column('is_admin')
-        batch_op.drop_column('interests')
-        batch_op.drop_column('bio')

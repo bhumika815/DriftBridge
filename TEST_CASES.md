@@ -277,144 +277,6 @@
 
 ---
 
-## Module 5: Personal Journal Module ✅
-
-### Test Case 5.1: Create Private Journal
-**Steps:**
-1. Click "Journals" in navigation
-2. Click "New Journal"
-3. Enter title and content
-4. Select "Private" privacy
-5. Add mood and tags (optional)
-6. Click "Create Journal"
-
-**Expected Result:**
-- Journal created
-- +15 reputation points awarded
-- Visible only to you
-- Success message shown
-
-**Status:** ⏳ To Test
-
----
-
-### Test Case 5.2: Create Journal with Inappropriate Content
-**Steps:**
-1. Go to Create Journal
-2. Write inappropriate content
-3. Click "Create Journal"
-
-**Expected Result:**
-- AI blocks journal creation
-- Error message shown
-- Journal NOT created
-
-**Status:** ⏳ To Test
-
----
-
-### Test Case 5.3: View My Journals
-**Steps:**
-1. Click "Journals" in navigation
-2. View journals list
-
-**Expected Result:**
-- Shows all your journals
-- Displays title, excerpt, date
-- Shows privacy badge
-- Shows mood (if added)
-
-**Status:** ⏳ To Test
-
----
-
-### Test Case 5.4: Edit Journal
-**Steps:**
-1. Go to My Journals
-2. Click "Edit" on a journal
-3. Modify content
-4. Click "Save Changes"
-
-**Expected Result:**
-- Journal updated
-- Updated timestamp shown
-- Changes saved to database
-
-**Status:** ⏳ To Test
-
----
-
-### Test Case 5.5: Delete Journal
-**Steps:**
-1. Go to My Journals
-2. Click "Delete" on a journal
-3. Confirm deletion
-
-**Expected Result:**
-- Journal deleted from database
-- Removed from list
-- Success message shown
-
-**Status:** ⏳ To Test
-
----
-
-### Test Case 5.6: View Journal (Full View)
-**Steps:**
-1. Go to My Journals
-2. Click "View" on a journal
-
-**Expected Result:**
-- Full journal content displayed
-- Shows title, content, mood, tags
-- Shows privacy setting
-- Shows created/updated dates
-
-**Status:** ⏳ To Test
-
----
-
-### Test Case 5.7: Discover Public Journals
-**Steps:**
-1. Go to Journals → Discover tab
-
-**Expected Result:**
-- Shows public journals from other users
-- Displays author name
-- Shows excerpt
-- Click to read full journal
-
-**Status:** ⏳ To Test (needs another account with public journal)
-
----
-
-### Test Case 5.8: View Connections' Journals
-**Steps:**
-1. Go to Journals → Connections tab
-
-**Expected Result:**
-- Shows journals from connections
-- Shows journals marked as "Connections" or "Public"
-- Displays author name
-
-**Status:** ⏳ To Test (needs connection with journals)
-
----
-
-### Test Case 5.9: Privacy Settings Test
-**Steps:**
-1. Create 3 journals: Private, Connections, Public
-2. Login as another user (not connected)
-3. Check Discover page
-
-**Expected Result:**
-- Only PUBLIC journal visible
-- Private and Connections journals NOT visible
-
-**Status:** ⏳ To Test (needs 2 accounts)
-
----
-
 ## Module 6: Story Module ✅
 
 ### Test Case 6.1: Create Text Story
@@ -595,20 +457,6 @@
 
 ---
 
-### Test Case 7.5: Earn Points - Create Journal
-**Steps:**
-1. Note current points
-2. Create a journal
-3. Check points again
-
-**Expected Result:**
-- Points increase by +15
-- Progress bar updates
-
-**Status:** ⏳ To Test
-
----
-
 ### Test Case 7.6: Earn Points - Create Story
 **Steps:**
 1. Note current points
@@ -637,108 +485,50 @@
 
 ---
 
-## Module 8: AI-Powered Features ✅
+## Module 8: Language & Translation Features ✅
 
-### Test Case 8.1: AI Translation - Basic
+### Test Case 8.1: Local Translation - Basic
 **Steps:**
 1. Set User A language to English
 2. Set User B language to Spanish
 3. User A sends "Hello, how are you?"
 
 **Expected Result:**
-- User B sees: "Hola, ¿cómo estás?"
-- Translation indicator present
-- Original message saved in database
+- User B can translate the message into Spanish
+- Translation works without an external API key
+- Original message remains available
 
-**Status:** ⏳ To Test (needs 2 accounts, Gemini API key)
+**Status:** ⏳ To Test (needs 2 accounts)
 
 ---
 
-### Test Case 8.2: AI Hate Speech - Bottle
+### Test Case 8.2: Local Translation - Multi-language
 **Steps:**
-1. Try to throw bottle with offensive words
-2. Submit
+1. Set the recipient's preferred language
+2. Send a message in a different supported language
+3. Translate the received message
 
 **Expected Result:**
-- AI detects inappropriate content
-- Bottle NOT created
-- Error message displayed
+- The message is translated using the local translation system
+- Translation works without an external AI API
+- If a direct language pair is unavailable, the system can use an English pivot when supported
 
-**Status:** ⏳ To Test (needs Gemini API key)
+**Status:** ⏳ To Test
 
 ---
 
-### Test Case 8.3: AI Hate Speech - Chat
+### Test Case 8.3: Automatic Language Detection
 **Steps:**
-1. Try to send offensive message in chat
-2. Press send
+1. Send a message in a supported language
+2. Check the detected source language
 
 **Expected Result:**
-- AI blocks message
-- Alert shown
-- Message NOT sent
+- The message language is detected locally
+- The detected language is used as the source language for translation
 
-**Status:** ⏳ To Test (needs Gemini API key)
-
----
-
-### Test Case 8.4: AI Hate Speech - Journal
-**Steps:**
-1. Try to create journal with inappropriate content
-2. Click Create
-
-**Expected Result:**
-- AI blocks journal creation
-- Error message shown
-- Journal NOT created
-
-**Status:** ⏳ To Test (needs Gemini API key)
-
----
+**Status:** ⏳ To Test
 
 ## Module 9: Safety & Privacy Module ✅
-
-### Test Case 9.1: Journal Privacy - Private
-**Steps:**
-1. User A creates PRIVATE journal
-2. Login as User B (not connected)
-3. Check Discover page
-
-**Expected Result:**
-- User B CANNOT see User A's private journal
-- Journal not visible anywhere to User B
-
-**Status:** ⏳ To Test (needs 2 accounts)
-
----
-
-### Test Case 9.2: Journal Privacy - Connections
-**Steps:**
-1. User A creates CONNECTIONS journal
-2. User B is connected to User A
-3. User B checks Connections Journals
-
-**Expected Result:**
-- User B CAN see User A's connections journal
-- Visible in Connections tab
-
-**Status:** ⏳ To Test (needs 2 connected accounts)
-
----
-
-### Test Case 9.3: Journal Privacy - Public
-**Steps:**
-1. User A creates PUBLIC journal
-2. Login as any user
-3. Check Discover page
-
-**Expected Result:**
-- Any user can see public journal
-- Visible in Discover tab
-
-**Status:** ⏳ To Test (needs 2 accounts)
-
----
 
 ### Test Case 9.4: Story Visibility
 **Steps:**
@@ -777,7 +567,7 @@
 2. Check navigation bar
 
 **Expected Result:**
-- Shows all links: Dashboard, Profile, Throw Bottle, Bottle Pool, Connections, Chats, Journals, Stories, Logout
+- Shows all links: Dashboard, Profile, Throw Bottle, Bottle Pool, Connections, Chats, Stories, Logout
 - All links working
 
 **Status:** ⏳ To Test
@@ -816,7 +606,7 @@
 
 ### Test Case 11.1: Data Persistence
 **Steps:**
-1. Create content (bottle, journal, story)
+1. Create content (bottle, story)
 2. Logout and login again
 3. Check if content persists
 
@@ -933,7 +723,6 @@
 3. Real-Time Chat
 4. AI Translation
 5. AI Hate Speech Detection
-6. Journals (CRUD)
 7. Stories (CRUD)
 8. Reputation System
 

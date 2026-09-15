@@ -45,9 +45,6 @@
             {{ trust_info.level.progress|round(1) }}% to next level
         </small>
         <div style="display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap;">
-            <span class="badge {% if trust_info.can_create_public_journals %}badge-public{% else %}badge-private{% endif %}">
-                Public Journals: {% if trust_info.can_create_public_journals %}Unlocked{% else %}Locked (50 pts){% endif %}
-            </span>
             <span class="badge {% if trust_info.can_share_media %}badge-public{% else %}badge-private{% endif %}">
                 Media Sharing: {% if trust_info.can_share_media %}Unlocked{% else %}Locked (100 pts){% endif %}
             </span>
@@ -148,7 +145,6 @@
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
             <a href="{{ url_for('bottle.throw_bottle') }}" class="btn btn-primary">Throw a Bottle</a>
             <a href="{{ url_for('bottle.bottle_pool') }}" class="btn btn-secondary">Browse Bottle Pool</a>
-            <a href="{{ url_for('journal.my_journals') }}" class="btn btn-secondary">My Journals</a>
             <a href="{{ url_for('story.create_story') }}" class="btn btn-secondary">Share a Story</a>
             <a href="{{ url_for('profile.profile') }}" class="btn btn-secondary">Edit Profile</a>
         </div>

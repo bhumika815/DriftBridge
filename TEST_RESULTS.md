@@ -70,32 +70,10 @@
 | Message with Inappropriate Content | ✅ PASS | AI blocks offensive messages |
 | Real-Time Delivery (WebSocket) | ✅ PASS | Instant message appearance |
 | AI Translation (Same Language) | ✅ PASS | No translation needed |
-| AI Translation (Different Languages) | ⚠️ NEEDS API KEY | Requires Gemini API configuration |
+| Local Translation (Different Languages) | ⚠️ NEEDS TESTING | Uses Argos Translate locally |
 | View Conversations List | ✅ PASS | Shows all active chats |
 
 **Module Status:** ✅ **90% PASS** (Translation needs API key setup)
-
----
-
-### Module 5: Personal Journals ✅ **PASS**
-
-| Test Case | Status | Notes |
-|-----------|--------|-------|
-| Create Journal (Private) | ✅ PASS | Created successfully, +15 points |
-| Create Journal (Connections) | ✅ PASS | Privacy setting applied |
-| Create Journal (Public) | ✅ PASS | Visible in Discover tab |
-| Create Journal (Inappropriate) | ✅ PASS | AI blocks offensive content |
-| View My Journals | ✅ PASS | Lists all user journals |
-| Edit Journal | ✅ PASS | Updates save successfully |
-| Delete Journal | ✅ PASS | Removes from database |
-| View Full Journal | ✅ PASS | Full content displays |
-| Discover Public Journals | ✅ PASS | Shows community journals |
-| View Connections' Journals | ✅ PASS | Shows friend journals |
-| Privacy Settings (Private) | ✅ PASS | Only author can see |
-| Privacy Settings (Connections) | ✅ PASS | Only connections can see |
-| Privacy Settings (Public) | ✅ PASS | Everyone can see |
-
-**Module Status:** ✅ **100% PASS**
 
 ---
 
@@ -127,7 +105,6 @@
 | Earn Points - Throw Bottle | ✅ PASS | +5 points awarded |
 | Earn Points - Keep Bottle | ✅ PASS | +10 points awarded |
 | Earn Points - Send Message | ✅ PASS | +2 points awarded |
-| Earn Points - Create Journal | ✅ PASS | +15 points awarded |
 | Earn Points - Create Story | ✅ PASS | +10 points awarded |
 | Trust Level Progression | ✅ PASS | Levels update correctly |
 | Trust Levels (6 total) | ✅ PASS | Newcomer to Legend |
@@ -144,24 +121,18 @@
 
 ---
 
-### Module 8: AI-Powered Features ⚠️ **NEEDS API KEY**
+### Module 8: Language & Translation Features ⚠️ **NEEDS TESTING**
 
 | Test Case | Status | Notes |
 |-----------|--------|-------|
-| AI Translation - Basic | ⚠️ NEEDS SETUP | Requires Gemini API key |
-| AI Translation - Multi-language | ⚠️ NEEDS SETUP | Requires Gemini API key |
-| AI Hate Speech - Bottle | ⚠️ NEEDS SETUP | Requires Gemini API key |
-| AI Hate Speech - Chat | ⚠️ NEEDS SETUP | Requires Gemini API key |
-| AI Hate Speech - Journal | ⚠️ NEEDS SETUP | Requires Gemini API key |
-| Content Safety Check | ⚠️ NEEDS SETUP | Requires Gemini API key |
+| Local Translation - Basic | ⚠️ NEEDS TESTING | Uses Argos Translate locally |
+| Local Translation - Multi-language | ⚠️ NEEDS TESTING | Supports direct translation and English pivot where available |
+| Automatic Language Detection | ⚠️ NEEDS TESTING | Uses langdetect locally |
+| Content Safety | ⚠️ NOT IMPLEMENTED | External AI moderation has been removed |
 
-**Module Status:** ⚠️ **READY** (Needs API key configuration)
+**Module Status:** ⚠️ **NEEDS TESTING**
 
-**Note:** All AI features are implemented and code-complete. Testing requires:
-1. Get Gemini API key from: https://makersuite.google.com/app/apikey
-2. Add to `.env` file: `GEMINI_API_KEY=your-key-here`
-3. Restart application
-4. Test AI features
+**Note:** Translation and language detection no longer require an external AI API key. The current implementation uses local language detection and Argos Translate.
 
 ---
 
@@ -169,9 +140,6 @@
 
 | Test Case | Status | Notes |
 |-----------|--------|-------|
-| Journal Privacy - Private | ✅ PASS | Visibility restricted |
-| Journal Privacy - Connections | ✅ PASS | Only connections see |
-| Journal Privacy - Public | ✅ PASS | Everyone can see |
 | Story Visibility (Connections Only) | ✅ PASS | Connection-based |
 | Content Flagging System | ✅ PASS | Database model ready |
 | Password Security | ✅ PASS | Bcrypt hashing used |
@@ -199,7 +167,6 @@
 - ✅ bottles
 - ✅ conversations
 - ✅ messages
-- ✅ journals
 - ✅ stories
 - ✅ story_views
 - ✅ content_flags
@@ -222,7 +189,6 @@
 - ✅ profile_bp (Profile)
 - ✅ bottle_bp (Bottles)
 - ✅ chat_bp (Chat)
-- ✅ journal_bp (Journals)
 - ✅ story_bp (Stories)
 
 ---
@@ -261,7 +227,6 @@
 2. **User Profile** - 100%
 3. **Digital Bottles** - 100%
 4. **Real-Time Chat** - 90% (needs API for translation)
-5. **Personal Journals** - 100%
 6. **24-Hour Stories** - 100%
 7. **Trust & Reputation** - 100%
 8. **Safety & Privacy** - 100%
@@ -282,7 +247,6 @@
 | 4. AI hate speech detection | ⚠️ CODE READY | Implementation complete, needs API key |
 | 5. Real-time chat system | ✅ COMPLETE | WebSocket working, instant messaging |
 | 6. Trust & reputation system | ✅ COMPLETE | 6 levels, point awards, feature unlocking |
-| 7. Personal journal module | ✅ COMPLETE | CRUD, privacy settings, discovery |
 | 8. Story sharing | ✅ COMPLETE | 24-hour stories, view tracking |
 | 9. Admin dashboard | ⏳ BASIC | ContentFlag model ready for admin review |
 
@@ -302,14 +266,13 @@
 ```
 
 ### Known Issues
-1. ⚠️ **Gemini API Warning**: Package deprecation warning (doesn't affect functionality)
-2. ⚠️ **API Key Required**: AI features need Gemini API key configuration
+1. ⚠️ **Content Moderation**: External AI-based content moderation is currently not implemented.
+2. ⚠️ **Translation Testing**: Full end-to-end translation testing with two accounts is still required.
 
 ### Recommended Actions
-1. ✅ Add Gemini API key to `.env`
-2. ✅ Test AI translation with 2 accounts
-3. ✅ Test AI moderation
-4. ✅ Create demo accounts for presentation
+1. ✅ Test local AI translation with 2 accounts
+2. ✅ Verify automatic language detection
+3. ✅ Create demo accounts for presentation
 
 ---
 
@@ -372,11 +335,10 @@
 ## 🎯 Next Steps for Student
 
 ### Before Presentation:
-1. ✅ Get Gemini API key (free tier available)
-2. ✅ Add API key to `.env` file
-3. ✅ Test AI features with 2 demo accounts
-4. ✅ Prepare demo script
-5. ✅ Take screenshots of key features
+1 ✅ Add API key to `.env` file
+2. ✅ Test AI features with 2 demo accounts
+3. ✅ Prepare demo script
+4. ✅ Take screenshots of key features
 
 ### For Submission:
 1. ✅ Code is on GitHub: https://github.com/bhumika815/DriftBridge
