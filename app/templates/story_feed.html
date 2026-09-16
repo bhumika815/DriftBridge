@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-Stories - DriftBridge
+Diary Feed - DriftBridge
 {% endblock %}
 
 {% block content %}
@@ -9,54 +9,155 @@ Stories - DriftBridge
 <div class="stories-container">
 
     <div class="stories-header">
-        <h1>Stories</h1>
+        <h1>Diary Feed</h1>
+
         <a href="{{ url_for('story.create_story') }}" class="btn btn-primary">
-            New Story
+            Write a Diary
         </a>
     </div>
 
-    <div class="tabs">
-        <a href="{{ url_for('story.feed') }}" class="tab active">Feed</a>
-        <a href="{{ url_for('story.my_stories') }}" class="tab">My Stories</a>
-    </div>
 
-    {% if users_with_stories %}
-        <div class="story-ring-grid">
+    {% if stories %}
 
-            <!-- My Story -->
-            <div class="add-story-card">
-                <a href="{{ url_for('story.my_stories') }}" style="text-decoration: none;">
-                    <div class="add-story">
-                        +
-                    </div>
-                    <div class="story-username">Your Story</div>
-                </a>
-            </div>
+        <div class="diary-feed">
 
-            <!-- Friends' Stories -->
-            {% for user_id, data in users_with_stories.items() %}
-                <div class="story-ring">
-                    <a href="{{ url_for('story.user_stories', user_id=user_id) }}" style="text-decoration: none;">
-                        <div class="story-avatar {% if not data.has_unviewed %}viewed{% endif %}">
-                            <div class="story-avatar-inner">
-                                {{ data.user.username[0].upper() }}
+            {% for story in stories %}
+
+                <article class="diary-card">
+
+                    <div class="diary-header">
+
+                        <a
+                            href="{{ url_for('story.user_stories', user_id=story.user_id) }}"
+                            class="diary-author"
+                            style="text-decoration: none;"
+                        >
+
+                            <div class="avatar avatar-primary">
+                                {{ story.author.username[0]|upper }}
                             </div>
+
+                            <strong>
+                                {{ story.author.username }}
+                            </strong>
+
+                        </a>
+
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('story.view_story', story_id=story.id) }}"
+                        style="text-decoration: none; color: inherit;"
+                    >
+
+                        <div
+                            class="diary-content"
+                            style="background: {{ story.background_color or '#1a4380' }};"
+                        >
+                            {{ story.text_content }}
                         </div>
-                        <div class="story-username">{{ data.user.username }}</div>
+
                     </a>
-                </div>
+
+
+                    <div class="diary-actions">
+
+                        <button
+                            type="button"
+                            class="diary-action"
+                            disabled
+                            title="Likes will be available soon"
+                        >
+                            ♥
+                        </button>
+
+                        <button
+                            type="button"
+                            class="diary-action"
+                            disabled
+                            title="Comments will be available soon"
+                        >
+                            💬
+                        </button>
+
+                        <button
+                            type="button"
+                            class="diary-action"
+                            disabled
+                            title="Sharing will be available soon"
+                        >
+                            ↗
+                        </button>
+
+
+                        {% if story.user_id == current_user.id %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('story.delete_story', story_id=story.id) }}"
+                                style="margin-left: auto;"
+                                onsubmit="return confirm('Delete this Diary?');"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="diary-action diary-delete"
+                                    title="Delete Diary"
+                                >
+                                    ⋮
+                                </button>
+
+                            </form>
+
+                        {% else %}
+
+                            <button
+                                type="button"
+                                class="diary-action"
+                                disabled
+                                title="Reporting will be available soon"
+                            >
+                                ⋮
+                            </button>
+
+                        {% endif %}
+
+                    </div>
+
+                </article>
+
             {% endfor %}
 
         </div>
+
+
     {% else %}
+
         <div class="empty-state">
-            <h2>No stories yet</h2>
-            <p>Stories from your connections will appear here.</p>
-            <p>Connect with people by keeping their bottles!</p>
-            <a href="{{ url_for('story.create_story') }}" class="btn btn-primary" style="margin-top: 16px;">
-                Create Your First Story
+
+            <h2>No Diaries yet</h2>
+
+            <p>
+                Be the first to share something with the DriftBridge community.
+            </p>
+
+            <a
+                href="{{ url_for('story.create_story') }}"
+                class="btn btn-primary"
+                style="margin-top: 16px;"
+            >
+                Write Your First Diary
             </a>
+
         </div>
+
     {% endif %}
 
 </div>
