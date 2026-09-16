@@ -141,51 +141,17 @@ def delete_story(story_id):
 @story_bp.route("/feed")
 @login_required
 def feed():
-    """View stories from connections"""
-    
-    # Get all conversations to find connections
-    conversations = Conversation.query.filter(
-        (Conversation.user1_id == current_user.id) |
-        (Conversation.user2_id == current_user.id)
-    ).all()
-    
-    # Get user IDs of connections
-    connection_ids = set()
-    for conv in conversations:
-        if conv.user1_id == current_user.id:
-            connection_ids.add(conv.user2_id)
-        else:
-            connection_ids.add(conv.user1_id)
-    
-    if not connection_ids:
-        return render_template("story_feed.html", stories=[], users_with_stories={})
-    
-    # Get active stories from connections
+    """View all active Diaries from all users."""
+
     stories = Story.query.filter(
-        Story.user_id.in_(connection_ids),
         Story.expires_at > datetime.utcnow()
     ).order_by(
         Story.created_at.desc()
     ).all()
-    
-    # Group stories by user
-    users_with_stories = {}
-    for story in stories:
-        if story.author.id not in users_with_stories:
-            users_with_stories[story.author.id] = {
-                'user': story.author,
-                'stories': [],
-                'has_unviewed': False
-            }
-        users_with_stories[story.author.id]['stories'].append(story)
-        
-        # Check if there are unviewed stories
-        if not story.has_viewed(current_user):
-            users_with_stories[story.author.id]['has_unviewed'] = True
-    
+
     return render_template(
         "story_feed.html",
-        users_with_stories=users_with_stories
+        stories=stories
     )
 
 
