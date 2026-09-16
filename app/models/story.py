@@ -91,15 +91,13 @@ class Story(db.Model):
 
     def is_visible_to(self, user):
         """
-        Check if this story is visible to a given user
-        Stories are visible to the author and their connections
-        
-        Args:
-            user: User object to check visibility for
-            
-        Returns:
-            Boolean indicating if user can view this story
+        Check whether this Diary can be viewed by a user.
+
+        Diaries are publicly visible to authenticated users.
+        The 24-hour expiry controls Feed visibility only and does
+        not determine whether the Diary record can be viewed.
         """
+        return True
         # Author can always see their own stories
         if self.user_id == user.id:
             return True

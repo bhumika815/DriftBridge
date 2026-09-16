@@ -1,36 +1,115 @@
 {% extends "base.html" %}
 
 {% block title %}
-Story - DriftBridge
+Diary - DriftBridge
 {% endblock %}
 
 {% block content %}
 
-<div class="story-view-container">
+<div class="diary-view-container">
 
-    <div class="story-view-card">
-        <div class="story-view-header">
-            <div>
-                <div class="story-view-author">{{ story.author.username }}</div>
-                <div class="story-view-time">{{ story.created_at.strftime("%I:%M %p") }}</div>
+    <article class="diary-view-card">
+
+        <!-- Diary Header -->
+        <div class="diary-view-header">
+
+            <a
+                href="{{ url_for('story.user_stories', user_id=story.user_id) }}"
+                class="diary-view-author"
+            >
+
+                <div class="avatar avatar-primary">
+                    {{ story.author.username[0]|upper }}
+                </div>
+
+                <div class="diary-view-author-info">
+
+                    <strong>
+                        {{ story.author.username }}
+                    </strong>
+
+                    <span>
+                        {{ story.created_at.strftime("%B %d, %Y") }}
+                    </span>
+
+                </div>
+
+            </a>
+
+
+            <!-- Diary Menu -->
+            <button
+                type="button"
+                class="diary-view-menu"
+                aria-label="Diary options"
+                title="Diary options"
+            >
+                ⋮
+            </button>
+
+        </div>
+
+
+        <!-- Diary Content -->
+        <div
+            class="diary-view-content"
+            style="background: {{ story.background_color or '#1a4380' }};"
+        >
+
+            <div class="diary-view-text">
+                {{ story.text_content }}
             </div>
-            <a href="{{ url_for('story.feed') }}">
-                <button class="story-close-btn">&times;</button>
-            </a>
+
         </div>
 
-        <div class="story-view-content" style="background: {{ story.background_color or '#1a4380' }};">
-            {{ story.text_content }}
-        </div>
-    </div>
 
-    <div class="story-nav">
-        <a href="{{ url_for('story.feed') }}" class="story-nav-btn">Back to Feed</a>
-        {% if story.user_id == current_user.id %}
-            <a href="{{ url_for('story.story_viewers', story_id=story.id) }}" class="story-nav-btn">
-                {{ story.view_count() }} Views
-            </a>
-        {% endif %}
+        <!-- Diary Actions -->
+        <div class="diary-view-actions">
+
+            <button
+                type="button"
+                class="diary-view-action"
+                disabled
+                title="Like"
+            >
+                ♥
+            </button>
+
+            <button
+                type="button"
+                class="diary-view-action"
+                disabled
+                title="Comment"
+            >
+                💬
+            </button>
+
+            <button
+                type="button"
+                class="diary-view-action"
+                disabled
+                title="Share"
+            >
+                ↗
+            </button>
+
+        </div>
+
+    </article>
+
+
+    <!-- Close / Back -->
+    <div class="diary-view-close">
+
+        <a
+            href="{{ url_for('story.feed') }}"
+            class="diary-close-button"
+            aria-label="Back to Diary Feed"
+            title="Back to Diary Feed"
+        >
+            &times;
+        </a>
+
     </div>
 
 </div>

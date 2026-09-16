@@ -91,12 +91,8 @@ def view_story(story_id):
         flash("Story not found.", "error")
         return redirect(url_for("story.feed"))
     
-    # Check if expired
-    if story.is_expired():
-        db.session.delete(story)
-        db.session.commit()
-        flash("This story has expired.", "error")
-        return redirect(url_for("story.feed"))
+   # Expiry controls Feed visibility only.
+   # Diaries remain permanently available from the owner's profile.
     
     # Check if user has permission to view
     if not story.is_visible_to(current_user):
