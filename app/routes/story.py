@@ -23,26 +23,14 @@ story_bp = Blueprint(
 @story_bp.route("/")
 @login_required
 def my_stories():
-    """View user's own stories"""
+    """View all of the user's Diaries."""
+
     stories = Story.query.filter_by(
         user_id=current_user.id
     ).order_by(
         Story.created_at.desc()
     ).all()
-    
-    # Remove expired stories
-    for story in stories:
-        if story.is_expired():
-            db.session.delete(story)
-    db.session.commit()
-    
-    # Refresh list
-    stories = Story.query.filter_by(
-        user_id=current_user.id
-    ).order_by(
-        Story.created_at.desc()
-    ).all()
-    
+
     return render_template(
         "my_stories.html",
         stories=stories
