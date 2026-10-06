@@ -1,124 +1,963 @@
 {% extends "base.html" %}
 
-{% block title %}
-My Chats - DriftBridge
-{% endblock %}
+{% block title %}Chats - DriftBridge{% endblock %}
 
 {% block content %}
 
 <style>
-    .chat-container {
-        max-width: 800px;
-        margin: 40px auto;
-        padding: 20px;
+
+/* =========================================================
+   DRIFTBRIDGE — CHAT LIST
+   ========================================================= */
+
+.chat-page {
+    min-height: calc(100vh - 80px);
+    background:
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(14, 165, 233, 0.08),
+            transparent 28%
+        ),
+        linear-gradient(
+            180deg,
+            #071426 0%,
+            #0b1b30 55%,
+            #061321 100%
+        );
+
+    padding: 28px 18px 40px;
+}
+
+
+/* =========================================================
+   MAIN CHAT PANEL
+   ========================================================= */
+
+.chat-list-shell {
+    width: min(760px, 100%);
+    margin: 0 auto;
+
+    background: rgba(19, 34, 55, 0.94);
+
+    border: 1px solid rgba(148, 163, 184, 0.14);
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.30),
+        0 0 0 1px rgba(14, 165, 233, 0.03);
+
+    animation: chatPanelIn 0.45s ease both;
+}
+
+
+@keyframes chatPanelIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(12px);
     }
 
-    .chat-container h1 {
-        margin-bottom: 10px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 
-    .chat-description {
-        color: #666;
-        margin-bottom: 30px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.chat-list-header {
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 72px;
+
+    padding: 0 24px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(30, 49, 75, 0.96),
+            rgba(20, 37, 60, 0.96)
+        );
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.13);
+}
+
+
+.chat-list-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+.chat-list-icon {
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0ea5e9,
+            #0284c7
+        );
+
+    color: white;
+
+    font-size: 18px;
+
+    box-shadow:
+        0 5px 16px rgba(14, 165, 233, 0.28);
+}
+
+
+.chat-list-header h1 {
+
+    margin: 0;
+
+    color: #f8fafc;
+
+    font-size: 22px;
+    font-weight: 700;
+
+    letter-spacing: -0.3px;
+}
+
+
+.chat-list-subtitle {
+
+    margin: 3px 0 0;
+
+    color: #8fa5bd;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   CONVERSATION LIST
+   ========================================================= */
+
+.conversation-list {
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* =========================================================
+   CONVERSATION
+   ========================================================= */
+
+.conversation-link {
+
+    display: block;
+
+    text-decoration: none;
+
+    color: inherit;
+}
+
+
+.conversation-card {
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    min-height: 88px;
+
+    padding: 13px 18px;
+
+    background: #142238;
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        padding-left 0.2s ease;
+}
+
+
+/* subtle left accent */
+
+.conversation-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 3px;
+
+    background: transparent;
+
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.conversation-link:hover .conversation-card {
+
+    background: #1a2b43;
+
+    padding-left: 22px;
+}
+
+
+.conversation-link:hover .conversation-card::before {
+
+    background: #0ea5e9;
+
+    box-shadow:
+        0 0 14px rgba(14, 165, 233, 0.45);
+}
+
+
+.conversation-link:active .conversation-card {
+
+    transform: scale(0.995);
+}
+
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+
+.conversation-avatar {
+
+    flex: 0 0 auto;
+
+    width: 58px;
+    height: 58px;
+
+    margin-right: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #243b5a,
+            #0d1c31
+        );
+
+    border: 2px solid rgba(148, 163, 184, 0.18);
+
+    color: #dff6ff;
+
+    font-size: 21px;
+    font-weight: 700;
+
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.22);
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.conversation-link:hover .conversation-avatar {
+
+    transform: scale(1.05);
+
+    border-color: rgba(14, 165, 233, 0.55);
+}
+
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+.conversation-content {
+
+    min-width: 0;
+
+    flex: 1;
+}
+
+
+/* =========================================================
+   TOP ROW
+   ========================================================= */
+
+.conversation-top {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+
+.conversation-name {
+
+    min-width: 0;
+
+    margin: 0;
+
+    color: #f1f5f9;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    line-height: 1.25;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.conversation-country {
+
+    flex: 0 0 auto;
+
+    color: #7f96af;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   LAST MESSAGE
+   ========================================================= */
+
+.conversation-preview {
+
+    margin-top: 5px;
+
+    color: #a8bad0;
+
+    font-size: 14px;
+
+    line-height: 1.35;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    max-width: 100%;
+}
+
+
+.conversation-preview.you {
+
+    color: #91a9c1;
+}
+
+
+/* System/status text */
+
+.conversation-status {
+
+    color: #7f96af;
+
+    font-style: normal;
+}
+
+
+/* =========================================================
+   RIGHT SIDE TIME
+   ========================================================= */
+
+.conversation-time {
+
+    flex: 0 0 auto;
+
+    align-self: flex-start;
+
+    margin-left: 12px;
+
+    padding-top: 2px;
+
+    color: #9bb0c5;
+
+    font-size: 12px;
+
+    line-height: 1.3;
+
+    text-align: right;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.chat-empty {
+
+    padding: 70px 25px;
+
+    text-align: center;
+
+    background: #142238;
+
+    color: #9fb2c7;
+}
+
+
+.chat-empty-icon {
+
+    width: 64px;
+    height: 64px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(14, 165, 233, 0.10);
+
+    border: 1px solid rgba(14, 165, 233, 0.22);
+
+    color: #38bdf8;
+
+    font-size: 27px;
+}
+
+
+.chat-empty h2 {
+
+    margin: 0 0 8px;
+
+    color: #e2e8f0;
+
+    font-size: 20px;
+}
+
+
+.chat-empty p {
+
+    margin: 0;
+
+    color: #849ab1;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .chat-page {
+        padding: 12px 0 25px;
     }
 
-    .conversation-list {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
+
+    .chat-list-shell {
+
+        width: 100%;
+
+        border-radius: 0;
+
+        border-left: none;
+        border-right: none;
     }
+
+
+    .chat-list-header {
+
+        min-height: 64px;
+
+        padding: 0 17px;
+    }
+
+
+    .chat-list-header h1 {
+        font-size: 20px;
+    }
+
+
+    .chat-list-subtitle {
+        display: none;
+    }
+
 
     .conversation-card {
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-        text-decoration: none;
-        color: #222;
+
+        min-height: 78px;
+
+        padding: 10px 14px;
     }
 
-    .conversation-card:hover {
-        box-shadow: 0 5px 16px rgba(0, 0, 0, 0.12);
+
+    .conversation-link:hover .conversation-card {
+        padding-left: 18px;
     }
 
-    .conversation-card h3 {
-        margin: 0 0 8px;
+
+    .conversation-avatar {
+
+        width: 52px;
+        height: 52px;
+
+        margin-right: 12px;
+
+        font-size: 19px;
     }
 
-    .conversation-date {
-        color: #777;
-        font-size: 14px;
+
+    .conversation-name {
+        font-size: 15px;
     }
 
-    .empty {
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        text-align: center;
-        color: #666;
+
+    .conversation-country {
+        font-size: 12px;
     }
+
+
+    .conversation-preview {
+        font-size: 13px;
+    }
+
+
+    .conversation-time {
+        font-size: 11px;
+    }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .chat-list-shell,
+    .conversation-card,
+    .conversation-avatar,
+    .conversation-link:hover .conversation-card {
+        animation: none;
+        transition: none;
+    }
+
+}
+
 </style>
 
 
-<main class="chat-container">
+<div class="chat-page">
 
-    <h1>My Chats</h1>
-
-    <p class="chat-description">
-        Your DriftBridge conversations will appear here.
-    </p>
+    <div class="chat-list-shell">
 
 
-    {% if conversations %}
+        <!-- =================================================
+             HEADER
+             ================================================= -->
+
+        <div class="chat-list-header">
+
+            <div class="chat-list-title">
+
+                <div class="chat-list-icon">
+                    💬
+                </div>
+
+                <div>
+
+                    <h1>Chats</h1>
+
+                    <p class="chat-list-subtitle">
+                        Your connections across the ocean
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CONVERSATIONS
+             ================================================= -->
+
+        {% if conversation_data %}
 
         <div class="conversation-list">
 
-            {% for conversation in conversations %}
+            {% for item in conversation_data %}
 
-                <a
-                    class="conversation-card"
-                     href="{{ url_for('chat.chat', conversation_id=conversation.id) }}"
+            <a
+                href="{{ url_for('chat.chat', conversation_id=item.conversation.id) }}"
+                class="conversation-link"
+            >
 
-                >
+                <div class="conversation-card">
 
-                    {% if conversation.user1_id == current_user.id %}
 
-                        <h3>
-                            {{ conversation.user2.username }}
-                        </h3>
+                    <!-- AVATAR -->
+
+                    <div class="conversation-avatar">
+
+                        {{ item.other_user.username[0]|upper }}
+
+                    </div>
+
+
+                    <!-- CONTENT -->
+
+                    <div class="conversation-content">
+
+
+                        <!-- NAME + COUNTRY -->
+
+                        <div class="conversation-top">
+
+                            <h2 class="conversation-name">
+
+                                {{ item.other_user.username }}
+
+                            </h2>
+
+
+                            {% if item.other_user.country %}
+
+                            <span class="conversation-country">
+
+                                · {{ item.other_user.country }}
+
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- MESSAGE PREVIEW -->
+
+                        {% if item.latest_message %}
+
+                            {% if item.latest_message.sender_id == current_user.id %}
+
+                            <div class="conversation-preview you">
+
+                                You: {{ item.latest_message.content }}
+
+                            </div>
+
+                            {% else %}
+
+                            <div class="conversation-preview">
+
+                                {{ item.latest_message.content }}
+
+                            </div>
+
+                            {% endif %}
+
+
+                        {% elif item.accepted_bottle %}
+
+                            <div class="conversation-preview conversation-status">
+
+                                {% if item.accepted_bottle.sender_id == current_user.id %}
+
+                                    They kept your bottle
+
+                                {% else %}
+
+                                    You kept their bottle
+
+                                {% endif %}
+
+                            </div>
+
+
+                        {% else %}
+
+                            <div class="conversation-preview conversation-status">
+
+                                Conversation started
+
+                            </div>
+
+                        {% endif %}
+
+
+                    </div>
+
+
+                    <!-- TIME -->
+
+                    {% if item.latest_message %}
+
+                    <time
+                        class="conversation-time relative-time"
+                        datetime="{{ item.latest_message.created_at.strftime('%Y-%m-%dT%H:%M:%S') }}"
+                    >
+                        {{ item.latest_message.created_at.strftime('%d %b') }}
+                    </time>
 
                     {% else %}
 
-                        <h3>
-                            {{ conversation.user1.username }}
-                        </h3>
+                    <time
+                        class="conversation-time relative-time"
+                        datetime="{{ item.conversation.created_at.strftime('%Y-%m-%dT%H:%M:%S') }}"
+                    >
+                        {{ item.conversation.created_at.strftime('%d %b') }}
+                    </time>
 
                     {% endif %}
 
-                    <div class="conversation-date">
-                        Connected on {{ conversation.created_at.strftime("%d %b %Y") }}
-                    </div>
 
-                </a>
+                </div>
+
+            </a>
 
             {% endfor %}
 
         </div>
 
-    {% else %}
 
-        <div class="empty">
+        {% else %}
 
-            <h2>No conversations yet.</h2>
+
+        <!-- =================================================
+             EMPTY STATE
+             ================================================= -->
+
+        <div class="chat-empty">
+
+            <div class="chat-empty-icon">
+                💬
+            </div>
+
+            <h2>No chats yet</h2>
 
             <p>
-                Keep someone's bottle to create your first connection.
+                Keep someone's bottle from the Pool to start
+                a conversation.
             </p>
 
         </div>
 
-    {% endif %}
+        {% endif %}
 
-</main>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   RELATIVE CHAT TIME
+   ========================================================= */
+
+(function () {
+
+    function updateRelativeTimes() {
+
+        const elements =
+            document.querySelectorAll(".relative-time");
+
+
+        elements.forEach(function (element) {
+
+            const raw =
+                element.getAttribute("datetime");
+
+            if (!raw) {
+                return;
+            }
+
+
+            /*
+             * Flask stores created_at in UTC.
+             * Add Z so JavaScript interprets it correctly.
+             */
+
+            const date =
+                new Date(raw + "Z");
+
+            if (Number.isNaN(date.getTime())) {
+                return;
+            }
+
+
+            const now =
+                new Date();
+
+            const difference =
+                Math.floor(
+                    (now.getTime() - date.getTime()) / 1000
+                );
+
+
+            if (difference < 0) {
+
+                element.textContent = "Just now";
+
+                return;
+            }
+
+
+            if (difference < 60) {
+
+                element.textContent =
+                    "Just now";
+
+                return;
+            }
+
+
+            const minutes =
+                Math.floor(
+                    difference / 60
+                );
+
+
+            if (minutes < 60) {
+
+                element.textContent =
+                    minutes === 1
+                        ? "1 minute ago"
+                        : minutes + " minutes ago";
+
+                return;
+            }
+
+
+            const hours =
+                Math.floor(
+                    minutes / 60
+                );
+
+
+            if (hours < 24) {
+
+                element.textContent =
+                    hours === 1
+                        ? "1 hour ago"
+                        : hours + " hours ago";
+
+                return;
+            }
+
+
+            const days =
+                Math.floor(
+                    hours / 24
+                );
+
+
+            if (days < 7) {
+
+                element.textContent =
+                    days === 1
+                        ? "a day ago"
+                        : days + " days ago";
+
+                return;
+            }
+
+
+            if (days < 30) {
+
+                const weeks =
+                    Math.floor(days / 7);
+
+                element.textContent =
+                    weeks === 1
+                        ? "a week ago"
+                        : weeks + " weeks ago";
+
+                return;
+            }
+
+
+            if (days < 365) {
+
+                const months =
+                    Math.floor(days / 30);
+
+                element.textContent =
+                    months === 1
+                        ? "a month ago"
+                        : months + " months ago";
+
+                return;
+            }
+
+
+            const years =
+                Math.floor(days / 365);
+
+            element.textContent =
+                years === 1
+                    ? "a year ago"
+                    : years + " years ago";
+
+        });
+
+    }
+
+
+    updateRelativeTimes();
+
+
+    /*
+     * Keep the timestamps reasonably fresh
+     * while the Chats page remains open.
+     */
+
+    setInterval(
+        updateRelativeTimes,
+        60000
+    );
+
+})();
+
+</script>
 
 {% endblock %}

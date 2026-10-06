@@ -1,0 +1,1100 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} - DriftBridge{% endblock %}
+
+{% block content %}
+
+<div class="user-profile-container">
+
+    <!-- Profile Header -->
+    <section class="user-profile-card">
+
+        <div class="user-profile-header">
+
+            <div class="user-profile-avatar">
+                {{ user.username[0]|upper }}
+            </div>
+
+            <div class="user-profile-identity">
+
+                <h1>{{ user.username }}</h1>
+
+                {% if trust_info %}
+                <div class="user-profile-trust">
+                    {{ trust_info.level.badge }}
+                    {{ trust_info.level.name }}
+                </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Profile Actions -->
+{% if user.id != current_user.id %}
+
+<div class="user-profile-actions">
+
+<!-- Connection Action -->
+{% if conversation_exists %}
+
+<a
+    href="{{ url_for('chat.chat', conversation_id=conversation_id) }}"
+    class="btn btn-primary"
+>
+    Open Chat
+</a>
+
+{% else %}
+
+<a
+    href="{{ url_for('bottle.throw_bottle', user_id=user.id) }}"
+    class="btn btn-primary"
+>
+    Send a Bottle
+</a>
+
+{% endif %}
+
+    <!-- Block User -->
+    {% if not block_exists %}
+    <form
+        method="POST"
+        action="{{ url_for('chat.block_user', user_id=user.id) }}"
+        style="display: inline;"
+    >
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+        >
+
+        <button
+            type="submit"
+            class="btn btn-danger"
+        >
+            Block
+        </button>
+    </form>
+
+    {% else %}
+
+<form
+    method="POST"
+    action="{{ url_for('chat.unblock_user', user_id=user.id) }}"
+    style="display: inline;"
+>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <button
+        type="submit"
+        class="btn btn-secondary"
+    >
+        Unblock
+    </button>
+</form>
+
+{% endif %}
+
+
+    <!-- Report User -->
+<button
+    type="button"
+    class="btn btn-secondary"
+    onclick="openReportModal()"
+>
+    Report User
+</button>
+
+<!-- Report User Modal -->
+<div
+    id="reportModal"
+    class="diary-modal-overlay"
+    onclick="closeReportModal(event)"
+>
+    <div
+        class="diary-options-modal"
+        onclick="event.stopPropagation()"
+    >
+
+        <div class="diary-modal-header">
+            <h2>Report User</h2>
+
+            <button
+                type="button"
+                class="diary-modal-close"
+                onclick="closeReportModal()"
+            >
+                &times;
+            </button>
+        </div>
+
+        <p class="report-description">
+            Why are you reporting this user?
+        </p>
+
+        <form
+            method="POST"
+            action="{{ url_for('chat.report_user', user_id=user.id) }}"
+        >
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <label class="diary-option">
+                <input
+                    type="radio"
+                    name="reason"
+                    value="Harassment or bullying"
+                    required
+                >
+                Harassment or bullying
+            </label>
+
+            <label class="diary-option">
+                <input
+                    type="radio"
+                    name="reason"
+                    value="Spam"
+                >
+                Spam
+            </label>
+
+            <label class="diary-option">
+                <input
+                    type="radio"
+                    name="reason"
+                    value="Inappropriate behavior"
+                >
+                Inappropriate behavior
+            </label>
+
+            <label class="diary-option">
+                <input
+                    type="radio"
+                    name="reason"
+                    value="Impersonation"
+                >
+                Impersonation
+            </label>
+
+            <label class="diary-option">
+                <input
+                    type="radio"
+                    name="reason"
+                    value="Other"
+                >
+                Other
+            </label>
+
+            <div style="margin-top: 16px;">
+                <label for="reportDetails">
+                    Additional details (optional)
+                </label>
+
+                <textarea
+                    id="reportDetails"
+                    name="details"
+                    rows="4"
+                    maxlength="1000"
+                    placeholder="Tell us anything else we should know..."
+                    style="width: 100%; margin-top: 8px;"
+                ></textarea>
+            </div>
+
+            <div
+                style="
+                    display: flex;
+                    gap: 10px;
+                    margin-top: 16px;
+                "
+            >
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="closeReportModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                >
+                    Submit Report
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+</div>
+
+{% endif %}
+
+
+        {% if user.bio or user.age or user.country or user.interests or user.preferred_language %}
+
+        <div class="user-profile-section">
+
+            <h2>About</h2>
+
+            {% if user.bio %}
+            <p>{{ user.bio }}</p>
+            {% endif %}
+
+            {% if user.age %}
+            <p>Age: {{ user.age }}</p>
+            {% endif %}
+
+            {% if user.country %}
+            <p>Country: {{ user.country }}</p>
+            {% endif %}
+
+            {% if user.interests %}
+            <p>Interests: {{ user.interests }}</p>
+            {% endif %}
+
+            {% if user.preferred_language %}
+            <p>Language: {{ user.preferred_language }}</p>
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- Diaries -->
+    <section class="user-diaries-section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>Diaries</h2>
+
+                <p>
+                    Pages shared by {{ user.username }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if diaries %}
+
+            <div class="user-diaries-list">
+
+                {% for diary in diaries %}
+
+                <article class="user-diary-card">
+
+                    <div class="user-diary-header">
+
+                        <span>
+                            {{ diary.created_at.strftime("%B %d, %Y") }}
+                        </span>
+
+                        {% if diary.is_expired() %}
+
+                        <span class="diary-status">
+                            Past
+                        </span>
+
+                        {% else %}
+
+                        <span class="diary-status">
+                            Active
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    {% if diary.text_content %}
+
+                    <div class="user-diary-content">
+                        {{ diary.text_content }}
+                    </div>
+
+                    {% endif %}
+
+
+                    <div class="user-diary-actions">
+
+                        <a
+                            href="{{ url_for('story.view_story', story_id=diary.id) }}"
+                        >
+                            View Diary
+                        </a>
+
+                    </div>
+
+                </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <p>
+                    {{ user.username }} hasn't shared any Diaries yet.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+</section>
+
+<style>
+/* =========================================================
+   DRIFTBRIDGE USER PROFILE — OCEAN UI
+   ========================================================= */
+
+.user-profile-container {
+    width: min(1080px, calc(100% - 32px));
+    margin: 38px auto 70px;
+    animation: userProfileFadeIn 0.55s ease both;
+}
+
+@keyframes userProfileFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================================================
+   PROFILE HERO
+   ========================================================= */
+
+.user-profile-card {
+    position: relative;
+    overflow: visible;
+    padding: 0;
+    background: #ffffff;
+    border: 1px solid rgba(14, 165, 233, 0.14);
+    border-radius: 24px;
+    box-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.08),
+        0 4px 14px rgba(14, 165, 233, 0.05);
+}
+
+
+/* Ocean header */
+
+.user-profile-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    min-height: 210px;
+    padding: 42px 42px 34px;
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(255, 255, 255, 0.22),
+            transparent 24%
+        ),
+        radial-gradient(
+            circle at 15% 110%,
+            rgba(6, 182, 212, 0.22),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #075985 0%,
+            #0284c7 48%,
+            #06b6d4 100%
+        );
+
+    border-radius: 24px 24px 0 0;
+    color: white;
+}
+
+
+/* Decorative waves */
+
+.user-profile-header::before,
+.user-profile-header::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.user-profile-header::before {
+    width: 330px;
+    height: 330px;
+    right: -120px;
+    top: -220px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow:
+        0 0 0 35px rgba(255, 255, 255, 0.035),
+        0 0 0 70px rgba(255, 255, 255, 0.025);
+}
+
+.user-profile-header::after {
+    width: 190px;
+    height: 190px;
+    left: -110px;
+    bottom: -135px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+
+/* Avatar */
+
+.user-profile-avatar {
+    position: relative;
+    z-index: 2;
+
+    flex: 0 0 108px;
+    width: 108px;
+    height: 108px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.96),
+            rgba(224, 247, 250, 0.88)
+        );
+
+    color: #0369a1;
+
+    font-size: 42px;
+    font-weight: 800;
+
+    border: 5px solid rgba(255, 255, 255, 0.75);
+
+    box-shadow:
+        0 12px 30px rgba(2, 132, 199, 0.25),
+        0 0 0 8px rgba(255, 255, 255, 0.10);
+
+    animation: avatarFloat 4s ease-in-out infinite;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.user-profile-avatar:hover {
+    transform: translateY(-5px) scale(1.04);
+
+    box-shadow:
+        0 18px 38px rgba(2, 132, 199, 0.30),
+        0 0 0 10px rgba(255, 255, 255, 0.13);
+}
+
+@keyframes avatarFloat {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+
+/* Identity */
+
+.user-profile-identity {
+    position: relative;
+    z-index: 2;
+}
+
+.user-profile-identity h1 {
+    margin: 0 0 8px;
+    color: white;
+    font-size: clamp(30px, 4vw, 42px);
+    font-weight: 800;
+    letter-spacing: -0.7px;
+    line-height: 1.05;
+}
+
+.user-profile-trust {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 7px 13px;
+
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+
+    color: rgba(255, 255, 255, 0.95);
+
+    font-size: 14px;
+    font-weight: 600;
+
+    backdrop-filter: blur(8px);
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.user-profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 11px;
+
+    padding: 22px 32px;
+
+    background: rgba(248, 250, 252, 0.92);
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.13);
+}
+
+.user-profile-actions .btn {
+    min-height: 44px;
+    padding: 10px 20px;
+
+    border-radius: 12px;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.user-profile-actions .btn:hover {
+    transform: translateY(-2px);
+}
+
+.user-profile-actions .btn-primary {
+    background: linear-gradient(135deg, #0284c7, #06b6d4);
+    border: none;
+
+    box-shadow:
+        0 7px 18px rgba(2, 132, 199, 0.20);
+}
+
+.user-profile-actions .btn-primary:hover {
+    box-shadow:
+        0 10px 24px rgba(2, 132, 199, 0.28);
+}
+
+.user-profile-actions .btn-danger {
+    background: #ef4444;
+    border-color: #ef4444;
+    box-shadow: 0 5px 14px rgba(239, 68, 68, 0.14);
+}
+
+.user-profile-actions .btn-danger:hover {
+    background: #dc2626;
+}
+
+.user-profile-actions .btn-secondary {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+}
+
+.user-profile-actions .btn-secondary:hover {
+    background: #e8f1f7;
+}
+
+
+/* =========================================================
+   ABOUT SECTION
+   ========================================================= */
+
+.user-profile-section {
+    margin: 0;
+    padding: 34px 32px 36px;
+
+    background: white;
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.user-profile-section h2 {
+    margin: 0 0 18px;
+
+    color: #0f172a;
+
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.user-profile-section > p:first-of-type {
+    margin-top: 0;
+    margin-bottom: 22px;
+
+    color: #475569;
+
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+
+/* Information rows */
+
+.user-profile-section > p:not(:first-of-type) {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 38px;
+
+    margin: 5px 7px 5px 0;
+    padding: 7px 13px;
+
+    border-radius: 10px;
+
+    background: #f0f9ff;
+    border: 1px solid #d8f1fb;
+
+    color: #075985;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+.user-profile-section > p:not(:first-of-type):hover {
+    transform: translateY(-2px);
+    background: #e0f7ff;
+}
+
+
+/* =========================================================
+   DIARIES SECTION
+   ========================================================= */
+
+.user-diaries-section {
+    padding: 36px 32px 42px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #f8fcff 100%
+        );
+
+    border-radius: 0 0 24px 24px;
+}
+
+.user-diaries-section .section-header {
+    margin-bottom: 22px;
+}
+
+.user-diaries-section .section-header h2 {
+    margin: 0;
+
+    color: #0f172a;
+
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.user-diaries-section .section-header p {
+    margin: 6px 0 0;
+
+    color: #64748b;
+
+    font-size: 14px;
+}
+
+
+/* Diary list */
+
+.user-diaries-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 18px;
+}
+
+
+/* Diary card */
+
+.user-diary-card {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: 190px;
+    padding: 21px;
+
+    background: white;
+
+    border: 1px solid rgba(14, 165, 233, 0.13);
+    border-radius: 17px;
+
+    box-shadow:
+        0 7px 22px rgba(15, 23, 42, 0.045);
+
+    overflow: hidden;
+
+    opacity: 0;
+    animation: diaryCardEnter 0.5s ease forwards;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+
+/* Stagger diary cards */
+
+.user-diary-card:nth-child(1) {
+    animation-delay: 0.08s;
+}
+
+.user-diary-card:nth-child(2) {
+    animation-delay: 0.16s;
+}
+
+.user-diary-card:nth-child(3) {
+    animation-delay: 0.24s;
+}
+
+.user-diary-card:nth-child(4) {
+    animation-delay: 0.32s;
+}
+
+.user-diary-card:nth-child(5) {
+    animation-delay: 0.40s;
+}
+
+@keyframes diaryCardEnter {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Small ocean accent */
+
+.user-diary-card::before {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 4px;
+
+    background: linear-gradient(
+        180deg,
+        #0284c7,
+        #06b6d4
+    );
+
+    transform: scaleY(0);
+    transform-origin: bottom;
+
+    transition: transform 0.25s ease;
+}
+
+.user-diary-card:hover {
+    transform: translateY(-5px);
+
+    border-color: rgba(14, 165, 233, 0.28);
+
+    box-shadow:
+        0 16px 32px rgba(2, 132, 199, 0.10);
+}
+
+.user-diary-card:hover::before {
+    transform: scaleY(1);
+}
+
+
+/* Diary header */
+
+.user-diary-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    margin-bottom: 16px;
+
+    color: #64748b;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.diary-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    background: #ecfeff;
+    color: #0e7490;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.diary-status::before {
+    content: "";
+
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #06b6d4;
+
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.12);
+}
+
+
+/* Diary content */
+
+.user-diary-content {
+    flex: 1;
+
+    color: #1e293b;
+
+    font-size: 16px;
+    line-height: 1.65;
+
+    word-break: break-word;
+}
+
+
+/* Diary action */
+
+.user-diary-actions {
+    margin-top: 20px;
+}
+
+.user-diary-actions a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    color: #0284c7;
+
+    font-size: 14px;
+    font-weight: 750;
+
+    text-decoration: none;
+
+    transition:
+        gap 0.2s ease,
+        color 0.2s ease;
+}
+
+.user-diary-actions a::after {
+    content: "→";
+
+    transition: transform 0.2s ease;
+}
+
+.user-diary-actions a:hover {
+    color: #0369a1;
+    gap: 10px;
+}
+
+.user-diary-actions a:hover::after {
+    transform: translateX(3px);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.user-diaries-section .empty-state {
+    padding: 45px 24px;
+
+    text-align: center;
+
+    background: #f8fcff;
+
+    border: 1px dashed #bae6fd;
+    border-radius: 16px;
+
+    color: #64748b;
+}
+
+.user-diaries-section .empty-state p {
+    margin: 0;
+}
+
+
+/* =========================================================
+   REPORT MODAL
+   ========================================================= */
+
+#reportModal {
+    backdrop-filter: blur(6px);
+    background: rgba(15, 23, 42, 0.48) !important;
+}
+
+#reportModal .diary-options-modal {
+    width: min(500px, calc(100% - 30px));
+
+    border-radius: 20px;
+
+    border: 1px solid rgba(14, 165, 233, 0.14);
+
+    box-shadow:
+        0 25px 70px rgba(15, 23, 42, 0.22);
+
+    animation: reportModalEnter 0.25s ease both;
+}
+
+@keyframes reportModalEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .user-profile-container {
+        width: calc(100% - 20px);
+        margin-top: 20px;
+    }
+
+    .user-profile-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+
+        padding: 35px 20px 30px;
+    }
+
+    .user-profile-avatar {
+        flex-basis: 92px;
+        width: 92px;
+        height: 92px;
+        font-size: 35px;
+    }
+
+    .user-profile-identity h1 {
+        font-size: 31px;
+    }
+
+    .user-profile-actions {
+        padding: 18px;
+    }
+
+    .user-profile-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    .user-profile-section,
+    .user-diaries-section {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .user-diaries-list {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+    function openReportModal() {
+        const modal = document.getElementById("reportModal");
+
+        if (modal) {
+            modal.style.display = "flex";
+        }
+    }
+
+    function closeReportModal(event) {
+        if (
+            event &&
+            event.target &&
+            event.target.id !== "reportModal"
+        ) {
+            return;
+        }
+
+        const modal = document.getElementById("reportModal");
+
+        if (modal) {
+            modal.style.display = "none";
+        }
+    }
+    
+
+
+    
+
+</script>
+
+{% endblock %}

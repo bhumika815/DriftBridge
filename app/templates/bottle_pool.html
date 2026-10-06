@@ -1,56 +1,1702 @@
 {% extends "base.html" %}
 
-{% block title %}
-Bottle Pool - DriftBridge
-{% endblock %}
+{% block title %}Bottle Pool - DriftBridge{% endblock %}
 
 {% block content %}
 
-<div class="bottle-pool-container">
+<style>
 
-    <div class="page-header">
-        <h1>Bottle Pool</h1>
-        <p>These bottles are waiting for someone to keep them.</p>
+/* =========================================================
+   DRIFTBRIDGE OCEAN — BOTTLE POOL
+   ========================================================= */
+
+.bottle-ocean-page {
+    position: relative;
+    min-height: calc(100vh - 72px);
+    overflow: hidden;
+    padding: 30px 20px 70px;
+
+    background:
+        radial-gradient(
+            circle at 18% 14%,
+            rgba(255, 255, 255, 0.45),
+            transparent 18%
+        ),
+        linear-gradient(
+            180deg,
+            #e1f8ff 0%,
+            #b7edf8 30%,
+            #68cfe3 58%,
+            #0793bd 100%
+        );
+}
+
+
+/* =========================================================
+   SKY
+   ========================================================= */
+
+.ocean-sky {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+
+/* Clouds */
+
+.ocean-cloud {
+    position: absolute;
+
+    width: 125px;
+    height: 32px;
+
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.60);
+
+    filter: blur(0.4px);
+
+    animation: cloudDrift 24s ease-in-out infinite;
+}
+
+.ocean-cloud::before,
+.ocean-cloud::after {
+    content: "";
+
+    position: absolute;
+
+    background: inherit;
+
+    border-radius: 50%;
+}
+
+.ocean-cloud::before {
+    width: 55px;
+    height: 55px;
+
+    left: 18px;
+    bottom: 7px;
+}
+
+.ocean-cloud::after {
+    width: 68px;
+    height: 68px;
+
+    right: 12px;
+    bottom: 3px;
+}
+
+.cloud-one {
+    top: 70px;
+    left: 8%;
+}
+
+.cloud-two {
+    top: 130px;
+    right: 8%;
+
+    transform: scale(0.72);
+
+    opacity: 0.55;
+
+    animation-delay: -10s;
+}
+
+@keyframes cloudDrift {
+
+    0%,
+    100% {
+        margin-left: -15px;
+    }
+
+    50% {
+        margin-left: 30px;
+    }
+
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+.ocean-content {
+    position: relative;
+    z-index: 10;
+
+    width: min(1100px, 100%);
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.ocean-header {
+    text-align: center;
+}
+
+.ocean-header h1 {
+    margin: 0;
+
+    color: #075985;
+
+    font-size: clamp(34px, 5vw, 50px);
+    font-weight: 900;
+
+    letter-spacing: -1.5px;
+
+    text-shadow:
+        0 2px 0 rgba(255, 255, 255, 0.55);
+}
+
+.ocean-header p {
+    margin: 8px 0 0;
+
+    color: #075985;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    opacity: 0.82;
+}
+
+
+/* =========================================================
+   SEND BOTTLE BUTTON
+   ========================================================= */
+
+.throw-bottle-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    margin-top: 17px;
+
+    padding: 12px 21px;
+
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.92);
+
+    color: #0369a1;
+
+    border: 1px solid rgba(255, 255, 255, 0.85);
+
+    box-shadow:
+        0 8px 24px rgba(3, 105, 161, 0.14);
+
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    backdrop-filter: blur(8px);
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease,
+        background 0.22s ease;
+}
+
+.throw-bottle-button:hover {
+    transform: translateY(-3px);
+
+    background: #ffffff;
+
+    color: #075985;
+
+    box-shadow:
+        0 13px 30px rgba(3, 105, 161, 0.20);
+}
+
+
+/* =========================================================
+   ISLAND
+   ========================================================= */
+
+.ocean-island {
+    position: absolute;
+
+    left: 50%;
+    top: 255px;
+
+    width: 185px;
+    height: 46px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            180deg,
+            #e1b96f,
+            #a87536
+        );
+
+    box-shadow:
+        0 10px 0 rgba(7, 137, 183, 0.15);
+
+    opacity: 0.96;
+}
+
+.ocean-island::before {
+    content: "🌴";
+
+    position: absolute;
+
+    left: 50%;
+    bottom: 13px;
+
+    transform: translateX(-50%);
+
+    font-size: 55px;
+}
+
+
+/* =========================================================
+   WATER
+   ========================================================= */
+
+.ocean-water {
+    position: absolute;
+
+    left: -5%;
+    right: -5%;
+    bottom: -120px;
+
+    height: 53%;
+
+    pointer-events: none;
+
+    z-index: 1;
+
+    background:
+        radial-gradient(
+            ellipse at 25% 10%,
+            rgba(255, 255, 255, 0.24),
+            transparent 28%
+        ),
+        radial-gradient(
+            ellipse at 72% 35%,
+            rgba(255, 255, 255, 0.12),
+            transparent 30%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(8, 145, 178, 0.58),
+            rgba(3, 105, 161, 0.96)
+        );
+
+    border-radius: 50% 50% 0 0 / 9% 9% 0 0;
+}
+
+
+/* Wave lines */
+
+.ocean-water::before,
+.ocean-water::after {
+    content: "";
+
+    position: absolute;
+
+    left: -10%;
+
+    width: 120%;
+    height: 90px;
+
+    border-top: 2px solid rgba(255, 255, 255, 0.24);
+
+    border-radius: 50%;
+
+    animation: waveMove 7s ease-in-out infinite;
+}
+
+.ocean-water::before {
+    top: 38px;
+}
+
+.ocean-water::after {
+    top: 105px;
+
+    opacity: 0.55;
+
+    animation-duration: 10s;
+    animation-delay: -3s;
+}
+
+@keyframes waveMove {
+
+    0%,
+    100% {
+        transform: translateX(-2%) scaleY(1);
+    }
+
+    50% {
+        transform: translateX(2%) scaleY(1.15);
+    }
+
+}
+
+
+/* =========================================================
+   BOTTLE FIELD
+   ========================================================= */
+
+.bottle-field {
+    position: relative;
+
+    min-height: 610px;
+
+    margin-top: 5px;
+
+    z-index: 5;
+}
+
+
+/* =========================================================
+   BOTTLE
+   ========================================================= */
+
+.drift-bottle {
+    position: absolute;
+
+    width: 82px;
+    height: 120px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    outline: none;
+
+    animation:
+        bottleFloat 4s ease-in-out infinite,
+        bottleRotate 7s ease-in-out infinite;
+
+    transition:
+        filter 0.25s ease,
+        transform 0.25s ease;
+}
+
+
+/* Bottle body */
+
+.drift-bottle::before {
+    content: "";
+
+    position: absolute;
+
+    width: 58px;
+    height: 82px;
+
+    bottom: 8px;
+
+    border-radius:
+        10px
+        10px
+        20px
+        20px;
+
+    background:
+        linear-gradient(
+            105deg,
+            rgba(255, 255, 255, 0.78),
+            rgba(143, 226, 239, 0.65) 35%,
+            rgba(3, 105, 161, 0.68)
+        );
+
+    border: 2px solid rgba(255, 255, 255, 0.72);
+
+    box-shadow:
+        inset 7px 0 8px rgba(255, 255, 255, 0.30),
+        0 13px 18px rgba(2, 78, 110, 0.20);
+}
+
+
+/* Bottle neck */
+
+.drift-bottle::after {
+    content: "";
+
+    position: absolute;
+
+    width: 22px;
+    height: 38px;
+
+    top: 10px;
+
+    border-radius: 7px 7px 3px 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.72),
+            rgba(5, 130, 163, 0.70)
+        );
+
+    border: 2px solid rgba(255, 255, 255, 0.68);
+
+    box-shadow:
+        inset 4px 0 5px rgba(255, 255, 255, 0.25);
+}
+
+
+/* Cork */
+
+.bottle-cork {
+    position: absolute;
+
+    z-index: 4;
+
+    top: 4px;
+
+    width: 20px;
+    height: 9px;
+
+    border-radius: 3px;
+
+    background: #9a6b35;
+
+    box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.25);
+}
+
+
+/* Paper */
+
+.bottle-paper {
+    position: absolute;
+
+    z-index: 4;
+
+    bottom: 27px;
+
+    width: 29px;
+    height: 20px;
+
+    border-radius: 3px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fffdf2,
+            #f4e9bd
+        );
+
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.12);
+
+    transform: rotate(-8deg);
+
+    opacity: 0.9;
+}
+
+
+/* Floating */
+
+@keyframes bottleFloat {
+
+    0%,
+    100% {
+        margin-top: 0;
+    }
+
+    50% {
+        margin-top: -15px;
+    }
+
+}
+
+@keyframes bottleRotate {
+
+    0%,
+    100% {
+        rotate: -3deg;
+    }
+
+    50% {
+        rotate: 4deg;
+    }
+
+}
+
+
+/* Hover */
+
+.drift-bottle:hover {
+    filter:
+        brightness(1.08)
+        drop-shadow(
+            0 10px 16px rgba(255, 255, 255, 0.30)
+        );
+
+    animation-play-state: paused;
+
+    transform:
+        scale(1.12)
+        translateY(-8px);
+}
+
+
+/* Keyboard focus */
+
+.drift-bottle:focus-visible {
+    filter:
+        drop-shadow(
+            0 0 10px rgba(255, 255, 255, 0.9)
+        );
+}
+
+
+/* =========================================================
+   BOTTLE POSITIONS
+   ========================================================= */
+
+.bottle-one {
+    left: 8%;
+    top: 145px;
+
+    animation-delay: -1s;
+}
+
+.bottle-two {
+    left: 26%;
+    top: 320px;
+
+    transform: scale(0.88);
+
+    animation-delay: -2.7s;
+}
+
+.bottle-three {
+    left: 47%;
+    top: 175px;
+
+    transform: scale(0.96);
+
+    animation-delay: -0.8s;
+}
+
+.bottle-four {
+    right: 26%;
+    top: 350px;
+
+    transform: scale(0.78);
+
+    animation-delay: -3.2s;
+}
+
+.bottle-five {
+    right: 8%;
+    top: 180px;
+
+    transform: scale(1.04);
+
+    animation-delay: -1.8s;
+}
+
+
+/* Additional positions */
+
+.bottle-six {
+    left: 15%;
+    top: 470px;
+
+    transform: scale(0.75);
+
+    animation-delay: -1.4s;
+}
+
+.bottle-seven {
+    left: 66%;
+    top: 470px;
+
+    transform: scale(0.90);
+
+    animation-delay: -2.1s;
+}
+
+.bottle-eight {
+    right: 4%;
+    top: 410px;
+
+    transform: scale(0.70);
+
+    animation-delay: -3.8s;
+}
+
+.bottle-nine {
+    left: 39%;
+    top: 440px;
+
+    transform: scale(0.72);
+
+    animation-delay: -0.5s;
+}
+
+.bottle-ten {
+    right: 42%;
+    top: 300px;
+
+    transform: scale(0.68);
+
+    animation-delay: -2.5s;
+}
+
+
+/* =========================================================
+   BOTTLE PREVIEW
+   ========================================================= */
+
+.bottle-preview {
+    position: absolute;
+
+    z-index: 30;
+
+    left: 50%;
+    bottom: 108px;
+
+    width: 220px;
+
+    transform:
+        translateX(-50%)
+        translateY(8px)
+        scale(0.92);
+
+    padding: 14px;
+
+    background: rgba(255, 255, 255, 0.95);
+
+    border: 1px solid rgba(14, 165, 233, 0.18);
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 14px 32px rgba(2, 78, 110, 0.18);
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.22s ease,
+        transform 0.22s ease;
+
+    backdrop-filter: blur(10px);
+}
+
+.drift-bottle:hover .bottle-preview {
+    opacity: 1;
+
+    transform:
+        translateX(-50%)
+        translateY(0)
+        scale(1);
+}
+
+.bottle-preview strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #075985;
+
+    font-size: 13px;
+}
+
+.bottle-preview p {
+    margin: 0;
+
+    color: #475569;
+
+    font-size: 12px;
+
+    line-height: 1.45;
+
+    display: -webkit-box;
+
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   BOTTLE MODAL
+   ========================================================= */
+
+.bottle-modal-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(3, 52, 75, 0.48);
+
+    backdrop-filter: blur(8px);
+}
+
+.bottle-modal-overlay.active {
+    display: flex;
+}
+
+
+.bottle-modal {
+    position: relative;
+
+    width: min(440px, 100%);
+
+    padding: 34px 28px 28px;
+
+    text-align: center;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff,
+            #f0fbff
+        );
+
+    border: 1px solid rgba(14, 165, 233, 0.18);
+
+    border-radius: 25px;
+
+    box-shadow:
+        0 30px 70px rgba(3, 52, 75, 0.25);
+
+    animation: bottleModalEnter 0.25s ease both;
+}
+
+@keyframes bottleModalEnter {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(20px)
+            scale(0.94);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+}
+
+
+/* Close */
+
+.bottle-modal-close {
+    position: absolute;
+
+    top: 12px;
+    right: 14px;
+
+    width: 34px;
+    height: 34px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #f0f9ff;
+
+    color: #64748b;
+
+    font-size: 24px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.bottle-modal-close:hover {
+    background: #e0f2fe;
+
+    transform: rotate(8deg);
+}
+
+
+/* Modal bottle */
+
+.bottle-modal-icon {
+    margin-bottom: 8px;
+
+    font-size: 52px;
+
+    animation:
+        modalBottleFloat 2.5s ease-in-out infinite;
+}
+
+@keyframes modalBottleFloat {
+
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(-3deg);
+    }
+
+    50% {
+        transform:
+            translateY(-7px)
+            rotate(3deg);
+    }
+
+}
+
+
+.bottle-modal-label {
+    margin-bottom: 5px;
+
+    color: #0891b2;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.8px;
+}
+
+
+.bottle-modal h2 {
+    margin: 0 0 18px;
+
+    color: #075985;
+
+    font-size: 23px;
+}
+
+
+/* Message */
+
+.bottle-message {
+    padding: 18px;
+
+    background: #ecfeff;
+
+    border: 1px solid #cffafe;
+
+    border-radius: 15px;
+}
+
+.bottle-message p {
+    margin: 0;
+
+    color: #334155;
+
+    font-size: 16px;
+
+    line-height: 1.65;
+
+    white-space: pre-wrap;
+
+    word-break: break-word;
+}
+
+
+/* Modal buttons */
+
+.bottle-modal-actions {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 22px;
+}
+
+.bottle-modal-actions button {
+    flex: 1;
+
+    min-height: 46px;
+
+    border-radius: 12px;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.bottle-modal-actions button:hover {
+    transform: translateY(-2px);
+}
+
+
+.bottle-keep-button {
+    border: none;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0284c7,
+            #06b6d4
+        );
+
+    color: white;
+
+    box-shadow:
+        0 7px 18px rgba(2, 132, 199, 0.22);
+}
+
+.bottle-keep-button:hover {
+    box-shadow:
+        0 10px 23px rgba(2, 132, 199, 0.30);
+}
+
+
+.bottle-reject-button {
+    background: #f1f5f9;
+
+    color: #475569;
+
+    border: 1px solid #e2e8f0;
+}
+
+.bottle-reject-button:hover {
+    background: #e8f1f7;
+}
+
+
+/* =========================================================
+   EMPTY OCEAN
+   ========================================================= */
+
+.ocean-empty {
+    position: relative;
+
+    z-index: 20;
+
+    width: min(500px, 92%);
+
+    margin: 105px auto 0;
+
+    padding: 38px 28px;
+
+    text-align: center;
+
+    background: rgba(255, 255, 255, 0.86);
+
+    border: 1px solid rgba(255, 255, 255, 0.80);
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 18px 40px rgba(2, 78, 110, 0.14);
+
+    backdrop-filter: blur(12px);
+}
+
+
+.ocean-empty-icon {
+    margin-bottom: 10px;
+
+    font-size: 52px;
+
+    animation:
+        emptyBottleFloat 3.5s ease-in-out infinite;
+}
+
+@keyframes emptyBottleFloat {
+
+    0%,
+    100% {
+        transform:
+            translateY(0)
+            rotate(-4deg);
+    }
+
+    50% {
+        transform:
+            translateY(-9px)
+            rotate(4deg);
+    }
+
+}
+
+
+.ocean-empty h2 {
+    margin: 0;
+
+    color: #075985;
+
+    font-size: 24px;
+}
+
+.ocean-empty p {
+    margin: 9px 0 20px;
+
+    color: #475569;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   FLOATING THROW BUTTON
+   ========================================================= */
+
+.ocean-throw-floating {
+    position: fixed;
+
+    z-index: 900;
+
+    right: 28px;
+    bottom: 28px;
+
+    width: 60px;
+    height: 60px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0284c7,
+            #06b6d4
+        );
+
+    color: white;
+
+    font-size: 25px;
+
+    text-decoration: none;
+
+    box-shadow:
+        0 10px 28px rgba(2, 132, 199, 0.35),
+        0 0 0 6px rgba(255, 255, 255, 0.30);
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+.ocean-throw-floating:hover {
+    transform:
+        translateY(-5px)
+        scale(1.06);
+
+    color: white;
+
+    box-shadow:
+        0 15px 34px rgba(2, 132, 199, 0.42),
+        0 0 0 8px rgba(255, 255, 255, 0.35);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .bottle-ocean-page {
+        padding:
+            24px
+            12px
+            70px;
+    }
+
+    .ocean-header h1 {
+        font-size: 34px;
+    }
+
+    .ocean-header p {
+        font-size: 14px;
+    }
+
+    .ocean-island {
+        top: 245px;
+
+        transform:
+            translateX(-50%)
+            scale(0.78);
+    }
+
+    .bottle-field {
+        min-height: 580px;
+    }
+
+    .bottle-one {
+        left: 3%;
+        top: 150px;
+    }
+
+    .bottle-two {
+        left: 17%;
+        top: 355px;
+    }
+
+    .bottle-three {
+        left: 42%;
+        top: 195px;
+    }
+
+    .bottle-four {
+        right: 10%;
+        top: 375px;
+    }
+
+    .bottle-five {
+        right: 0;
+        top: 150px;
+    }
+
+    .bottle-six,
+    .bottle-seven,
+    .bottle-eight,
+    .bottle-nine,
+    .bottle-ten {
+        display: none;
+    }
+
+    .bottle-preview {
+        width: 185px;
+    }
+
+    .bottle-modal {
+        padding:
+            30px
+            20px
+            22px;
+    }
+
+    .bottle-modal-actions {
+        flex-direction: column;
+    }
+
+    .ocean-throw-floating {
+        right: 18px;
+        bottom: 20px;
+    }
+}
+
+</style>
+
+
+<div class="bottle-ocean-page">
+
+    <!-- =====================================================
+         SKY
+         ===================================================== -->
+
+    <div class="ocean-sky">
+
+        <div class="ocean-cloud cloud-one"></div>
+
+        <div class="ocean-cloud cloud-two"></div>
+
     </div>
 
-    {% if bottles %}
 
-        {% for bottle in bottles %}
+    <!-- =====================================================
+         WATER
+         ===================================================== -->
 
-            <div class="bottle-card">
+    <div class="ocean-water"></div>
 
-                <div class="bottle-message">
-                    {{ bottle.message }}
-                </div>
 
-                <div class="bottle-meta">
-                    <span class="bottle-author">
-                        {{ bottle.created_at.strftime("%b %d, %Y") }}
-                    </span>
-                    <a
-                        class="btn btn-primary btn-sm"
-                        href="{{ url_for('bottle.keep_bottle', bottle_id=bottle.id) }}"
-                    >
-                        Keep Bottle
-                    </a>
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+
+    <div class="ocean-content">
+
+
+        <!-- =================================================
+             HEADER
+             ================================================= -->
+
+        <header class="ocean-header">
+
+            <h1>
+                🌊 DriftBridge Ocean
+            </h1>
+
+            <p>
+                Messages are drifting across the sea.
+                Find one that speaks to you.
+            </p>
+
+            <a
+                href="{{ url_for('bottle.throw_bottle') }}"
+                class="throw-bottle-button"
+            >
+                🍾 Send a Bottle
+            </a>
+
+        </header>
+
+
+        <!-- =================================================
+             ISLAND
+             ================================================= -->
+
+        <div class="ocean-island"></div>
+
+
+        <!-- =================================================
+             BOTTLES
+             ================================================= -->
+
+        {% if bottles %}
+
+        <div class="bottle-field">
+
+            {% for bottle in bottles %}
+
+            <div
+                class="
+                    drift-bottle
+                    bottle-{{ loop.index }}
+                    {% if loop.index > 10 %}
+                        bottle-{{ ((loop.index - 1) % 10) + 1 }}
+                    {% endif %}
+                "
+                onclick="openBottle({{ bottle.id }})"
+                onkeydown="handleBottleKey(event, {{ bottle.id }})"
+                role="button"
+                tabindex="0"
+                aria-label="Open bottle from {{ bottle.sender.username }}"
+            >
+
+                <span class="bottle-cork"></span>
+
+                <span class="bottle-paper"></span>
+
+
+                <!-- Small hover preview -->
+
+                <div class="bottle-preview">
+
+                    <strong>
+                        {{ bottle.sender.username }}
+                    </strong>
+
+                    <p>
+                        {{ bottle.message }}
+                    </p>
+
                 </div>
 
             </div>
 
-        {% endfor %}
 
-    {% else %}
+            <!-- =================================================
+                 EXISTING KEEP FORM
+                 ================================================= -->
 
-        <div class="empty-state">
-            <h2>No bottles available right now.</h2>
-            <p>Throw your own bottle and wait for someone to find it.</p>
-            <a href="{{ url_for('bottle.throw_bottle') }}" class="btn btn-primary" style="margin-top: 16px;">
-                Throw a Bottle
-            </a>
+            <form
+                id="keep-bottle-{{ bottle.id }}"
+                method="POST"
+                action="{{ url_for('bottle.keep_bottle', bottle_id=bottle.id) }}"
+                style="display: none;"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+            </form>
+
+
+            <!-- =================================================
+                 EXISTING REJECT FORM
+                 ================================================= -->
+
+            <form
+                id="reject-bottle-{{ bottle.id }}"
+                method="POST"
+                action="{{ url_for('bottle.reject_bottle', bottle_id=bottle.id) }}"
+                style="display: none;"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+            </form>
+
+
+            {% endfor %}
+
         </div>
 
-    {% endif %}
+
+        {% else %}
+
+
+        <!-- =================================================
+             EMPTY OCEAN
+             ================================================= -->
+
+        <div class="ocean-empty">
+
+            <div class="ocean-empty-icon">
+                🍾
+            </div>
+
+            <h2>
+                The sea is quiet...
+            </h2>
+
+            <p>
+                No bottles have reached your shore yet.
+                Throw one into the ocean and start a new connection.
+            </p>
+
+            <a
+                href="{{ url_for('bottle.throw_bottle') }}"
+                class="throw-bottle-button"
+            >
+                🍾 Throw Your First Bottle
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =====================================================
+         FLOATING THROW BUTTON
+         ===================================================== -->
+
+    <a
+        href="{{ url_for('bottle.throw_bottle') }}"
+        class="ocean-throw-floating"
+        title="Throw a Bottle"
+        aria-label="Throw a Bottle"
+    >
+        🍾
+    </a>
+
+
+    <!-- =====================================================
+         BOTTLE OPENING MODAL
+         ===================================================== -->
+
+    <div
+        id="bottleModal"
+        class="bottle-modal-overlay"
+        onclick="closeBottle(event)"
+    >
+
+        <div
+            class="bottle-modal"
+            onclick="event.stopPropagation()"
+        >
+
+            <button
+                type="button"
+                class="bottle-modal-close"
+                onclick="closeBottle()"
+                aria-label="Close bottle"
+            >
+                &times;
+            </button>
+
+
+            <div class="bottle-modal-icon">
+                🍾
+            </div>
+
+
+            <div class="bottle-modal-label">
+                A message has reached your shore
+            </div>
+
+
+            <h2 id="bottleSender">
+                Someone
+            </h2>
+
+
+            <div class="bottle-message">
+
+                <p id="bottleMessage">
+                    Message
+                </p>
+
+            </div>
+
+
+            <div class="bottle-modal-actions">
+
+                <button
+                    type="button"
+                    class="bottle-keep-button"
+                    onclick="keepCurrentBottle()"
+                >
+                    Keep Bottle
+                </button>
+
+
+                <button
+                    type="button"
+                    class="bottle-reject-button"
+                    onclick="rejectCurrentBottle()"
+                >
+                    Release
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
+
+
+<script>
+
+/* =========================================================
+   BOTTLE DATA
+   ========================================================= */
+
+const bottleData = {
+
+    {% for bottle in bottles %}
+
+    {{ bottle.id }}: {
+        sender: {{ bottle.sender.username|tojson }},
+        message: {{ bottle.message|tojson }}
+    }{% if not loop.last %},{% endif %}
+
+    {% endfor %}
+
+};
+
+
+/* Currently opened bottle */
+
+let currentBottleId = null;
+
+
+/* =========================================================
+   OPEN BOTTLE
+   ========================================================= */
+
+function openBottle(bottleId) {
+
+    const bottle = bottleData[bottleId];
+
+    if (!bottle) {
+        return;
+    }
+
+    currentBottleId = bottleId;
+
+
+    const senderElement =
+        document.getElementById("bottleSender");
+
+    const messageElement =
+        document.getElementById("bottleMessage");
+
+    const modal =
+        document.getElementById("bottleModal");
+
+
+    if (senderElement) {
+
+        senderElement.textContent =
+            bottle.sender;
+
+    }
+
+
+    if (messageElement) {
+
+        messageElement.textContent =
+            bottle.message;
+
+    }
+
+
+    if (modal) {
+
+        modal.classList.add("active");
+
+    }
+
+
+    document.body.style.overflow = "hidden";
+
+}
+
+
+/* =========================================================
+   CLOSE BOTTLE
+   ========================================================= */
+
+function closeBottle(event) {
+
+    /*
+     * If the user clicked inside the modal,
+     * do nothing.
+     */
+
+    if (
+        event &&
+        event.target &&
+        event.target.id !== "bottleModal"
+    ) {
+        return;
+    }
+
+
+    const modal =
+        document.getElementById("bottleModal");
+
+
+    if (modal) {
+
+        modal.classList.remove("active");
+
+    }
+
+
+    document.body.style.overflow = "";
+
+
+    currentBottleId = null;
+
+}
+
+
+/* =========================================================
+   KEEP BOTTLE
+   ========================================================= */
+
+function keepCurrentBottle() {
+
+    if (!currentBottleId) {
+        return;
+    }
+
+
+    const form =
+        document.getElementById(
+            "keep-bottle-" + currentBottleId
+        );
+
+
+    if (form) {
+
+        form.submit();
+
+    }
+
+}
+
+
+/* =========================================================
+   RELEASE BOTTLE
+   ========================================================= */
+
+function rejectCurrentBottle() {
+
+    if (!currentBottleId) {
+        return;
+    }
+
+
+    const form =
+        document.getElementById(
+            "reject-bottle-" + currentBottleId
+        );
+
+
+    if (form) {
+
+        form.submit();
+
+    }
+
+}
+
+
+/* =========================================================
+   KEYBOARD ACCESSIBILITY
+   ========================================================= */
+
+function handleBottleKey(event, bottleId) {
+
+    if (
+        event.key === "Enter" ||
+        event.key === " "
+    ) {
+
+        event.preventDefault();
+
+        openBottle(bottleId);
+
+    }
+
+}
+
+
+/* =========================================================
+   ESCAPE TO CLOSE
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Escape" &&
+            currentBottleId !== null
+        ) {
+
+            closeBottle();
+
+        }
+
+    }
+);
+
+</script>
 
 {% endblock %}

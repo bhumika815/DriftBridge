@@ -1,0 +1,1040 @@
+{% extends "base.html" %}
+
+{% block title %}User Reports - DriftBridge{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   DRIFTBRIDGE ADMIN — USER REPORTS
+   ========================================================= */
+
+.admin-reports-page {
+    width: min(1100px, calc(100% - 32px));
+
+    margin: 0 auto;
+
+    padding: 34px 0 65px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.admin-reports-header {
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 26px;
+}
+
+.admin-reports-eyebrow {
+    margin-bottom: 6px;
+
+    color: #0284c7;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.16em;
+}
+
+.admin-reports-header h1 {
+    margin: 0;
+
+    color: #0f1f35;
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.035em;
+}
+
+.admin-reports-header p {
+    margin: 7px 0 0;
+
+    color: #64748b;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   BACK BUTTON
+   ========================================================= */
+
+.admin-reports-back {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 38px;
+
+    padding: 0 15px;
+
+    border: 1px solid #d7e1eb;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #2563eb;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    text-decoration: none;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.admin-reports-back:hover {
+    background: #eff8ff;
+
+    border-color: #93c5fd;
+
+    transform: translateY(-1px);
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   REPORT LIST
+   ========================================================= */
+
+.admin-reports-list {
+    display: grid;
+
+    gap: 14px;
+}
+
+
+/* =========================================================
+   REPORT CARD
+   ========================================================= */
+
+.admin-report-card {
+    overflow: hidden;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 18px rgba(15, 23, 42, 0.045);
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.admin-report-card:hover {
+    border-color: #cbddec;
+
+    box-shadow:
+        0 9px 26px rgba(15, 23, 42, 0.065);
+}
+
+
+/* =========================================================
+   REPORT HEADER
+   ========================================================= */
+
+.admin-report-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 19px 21px;
+
+    border-bottom: 1px solid #edf2f7;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #f9fcff
+        );
+}
+
+.admin-report-title {
+    margin: 0;
+
+    color: #17263b;
+
+    font-size: 15px;
+
+    font-weight: 750;
+}
+
+.admin-report-date {
+    margin-top: 4px;
+
+    color: #94a3b8;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+
+.admin-report-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 25px;
+
+    padding: 0 10px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+
+    font-weight: 750;
+
+    white-space: nowrap;
+}
+
+.admin-report-status.pending {
+    background: #fff7ed;
+
+    color: #c2410c;
+
+    border: 1px solid #fed7aa;
+}
+
+.admin-report-status.reviewed {
+    background: #eff6ff;
+
+    color: #1d4ed8;
+
+    border: 1px solid #bfdbfe;
+}
+
+.admin-report-status.actioned {
+    background: #ecfdf5;
+
+    color: #047857;
+
+    border: 1px solid #a7f3d0;
+}
+
+
+/* =========================================================
+   REPORT BODY
+   ========================================================= */
+
+.admin-report-body {
+    padding: 21px;
+}
+
+
+/* =========================================================
+   PEOPLE / REPORT INFORMATION
+   ========================================================= */
+
+.admin-report-meta {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-bottom: 19px;
+}
+
+.admin-report-meta-item {
+    padding: 13px;
+
+    border: 1px solid #edf2f7;
+
+    border-radius: 9px;
+
+    background: #f8fafc;
+}
+
+.admin-report-meta-label {
+    margin-bottom: 5px;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.06em;
+}
+
+.admin-report-meta-value {
+    overflow: hidden;
+
+    color: #334155;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   REASON
+   ========================================================= */
+
+.admin-report-reason {
+    margin-bottom: 17px;
+
+    padding: 15px;
+
+    border-left: 3px solid #38bdf8;
+
+    border-radius: 0 9px 9px 0;
+
+    background: #f8fcff;
+}
+
+.admin-report-reason-label {
+    margin-bottom: 5px;
+
+    color: #64748b;
+
+    font-size: 10px;
+
+    font-weight: 750;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.06em;
+}
+
+.admin-report-reason-value {
+    color: #17263b;
+
+    font-size: 13px;
+
+    font-weight: 650;
+}
+
+
+/* =========================================================
+   ADDITIONAL DETAILS
+   ========================================================= */
+
+.admin-report-details {
+    margin-bottom: 20px;
+
+    padding: 14px 15px;
+
+    border: 1px solid #edf2f7;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+}
+
+.admin-report-details-label {
+    margin-bottom: 6px;
+
+    color: #64748b;
+
+    font-size: 10px;
+
+    font-weight: 750;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.06em;
+}
+
+.admin-report-details-text {
+    color: #475569;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+
+    white-space: pre-wrap;
+}
+
+.admin-report-details-empty {
+    color: #94a3b8;
+
+    font-size: 12px;
+
+    font-style: italic;
+}
+
+
+/* =========================================================
+   ACTION ROW
+   ========================================================= */
+
+.admin-report-user-action {
+    margin-bottom: 20px;
+}
+
+.admin-report-view-user {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 36px;
+
+    padding: 0 13px;
+
+    border: 1px solid #d7e1eb;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #2563eb;
+
+    font-size: 11px;
+
+    font-weight: 650;
+
+    text-decoration: none;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.admin-report-view-user:hover {
+    background: #eff8ff;
+
+    border-color: #93c5fd;
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   MODERATION FORM
+   ========================================================= */
+
+.admin-report-form {
+    padding-top: 19px;
+
+    border-top: 1px solid #edf2f7;
+}
+
+.admin-report-form-title {
+    margin: 0 0 15px;
+
+    color: #17263b;
+
+    font-size: 13px;
+
+    font-weight: 750;
+}
+
+.admin-report-form-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(190px, 0.45fr)
+        minmax(0, 1fr);
+
+    gap: 14px;
+}
+
+.admin-report-field {
+    min-width: 0;
+}
+
+.admin-report-field label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #475569;
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+.admin-report-field select,
+.admin-report-field textarea {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d8e1eb;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #172033;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    outline: none;
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.admin-report-field select {
+    height: 40px;
+
+    padding: 0 10px;
+}
+
+.admin-report-field textarea {
+    min-height: 90px;
+
+    padding: 10px 11px;
+
+    line-height: 1.5;
+
+    resize: vertical;
+}
+
+.admin-report-field select:focus,
+.admin-report-field textarea:focus {
+    border-color: #60a5fa;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+
+/* =========================================================
+   SAVE BUTTON
+   ========================================================= */
+
+.admin-report-submit {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 38px;
+
+    margin-top: 14px;
+
+    padding: 0 16px;
+
+    border: 1px solid #0284c7;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0284c7,
+            #0891b2
+        );
+
+    color: #ffffff;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 12px rgba(2, 132, 199, 0.16);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        filter 0.18s ease;
+}
+
+.admin-report-submit:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 7px 16px rgba(2, 132, 199, 0.22);
+
+    filter: brightness(1.03);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.admin-reports-empty {
+    padding: 65px 25px;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 18px rgba(15, 23, 42, 0.04);
+}
+
+.admin-reports-empty-icon {
+    margin-bottom: 12px;
+
+    color: #38bdf8;
+
+    font-size: 30px;
+}
+
+.admin-reports-empty h2 {
+    margin: 0;
+
+    color: #17263b;
+
+    font-size: 18px;
+}
+
+.admin-reports-empty p {
+    margin: 7px 0 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+    .admin-reports-page {
+        width: calc(100% - 20px);
+
+        padding-top: 22px;
+    }
+
+    .admin-reports-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .admin-reports-header h1 {
+        font-size: 26px;
+    }
+
+    .admin-report-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-report-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .admin-reports-page {
+        width: calc(100% - 14px);
+    }
+
+    .admin-report-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+    .admin-report-body {
+        padding: 17px;
+    }
+
+    .admin-report-submit {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+
+<div class="admin-reports-page">
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <header class="admin-reports-header">
+
+        <div>
+
+            <div class="admin-reports-eyebrow">
+                MODERATION
+            </div>
+
+            <h1>
+                User Reports
+            </h1>
+
+            <p>
+                Review reports submitted by DriftBridge users.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('admin.dashboard') }}"
+            class="admin-reports-back"
+        >
+            ← Back to Dashboard
+        </a>
+
+    </header>
+
+
+    {% if reports %}
+
+        <div class="admin-reports-list">
+
+            {% for report in reports %}
+
+                <article class="admin-report-card">
+
+                    <!-- =================================================
+                         REPORT HEADER
+                         ================================================= -->
+
+                    <header class="admin-report-header">
+
+                        <div>
+
+                            <h2 class="admin-report-title">
+                                Report #{{ report.id }}
+                            </h2>
+
+                            <div class="admin-report-date">
+                                Submitted
+                                {{ report.created_at.strftime(
+                                    "%d %b %Y, %I:%M %p"
+                                ) }}
+                            </div>
+
+                        </div>
+
+
+                        {% if report.status == "pending" %}
+
+                            <span class="admin-report-status pending">
+                                Pending
+                            </span>
+
+                        {% elif report.status == "reviewed" %}
+
+                            <span class="admin-report-status reviewed">
+                                Reviewed
+                            </span>
+
+                        {% elif report.status == "actioned" %}
+
+                            <span class="admin-report-status actioned">
+                                Actioned
+                            </span>
+
+                        {% else %}
+
+                            <span class="admin-report-status">
+                                {{ report.status|capitalize }}
+                            </span>
+
+                        {% endif %}
+
+                    </header>
+
+
+                    <!-- =================================================
+                         REPORT BODY
+                         ================================================= -->
+
+                    <div class="admin-report-body">
+
+
+                        <!-- People -->
+
+                        <div class="admin-report-meta">
+
+                            <div class="admin-report-meta-item">
+
+                                <div class="admin-report-meta-label">
+                                    Reporter
+                                </div>
+
+                                <div class="admin-report-meta-value">
+                                    {{ report.reporter.username }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="admin-report-meta-item">
+
+                                <div class="admin-report-meta-label">
+                                    Reported User
+                                </div>
+
+                                <div class="admin-report-meta-value">
+                                    {{ report.reported_user.username }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="admin-report-meta-item">
+
+                                <div class="admin-report-meta-label">
+                                    Report ID
+                                </div>
+
+                                <div class="admin-report-meta-value">
+                                    #{{ report.id }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Reason -->
+
+                        <div class="admin-report-reason">
+
+                            <div class="admin-report-reason-label">
+                                Report Reason
+                            </div>
+
+                            <div class="admin-report-reason-value">
+                                {{ report.reason }}
+                            </div>
+
+                        </div>
+
+
+                        <!-- Additional details -->
+
+                        <div class="admin-report-details">
+
+                            <div class="admin-report-details-label">
+                                Additional Details
+                            </div>
+
+                            {% if report.details %}
+
+                                <div class="admin-report-details-text">
+                                    {{ report.details }}
+                                </div>
+
+                            {% else %}
+
+                                <div class="admin-report-details-empty">
+                                    No additional details were provided.
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- View user -->
+
+                        <div class="admin-report-user-action">
+
+                            <a
+                                href="{{ url_for(
+                                    'profile.user_profile',
+                                    user_id=report.reported_user_id
+                                ) }}"
+                                class="admin-report-view-user"
+                            >
+                                View Reported User
+                            </a>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             MODERATION FORM
+                             ================================================= -->
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'admin.update_report',
+                                report_id=report.id
+                            ) }}"
+                            class="admin-report-form"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{ csrf_token() }}"
+                            >
+
+
+                            <h3 class="admin-report-form-title">
+                                Moderation Decision
+                            </h3>
+
+
+                            <div class="admin-report-form-grid">
+
+                                <div class="admin-report-field">
+
+                                    <label
+                                        for="status-{{ report.id }}"
+                                    >
+                                        Status
+                                    </label>
+
+                                    <select
+                                        id="status-{{ report.id }}"
+                                        name="status"
+                                        required
+                                    >
+
+                                        <option
+                                            value="reviewed"
+                                            {% if report.status == "reviewed" %}
+                                            selected
+                                            {% endif %}
+                                        >
+                                            Reviewed
+                                        </option>
+
+                                        <option
+                                            value="actioned"
+                                            {% if report.status == "actioned" %}
+                                            selected
+                                            {% endif %}
+                                        >
+                                            Actioned
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="admin-report-field">
+
+                                    <label
+                                        for="admin-notes-{{ report.id }}"
+                                    >
+                                        Admin Notes
+                                    </label>
+
+                                    <textarea
+                                        id="admin-notes-{{ report.id }}"
+                                        name="admin_notes"
+                                        maxlength="2000"
+                                        placeholder="Record your moderation decision or notes..."
+                                    >{{ report.admin_notes or "" }}</textarea>
+
+                                </div>
+
+                            </div>
+
+
+                            <button
+                                type="submit"
+                                class="admin-report-submit"
+                            >
+
+                                {% if report.status == "pending" %}
+                                    Save Moderation Decision
+                                {% elif report.status == "reviewed" %}
+                                    Update Review
+                                {% elif report.status == "actioned" %}
+                                    Update Action
+                                {% else %}
+                                    Save Moderation Decision
+                                {% endif %}
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+
+    {% else %}
+
+        <div class="admin-reports-empty">
+
+            <div class="admin-reports-empty-icon">
+                ✓
+            </div>
+
+            <h2>
+                No reports found
+            </h2>
+
+            <p>
+                There are currently no user reports to review.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

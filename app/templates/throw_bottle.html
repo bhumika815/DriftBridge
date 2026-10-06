@@ -1,42 +1,74 @@
 {% extends "base.html" %}
 
-{% block title %}
-Throw a Bottle - DriftBridge
-{% endblock %}
+{% block title %}Send a Bottle - DriftBridge{% endblock %}
 
 {% block content %}
 
-<div class="throw-container">
+<div class="bottle-form-container">
 
-    <div class="throw-card">
+    <div class="bottle-form-header">
+        <h1>Send a Bottle</h1>
 
-        <h1>Throw a Bottle</h1>
-
-        <p class="throw-description">
-            Write a message and throw your bottle into the DriftBridge pool.
-            Another person can keep the bottle and start a connection with you.
+        <p>
+            Write something and release it into the Bottle Pool.
+            The first person who keeps it will become connected with you.
         </p>
+    </div>
+
+
+    <div class="card bottle-form-card">
 
         <form method="POST">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
 
             <div class="form-group">
-                <label class="form-label" for="message">Your Message</label>
+
+                <label
+                    class="form-label"
+                    for="message"
+                >
+                    Your Message
+                </label>
+
                 <textarea
-                    class="form-control"
-                    name="message"
                     id="message"
-                    placeholder="Write your message here..."
+                    name="message"
+                    class="form-control bottle-message-input"
+                    rows="8"
                     maxlength="1000"
+                    placeholder="Write something you'd like another person to discover..."
                     required
-                    style="min-height: 180px;"
                 ></textarea>
-                <small class="form-hint">Max 1000 characters</small>
+
+                <small class="form-hint">
+                    Your Bottle will be visible in the Pool until someone keeps it.
+                </small>
+
             </div>
 
-            <button type="submit" class="btn btn-primary btn-lg btn-block">
-                Throw Bottle
-            </button>
+
+            <div class="bottle-form-actions">
+
+                <a
+                    href="{{ url_for('bottle.pool') }}"
+                    class="btn btn-secondary"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Send to Pool
+                </button>
+
+            </div>
 
         </form>
 

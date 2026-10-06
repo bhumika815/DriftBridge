@@ -17,31 +17,23 @@ Diary - DriftBridge
                 href="{{ url_for('story.user_stories', user_id=story.user_id) }}"
                 class="diary-view-author"
             >
-
                 <div class="avatar avatar-primary">
                     {{ story.author.username[0]|upper }}
                 </div>
 
                 <div class="diary-view-author-info">
-
-                    <strong>
-                        {{ story.author.username }}
-                    </strong>
-
+                    <strong>{{ story.author.username }}</strong>
                     <span>
                         {{ story.created_at.strftime("%B %d, %Y") }}
                     </span>
-
                 </div>
-
             </a>
 
-
-            <!-- Diary Menu -->
+            <!-- Three-dot menu -->
             <button
                 type="button"
                 class="diary-view-menu"
-                aria-label="Diary options"
+                onclick="openDiaryMenu()"
                 title="Diary options"
             >
                 ⋮
@@ -55,39 +47,44 @@ Diary - DriftBridge
             class="diary-view-content"
             style="background: {{ story.background_color or '#1a4380' }};"
         >
-
             <div class="diary-view-text">
                 {{ story.text_content }}
             </div>
-
         </div>
 
 
         <!-- Diary Actions -->
         <div class="diary-view-actions">
 
+            <!-- LIKE -->
             <button
                 type="button"
                 class="diary-view-action"
-                disabled
+                onclick="toggleDiaryLike(this)"
+                data-story-id="{{ story.id }}"
                 title="Like"
             >
-                ♥
+                <span class="like-icon">♥</span>
+                <span class="like-count">{{ story.likes|length }}</span>
             </button>
 
+
+            <!-- COMMENT -->
             <button
                 type="button"
                 class="diary-view-action"
-                disabled
-                title="Comment"
+                onclick="openComments()"
+                title="Comments"
             >
                 💬
             </button>
 
+
+            <!-- SHARE -->
             <button
                 type="button"
                 class="diary-view-action"
-                disabled
+                onclick="shareDiary()"
                 title="Share"
             >
                 ↗
@@ -98,20 +95,610 @@ Diary - DriftBridge
     </article>
 
 
-    <!-- Close / Back -->
+    <!-- Back / Close -->
     <div class="diary-view-close">
-
         <a
             href="{{ url_for('story.feed') }}"
             class="diary-close-button"
-            aria-label="Back to Diary Feed"
             title="Back to Diary Feed"
         >
             &times;
         </a>
+    </div>
+
+</div>
+
+
+<!-- ========================================================= -->
+<!-- COMMENTS MODAL -->
+<!-- ========================================================= -->
+
+<div
+    id="commentsModal"
+    class="diary-modal-overlay"
+    onclick="closeComments(event)"
+>
+
+    <div
+        class="diary-modal"
+        onclick="event.stopPropagation()"
+    >
+
+        <div class="diary-modal-header">
+
+            <h2>Comments</h2>
+
+            <button
+                type="button"
+                class="diary-modal-close"
+                onclick="closeComments()"
+            >
+                &times;
+            </button>
+
+        </div>
+
+
+        <!-- Comments -->
+        <div
+            id="commentsList"
+            class="comments-list"
+        >
+            <div class="comments-loading">
+                Loading comments...
+            </div>
+        </div>
+
+
+        <!-- Add Comment -->
+        <form
+            id="commentForm"
+            class="comment-form"
+            onsubmit="submitComment(event)"
+        >
+
+            <input
+                type="text"
+                id="commentInput"
+                name="comment"
+                maxlength="500"
+                placeholder="Write a comment..."
+                autocomplete="off"
+                required
+            >
+
+            <button
+                type="submit"
+                class="comment-send-button"
+            >
+                Send
+            </button>
+
+        </form>
 
     </div>
 
 </div>
+
+
+<!-- ========================================================= -->
+<!-- DIARY OPTIONS MODAL -->
+<!-- ========================================================= -->
+
+<div
+    id="diaryMenuModal"
+    class="diary-modal-overlay"
+    onclick="closeDiaryMenu(event)"
+>
+
+    <div
+        class="diary-options-modal"
+        onclick="event.stopPropagation()"
+    >
+
+        <div class="diary-modal-header">
+
+            <h2>Diary Options</h2>
+
+            <button
+                type="button"
+                class="diary-modal-close"
+                onclick="closeDiaryMenu()"
+            >
+                &times;
+            </button>
+
+        </div>
+
+
+        {% if story.user_id == current_user.id %}
+
+            <!-- Own Diary -->
+            <form
+                method="POST"
+                action="{{ url_for('story.delete_story', story_id=story.id) }}"
+                onsubmit="return confirm('Delete this Diary?');"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button
+                    type="submit"
+                    class="diary-option danger"
+                >
+                    Delete Diary
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <!-- Other user's Diary -->
+            <button
+                type="button"
+                class="diary-option"
+                onclick="openReportModal()"
+            >
+                Report Diary
+            </button>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- ========================================================= -->
+<!-- REPORT MODAL -->
+<!-- ========================================================= -->
+
+<div
+    id="reportModal"
+    class="diary-modal-overlay"
+    onclick="closeReportModal(event)"
+>
+
+    <div
+        class="diary-options-modal"
+        onclick="event.stopPropagation()"
+    >
+
+        <div class="diary-modal-header">
+
+            <h2>Report Diary</h2>
+
+            <button
+                type="button"
+                class="diary-modal-close"
+                onclick="closeReportModal()"
+            >
+                &times;
+            </button>
+
+        </div>
+
+        <p class="report-description">
+            Why are you reporting this Diary?
+        </p>
+
+        <button
+            type="button"
+            class="diary-option"
+            onclick="submitReport('Inappropriate content')"
+        >
+            Inappropriate content
+        </button>
+
+        <button
+            type="button"
+            class="diary-option"
+            onclick="submitReport('Harassment or bullying')"
+        >
+            Harassment or bullying
+        </button>
+
+        <button
+            type="button"
+            class="diary-option"
+            onclick="submitReport('Spam')"
+        >
+            Spam
+        </button>
+
+        <button
+            type="button"
+            class="diary-option"
+            onclick="submitReport('Other')"
+        >
+            Other
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const csrfToken = "{{ csrf_token() }}";
+
+
+/* =========================================================
+   LIKE
+   ========================================================= */
+
+async function toggleDiaryLike(button) {
+
+    const storyId = button.dataset.storyId;
+
+    try {
+
+        const response = await fetch(
+            `/stories/${storyId}/like`,
+            {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+            return;
+        }
+
+        const countElement =
+            button.querySelector(".like-count");
+
+        if (countElement) {
+            countElement.textContent = data.like_count;
+        }
+
+        button.classList.toggle(
+            "liked",
+            data.liked
+        );
+
+        button.title =
+            data.liked ? "Unlike" : "Like";
+
+    } catch (error) {
+
+        console.error(
+            "Like error:",
+            error
+        );
+
+    }
+}
+
+
+/* =========================================================
+   COMMENTS
+   ========================================================= */
+
+async function openComments() {
+
+    const modal =
+        document.getElementById("commentsModal");
+
+    const commentsList =
+        document.getElementById("commentsList");
+
+    modal.classList.add("active");
+
+    commentsList.innerHTML =
+        '<div class="comments-loading">Loading comments...</div>';
+
+    try {
+
+        const response = await fetch(
+            `/stories/{{ story.id }}/comments`
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+
+            commentsList.innerHTML =
+                '<div class="comments-empty">Unable to load comments.</div>';
+
+            return;
+        }
+
+        if (data.comments.length === 0) {
+
+            commentsList.innerHTML =
+                '<div class="comments-empty">No comments yet.</div>';
+
+            return;
+        }
+
+        commentsList.innerHTML = "";
+
+        data.comments.forEach(comment => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "comment-item";
+
+            item.innerHTML = `
+                <div class="comment-avatar">
+                    ${comment.username.charAt(0).toUpperCase()}
+                </div>
+
+                <div class="comment-body">
+
+                    <strong>
+                        ${escapeHtml(comment.username)}
+                    </strong>
+
+                    <p>
+                        ${escapeHtml(comment.comment)}
+                    </p>
+
+                </div>
+            `;
+
+            commentsList.appendChild(item);
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Comments error:",
+            error
+        );
+
+        commentsList.innerHTML =
+            '<div class="comments-empty">Unable to load comments.</div>';
+    }
+}
+
+
+function closeComments(event) {
+
+    if (
+        event &&
+        event.target !== event.currentTarget
+    ) {
+        return;
+    }
+
+    document
+        .getElementById("commentsModal")
+        .classList.remove("active");
+}
+
+
+async function submitComment(event) {
+
+    event.preventDefault();
+
+    const form = document.getElementById("commentForm");
+    const input = document.getElementById("commentInput");
+    const sendButton = form.querySelector(".comment-send-button");
+
+    const comment = input.value.trim();
+
+    if (!comment) {
+        return;
+    }
+
+    // Prevent duplicate submissions while the request is processing.
+    if (sendButton.disabled) {
+        return;
+    }
+
+    sendButton.disabled = true;
+    sendButton.textContent = "Sending...";
+    sendButton.style.opacity = "0.65";
+    sendButton.style.cursor = "not-allowed";
+
+    try {
+
+        const response = await fetch(
+            `/stories/{{ story.id }}/comment`,
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+
+                body: JSON.stringify({
+                    comment: comment
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+            console.error("Comment submission failed:", data);
+            return;
+        }
+
+        // Clear the input only after successful submission.
+        input.value = "";
+
+        // Refresh the comments list.
+        await openComments();
+
+    } catch (error) {
+
+        console.error(
+            "Comment error:",
+            error
+        );
+
+    } finally {
+
+        // Allow another comment after the request finishes.
+        sendButton.disabled = false;
+        sendButton.textContent = "Send";
+        sendButton.style.opacity = "";
+        sendButton.style.cursor = "";
+
+    }
+}
+
+
+/* =========================================================
+   DIARY MENU
+   ========================================================= */
+
+function openDiaryMenu() {
+
+    document
+        .getElementById("diaryMenuModal")
+        .classList.add("active");
+}
+
+
+function closeDiaryMenu(event) {
+
+    if (
+        event &&
+        event.target !== event.currentTarget
+    ) {
+        return;
+    }
+
+    document
+        .getElementById("diaryMenuModal")
+        .classList.remove("active");
+}
+
+
+/* =========================================================
+   REPORT
+   ========================================================= */
+
+function openReportModal() {
+
+    closeDiaryMenu();
+
+    document
+        .getElementById("reportModal")
+        .classList.add("active");
+}
+
+
+function closeReportModal(event) {
+
+    if (
+        event &&
+        event.target !== event.currentTarget
+    ) {
+        return;
+    }
+
+    document
+        .getElementById("reportModal")
+        .classList.remove("active");
+}
+
+
+function submitReport(reason) {
+
+    /*
+     * Backend report functionality will be connected here.
+     * The UI is now ready for it.
+     */
+
+    console.log(
+        "Report reason:",
+        reason
+    );
+
+    closeReportModal();
+
+}
+
+
+/* =========================================================
+   SHARE
+   ========================================================= */
+
+function shareDiary() {
+
+    const url =
+        window.location.href;
+
+    if (navigator.share) {
+
+        navigator.share({
+            title: "DriftBridge Diary",
+            text: "Check out this Diary on DriftBridge.",
+            url: url
+        });
+
+    } else {
+
+        navigator.clipboard
+            .writeText(url);
+
+    }
+}
+
+
+/* =========================================================
+   SECURITY
+   ========================================================= */
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+}
+
+
+/* =========================================================
+   ESCAPE KEY
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key !== "Escape") {
+            return;
+        }
+
+        document
+            .getElementById("commentsModal")
+            .classList.remove("active");
+
+        document
+            .getElementById("diaryMenuModal")
+            .classList.remove("active");
+
+        document
+            .getElementById("reportModal")
+            .classList.remove("active");
+
+    }
+);
+
+</script>
 
 {% endblock %}

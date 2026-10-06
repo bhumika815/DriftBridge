@@ -1,0 +1,2687 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+    Settings - DriftBridge
+{% endblock %}
+
+
+{% block head %}
+
+<style>
+
+    .settings-username-display {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    min-width: 260px;
+}
+
+.settings-username-editor {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.settings-username-editor .settings-inline-input {
+    min-width: 190px;
+}
+
+.settings-username-password {
+    display: flex;
+}
+
+.settings-username-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.settings-cancel-button {
+    background: #ffffff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+.settings-cancel-button:hover {
+    background: #f8fafc;
+}
+
+@media (max-width: 700px) {
+
+    .settings-username-display,
+    .settings-username-editor {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .settings-username-editor {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .settings-username-editor .settings-inline-input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .settings-username-actions {
+        width: 100%;
+    }
+
+    .settings-username-actions button {
+        flex: 1;
+    }
+
+}
+
+    /* =====================================================
+       SETTINGS CONTAINER
+       ===================================================== */
+
+    .settings-container {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 30px 20px 50px;
+    }
+
+
+    /* =====================================================
+       BACK LINK
+       ===================================================== */
+
+    .settings-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 18px;
+        color: #2563eb;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+
+    .settings-back:hover {
+        text-decoration: underline;
+    }
+
+
+    /* =====================================================
+       SETTINGS CARD
+       ===================================================== */
+
+    .settings-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    }
+
+
+    /* =====================================================
+       HEADER
+       ===================================================== */
+
+    .settings-header {
+        margin-bottom: 28px;
+    }
+
+
+    .settings-header h1 {
+        margin: 0 0 6px;
+        font-size: 26px;
+        font-weight: 700;
+        color: #172033;
+    }
+
+
+    .settings-header p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+       SETTINGS SECTION
+       ===================================================== */
+
+    .settings-section {
+        padding: 22px 0;
+        border-top: 1px solid #e5e7eb;
+    }
+
+
+    .settings-section:first-of-type {
+        border-top: none;
+        padding-top: 0;
+    }
+
+
+    .settings-section-title {
+        margin: 0 0 5px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #172033;
+    }
+
+
+    .settings-section-description {
+        margin: 0 0 14px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+
+    /* =====================================================
+       SETTINGS ITEM
+       ===================================================== */
+
+    .settings-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 16px 0;
+        border-top: 1px solid #f1f5f9;
+    }
+
+
+    .settings-item:first-of-type {
+        border-top: none;
+    }
+
+
+    .settings-item-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+
+    .settings-item-title {
+        margin: 0 0 4px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #172033;
+    }
+
+
+    .settings-item-description {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+
+    .settings-item-value {
+        color: #475569;
+        font-size: 13px;
+        word-break: break-word;
+        text-align: right;
+    }
+
+
+    /* =====================================================
+       STATUS
+       ===================================================== */
+
+    .settings-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+
+    .settings-status-verified {
+        color: #15803d;
+    }
+
+
+    .settings-status-pending {
+        color: #b45309;
+    }
+
+
+    .settings-status-neutral {
+        color: #64748b;
+    }
+
+
+    /* =====================================================
+       ACTION BUTTON
+       ===================================================== */
+
+    .settings-action {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 72px;
+        padding: 8px 13px;
+        border: 1px solid #dbe2ea;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #2563eb;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease,
+            color 0.2s ease;
+    }
+
+
+    .settings-action:hover {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1d4ed8;
+    }
+
+
+    /* =====================================================
+       EMAIL CHANGE FORM
+       ===================================================== */
+
+    .settings-inline-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+
+    .settings-inline-input {
+        width: 220px;
+        padding: 8px 10px;
+        border: 1px solid #dbe2ea;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #172033;
+        font-size: 12px;
+        outline: none;
+        transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+
+    .settings-inline-input:focus {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+    }
+
+
+    .settings-button {
+        appearance: none;
+    }
+
+
+    /* =====================================================
+       EMAIL VERIFICATION PANEL
+       ===================================================== */
+
+    .settings-verification-panel {
+        margin-top: 14px;
+        padding: 16px;
+        border: 1px solid #dbeafe;
+        border-radius: 10px;
+        background: #f8fbff;
+    }
+
+
+    .settings-verification-title {
+        margin: 0 0 6px;
+        color: #172033;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+
+    .settings-verification-description {
+        margin: 0 0 12px;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+
+    .settings-pending-email {
+        color: #172033;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+
+    .settings-otp-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+
+    .settings-otp-input {
+        width: 150px;
+        padding: 9px 11px;
+        border: 1px solid #dbe2ea;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #172033;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 3px;
+        text-align: center;
+        outline: none;
+        transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+
+    .settings-otp-input:focus {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+    }
+
+
+    .settings-resend-form {
+        display: inline-flex;
+        margin-top: 10px;
+    }
+
+
+    .settings-resend-button {
+        appearance: none;
+        border: none;
+        background: transparent;
+        color: #2563eb;
+        padding: 0;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+
+    .settings-resend-button:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+
+
+    /* =====================================================
+       SECURITY NOTICE
+       ===================================================== */
+
+    .settings-security-note {
+        margin-top: 12px;
+        padding: 12px 14px;
+        border: 1px solid #dbeafe;
+        border-radius: 9px;
+        background: #eff6ff;
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+
+    /* =====================================================
+       DANGER ZONE
+       ===================================================== */
+
+    .settings-danger-section {
+        padding: 22px 0 0;
+        border-top: 1px solid #e5e7eb;
+    }
+
+
+    .settings-danger-section .settings-section-title {
+        color: #b91c1c;
+    }
+
+
+    .settings-danger-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 9px 14px;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #b91c1c;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+
+    .settings-danger-action:hover {
+        background: #fef2f2;
+        border-color: #fca5a5;
+    }
+
+
+    /* =====================================================
+       MOBILE
+       ===================================================== */
+
+    @media (max-width: 600px) {
+
+        .settings-container {
+            padding: 20px 14px 40px;
+        }
+
+
+        .settings-card {
+            padding: 22px 18px;
+        }
+
+
+        .settings-item {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+
+        .settings-item-value {
+            text-align: left;
+        }
+
+
+        .settings-action {
+            width: 100%;
+        }
+
+
+        .settings-inline-form {
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+
+        .settings-inline-input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+
+        .settings-inline-form .settings-action {
+            width: 100%;
+        }
+
+
+        .settings-verification-panel {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+
+        .settings-otp-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+
+        .settings-otp-input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+
+        .settings-otp-form .settings-action {
+            width: 100%;
+        }
+
+    }
+
+
+    /* =========================================================
+   DRIFTBRIDGE SETTINGS — PROFESSIONAL UI
+   Final visual override
+   ========================================================= */
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.settings-container {
+    width: min(920px, calc(100% - 32px));
+
+    margin: 0 auto;
+
+    padding: 38px 0 70px;
+}
+
+
+/* =========================================================
+   BACK LINK
+   ========================================================= */
+
+.settings-back {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-bottom: 18px;
+
+    color: #2563eb !important;
+
+    font-size: 13px;
+    font-weight: 650;
+
+    text-decoration: none;
+
+    transition:
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.settings-back:hover {
+    color: #0284c7 !important;
+
+    transform: translateX(-2px);
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   MAIN CARD
+   ========================================================= */
+
+.settings-card {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 0 !important;
+
+    overflow: hidden;
+
+    background: #ffffff !important;
+
+    border: 1px solid #e2e8f0 !important;
+
+    border-radius: 18px !important;
+
+    box-shadow:
+        0 20px 55px rgba(15, 23, 42, 0.08),
+        0 3px 12px rgba(15, 23, 42, 0.035) !important;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.settings-header {
+    margin: 0 !important;
+
+    padding: 30px 34px 27px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #f8fbff 100%
+        );
+
+    border-bottom: 1px solid #e8eef5;
+}
+
+.settings-header h1 {
+    margin: 0 0 7px !important;
+
+    color: #0f1f35 !important;
+
+    font-size: 29px !important;
+
+    font-weight: 800 !important;
+
+    letter-spacing: -0.035em;
+}
+
+.settings-header p {
+    margin: 0 !important;
+
+    color: #64748b !important;
+
+    font-size: 14px !important;
+
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   SECTION
+   ========================================================= */
+
+.settings-section {
+    margin: 0 !important;
+
+    padding: 28px 34px !important;
+
+    border-top: 1px solid #e7edf4 !important;
+}
+
+.settings-section:first-of-type {
+    border-top: none !important;
+
+    padding-top: 28px !important;
+}
+
+
+.settings-section-title {
+    margin: 0 0 5px !important;
+
+    color: #14243a !important;
+
+    font-size: 17px !important;
+
+    font-weight: 750 !important;
+
+    letter-spacing: -0.01em;
+}
+
+.settings-section-description {
+    margin: 0 0 18px !important;
+
+    color: #718096 !important;
+
+    font-size: 13px !important;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   SETTINGS ROW
+   ========================================================= */
+
+.settings-item {
+    display: grid !important;
+
+    grid-template-columns:
+        minmax(220px, 1fr)
+        minmax(170px, auto)
+        auto;
+
+    align-items: center;
+
+    column-gap: 28px;
+
+    min-height: 76px;
+
+    padding: 17px 0 !important;
+
+    border-top:
+        1px solid #edf2f7 !important;
+}
+
+.settings-item:first-of-type {
+    border-top: none !important;
+}
+
+
+/* =========================================================
+   LEFT SIDE
+   ========================================================= */
+
+.settings-item-info {
+    min-width: 0;
+
+    flex: none !important;
+}
+
+
+.settings-item-title {
+    margin: 0 0 5px !important;
+
+    color: #17263b !important;
+
+    font-size: 14px !important;
+
+    font-weight: 700 !important;
+}
+
+.settings-item-description {
+    max-width: 430px;
+
+    margin: 0 !important;
+
+    color: #718096 !important;
+
+    font-size: 13px !important;
+
+    line-height: 1.5 !important;
+}
+
+
+/* =========================================================
+   RIGHT VALUE
+   ========================================================= */
+
+.settings-item-value {
+    min-width: 0;
+
+    color: #334155 !important;
+
+    font-size: 13px !important;
+
+    font-weight: 500;
+
+    line-height: 1.45;
+
+    text-align: right;
+
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.settings-action,
+.settings-button {
+    display: inline-flex !important;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 78px;
+
+    min-height: 38px;
+
+    box-sizing: border-box;
+
+    padding: 8px 15px !important;
+
+    border: 1px solid #d6e0eb !important;
+
+    border-radius: 8px !important;
+
+    background: #ffffff !important;
+
+    color: #2563eb !important;
+
+    font-size: 12px !important;
+
+    font-weight: 650 !important;
+
+    line-height: 1;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.settings-action:hover,
+.settings-button:hover {
+    background: #f0f8ff !important;
+
+    border-color: #93c5fd !important;
+
+    color: #075985 !important;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+
+/* =========================================================
+   VERIFIED STATUS
+   ========================================================= */
+
+.settings-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    white-space: nowrap;
+
+    font-size: 12px !important;
+
+    font-weight: 650 !important;
+}
+
+.settings-status-verified {
+    color: #15803d !important;
+}
+
+.settings-status-pending {
+    color: #b45309 !important;
+}
+
+.settings-status-neutral {
+    color: #64748b !important;
+}
+
+
+/* =========================================================
+   INLINE FORMS
+   ========================================================= */
+
+.settings-inline-form {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+}
+
+
+/* =========================================================
+   INLINE INPUTS
+   ========================================================= */
+
+.settings-inline-input {
+    height: 38px;
+
+    box-sizing: border-box;
+
+    padding: 8px 11px;
+
+    border:
+        1px solid #d8e1eb !important;
+
+    border-radius: 8px !important;
+
+    background: #ffffff !important;
+
+    color: #1e293b !important;
+
+    font-size: 13px;
+
+    outline: none;
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.settings-inline-input:focus {
+    border-color: #60a5fa !important;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+
+/* =========================================================
+   EMAIL ROW
+   ========================================================= */
+
+.settings-item:has(.settings-inline-input) {
+    align-items: center;
+}
+
+
+/* =========================================================
+   VERIFICATION PANEL
+   ========================================================= */
+
+.settings-verification-panel {
+    margin-top: 14px;
+
+    padding: 18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f0f9ff,
+            #f8fbff
+        ) !important;
+
+    border:
+        1px solid #cfe8fb !important;
+
+    border-radius: 10px !important;
+}
+
+.settings-verification-title {
+    margin: 0 0 5px;
+
+    color: #0c4a6e;
+
+    font-size: 14px;
+
+    font-weight: 750;
+}
+
+.settings-verification-description {
+    margin: 0 0 14px;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   OTP FORM
+   ========================================================= */
+
+.settings-otp-form {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+}
+
+.settings-otp-input {
+    height: 40px;
+
+    width: 155px;
+
+    box-sizing: border-box;
+
+    padding: 8px 12px;
+
+    border:
+        1px solid #cbd5e1;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #172033;
+
+    font-size: 14px;
+
+    letter-spacing: 0.08em;
+
+    outline: none;
+}
+
+.settings-otp-input:focus {
+    border-color: #38bdf8;
+
+    box-shadow:
+        0 0 0 3px rgba(14, 165, 233, 0.08);
+}
+
+
+/* =========================================================
+   SECURITY NOTE
+   ========================================================= */
+
+.settings-security-note {
+    margin-top: 18px !important;
+
+    padding: 13px 15px !important;
+
+    background: #eff8ff !important;
+
+    border:
+        1px solid #d5eafd !important;
+
+    border-radius: 9px !important;
+
+    color: #42627f !important;
+
+    font-size: 12px !important;
+
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   DANGER ZONE
+   ========================================================= */
+
+.settings-danger-section {
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff,
+            #fffafa
+        );
+}
+
+.settings-danger-section .settings-section-title {
+    color: #991b1b !important;
+}
+
+.settings-danger-action {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 38px;
+
+    padding: 8px 15px !important;
+
+    border:
+        1px solid #fecaca !important;
+
+    border-radius: 8px !important;
+
+    background: #ffffff !important;
+
+    color: #b91c1c !important;
+
+    font-size: 12px !important;
+
+    font-weight: 650 !important;
+
+    text-decoration: none;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.settings-danger-action:hover {
+    background: #fef2f2 !important;
+
+    border-color: #fca5a5 !important;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   PASSWORD VALUE
+   ========================================================= */
+
+.settings-item-value:has(+ .settings-action) {
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   SMALL INTERACTION POLISH
+   ========================================================= */
+
+.settings-item {
+    transition:
+        background 0.18s ease;
+}
+
+.settings-item:hover {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(239, 248, 255, 0.28),
+            transparent
+        );
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+    .settings-container {
+        width: calc(100% - 20px);
+
+        padding:
+            20px 0 45px;
+    }
+
+    .settings-card {
+        border-radius: 14px !important;
+    }
+
+    .settings-header {
+        padding:
+            24px 20px 22px;
+    }
+
+    .settings-header h1 {
+        font-size: 25px !important;
+    }
+
+    .settings-section {
+        padding:
+            23px 20px !important;
+    }
+
+    .settings-item {
+        display: grid !important;
+
+        grid-template-columns: 1fr auto;
+
+        row-gap: 9px;
+
+        column-gap: 12px;
+
+        min-height: auto;
+
+        padding: 17px 0 !important;
+    }
+
+    .settings-item-info {
+        grid-column: 1 / -1;
+    }
+
+    .settings-item-value {
+        grid-column: 1;
+
+        text-align: left;
+
+        align-self: center;
+    }
+
+    .settings-item > .settings-action,
+    .settings-item > .settings-button,
+    .settings-item > form {
+        grid-column: 2;
+
+        justify-self: end;
+    }
+
+    .settings-inline-form {
+        grid-column: 1 / -1;
+
+        justify-content: flex-start;
+
+        flex-wrap: wrap;
+    }
+
+    .settings-inline-input {
+        flex: 1;
+
+        min-width: 150px;
+    }
+
+    .settings-otp-form {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .settings-otp-input {
+        width: 100%;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .settings-container {
+        width: calc(100% - 14px);
+    }
+
+    .settings-header {
+        padding:
+            22px 16px 20px;
+    }
+
+    .settings-section {
+        padding:
+            21px 16px !important;
+    }
+
+    .settings-item {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-item-info,
+    .settings-item-value,
+    .settings-item > .settings-action,
+    .settings-item > .settings-button,
+    .settings-item > form,
+    .settings-inline-form {
+        grid-column: 1;
+
+        width: 100%;
+    }
+
+    .settings-item-value {
+        text-align: left;
+    }
+
+    .settings-item > .settings-action,
+    .settings-item > .settings-button {
+        width: fit-content;
+    }
+
+}
+/* =========================================================
+   SETTINGS ROW FIX
+   Prevent email controls from overflowing the card
+   ========================================================= */
+
+.settings-item {
+    display: grid !important;
+
+    grid-template-columns:
+        minmax(190px, 1fr)
+        minmax(130px, 0.7fr)
+        minmax(270px, 1fr) !important;
+
+    align-items: center;
+
+    gap: 20px !important;
+
+    width: 100%;
+
+    box-sizing: border-box;
+}
+
+
+/* Keep the current value inside its column */
+
+.settings-item-value {
+    min-width: 0 !important;
+
+    max-width: 100%;
+
+    overflow-wrap: anywhere;
+
+    text-align: right;
+}
+
+
+/* Email change form */
+
+.settings-item .settings-inline-form {
+    display: grid !important;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        auto;
+
+    align-items: center;
+
+    gap: 8px;
+
+    width: 100%;
+
+    max-width: 100%;
+
+    min-width: 0;
+
+    box-sizing: border-box;
+}
+
+
+/* Email input */
+
+.settings-item .settings-inline-input {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    max-width: 100%;
+
+    box-sizing: border-box;
+}
+
+
+/* Send Code button */
+
+.settings-item .settings-inline-form .settings-action {
+    flex-shrink: 0;
+
+    white-space: nowrap;
+
+    min-width: 78px;
+}
+
+
+/* =========================================================
+   USERNAME / NORMAL ACTION ROW
+   ========================================================= */
+
+.settings-item > .settings-action,
+.settings-item > .settings-button {
+    justify-self: end;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   MOBILE / NARROW WINDOWS
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+    .settings-item {
+        grid-template-columns:
+            minmax(170px, 1fr)
+            minmax(120px, 0.7fr)
+            minmax(240px, 1fr) !important;
+
+        gap: 14px !important;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .settings-item {
+        display: grid !important;
+
+        grid-template-columns: 1fr auto !important;
+
+        gap: 10px 14px !important;
+    }
+
+    .settings-item-info {
+        grid-column: 1 / -1;
+    }
+
+    .settings-item-value {
+        grid-column: 1;
+
+        text-align: left;
+    }
+
+    .settings-item > .settings-action,
+    .settings-item > .settings-button {
+        grid-column: 2;
+
+        justify-self: end;
+    }
+
+    .settings-item .settings-inline-form {
+        grid-column: 1 / -1;
+
+        display: grid !important;
+
+        grid-template-columns: minmax(0, 1fr) auto;
+
+        width: 100%;
+
+        max-width: 100%;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .settings-item {
+        grid-template-columns: 1fr !important;
+    }
+
+    .settings-item-value,
+    .settings-item > .settings-action,
+    .settings-item > .settings-button,
+    .settings-item .settings-inline-form {
+        grid-column: 1;
+
+        width: 100%;
+    }
+
+    .settings-item > .settings-action,
+    .settings-item > .settings-button {
+        justify-self: start;
+    }
+
+    .settings-item .settings-inline-form {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-item .settings-inline-form .settings-action {
+        width: fit-content;
+    }
+
+}
+/* =========================================================
+   DELETE ACCOUNT — PROFESSIONAL DANGER ZONE
+   ========================================================= */
+
+.settings-danger-section {
+    margin-top: 0 !important;
+
+    padding: 28px 34px 30px !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fffafa 0%,
+            #ffffff 100%
+        ) !important;
+
+    border-top:
+        1px solid #f1d5d5 !important;
+}
+
+
+/* Section heading */
+
+.settings-danger-section .settings-section-title {
+    margin: 0 0 5px !important;
+
+    color: #b91c1c !important;
+
+    font-size: 17px !important;
+}
+
+.settings-danger-section
+.settings-section-description {
+    margin-bottom: 18px !important;
+
+    color: #7f1d1d !important;
+}
+
+
+/* Delete row */
+
+.settings-danger-section .settings-item {
+    display: grid !important;
+
+    grid-template-columns:
+        minmax(220px, 1fr)
+        auto !important;
+
+    align-items: center;
+
+    gap: 24px;
+
+    padding: 18px 0 !important;
+
+    border-top:
+        1px solid #f5dddd !important;
+
+    background: transparent !important;
+}
+
+
+/* Delete text */
+
+.settings-danger-section
+.settings-item-info {
+    min-width: 0;
+}
+
+.settings-danger-section
+.settings-item-title {
+    color: #172033 !important;
+
+    font-size: 14px !important;
+
+    font-weight: 700 !important;
+}
+
+.settings-danger-section
+.settings-item-description {
+    color: #7f1d1d !important;
+
+    font-size: 13px !important;
+}
+
+
+/* Delete button */
+
+.settings-danger-section
+.settings-danger-action {
+    display: inline-flex !important;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 145px;
+    height: 40px;
+
+    box-sizing: border-box;
+
+    padding: 0 18px !important;
+
+    border:
+        1px solid #fca5a5 !important;
+
+    border-radius: 8px !important;
+
+    background: #ffffff !important;
+
+    color: #dc2626 !important;
+
+    font-size: 12px !important;
+
+    font-weight: 700 !important;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.settings-danger-section
+.settings-danger-action:hover {
+    background: #fef2f2 !important;
+
+    border-color: #f87171 !important;
+
+    color: #b91c1c !important;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 14px rgba(220, 38, 38, 0.08);
+}
+
+
+/* Mobile */
+
+@media (max-width: 700px) {
+
+    .settings-danger-section {
+        padding:
+            24px 20px 26px !important;
+    }
+
+    .settings-danger-section
+    .settings-item {
+        grid-template-columns: 1fr !important;
+
+        gap: 13px;
+    }
+
+    .settings-danger-section
+    .settings-danger-action {
+        width: fit-content;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .settings-danger-section {
+        padding:
+            22px 16px 24px !important;
+    }
+
+    .settings-danger-section
+    .settings-danger-action {
+        width: 100%;
+    }
+
+}
+
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="settings-container">
+
+    <!-- =================================================
+         BACK TO PROFILE
+         ================================================= -->
+
+    <a
+        href="{{ url_for('profile.profile') }}"
+        class="settings-back"
+    >
+        ← Back to Profile
+    </a>
+
+
+    <div class="settings-card">
+
+
+        <!-- =================================================
+             HEADER
+             ================================================= -->
+
+        <div class="settings-header">
+
+            <h1>
+                Settings
+            </h1>
+
+            <p>
+                Manage your DriftBridge account, security,
+                and privacy.
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             ACCOUNT
+             ================================================= -->
+
+        <section class="settings-section">
+
+            <h2 class="settings-section-title">
+                Account
+            </h2>
+
+            <p class="settings-section-description">
+                Manage your basic account information.
+            </p>
+
+
+           <!-- =================================================
+     USERNAME
+     ================================================= -->
+
+<div class="settings-item">
+
+    <div class="settings-item-info">
+
+        <h3 class="settings-item-title">
+            Username
+        </h3>
+
+        <p class="settings-item-description">
+            Your public DriftBridge username.
+        </p>
+
+    </div>
+
+
+    <div
+        class="settings-username-display"
+        id="usernameDisplay"
+    >
+        <div class="settings-item-value">
+            {{ user.username }}
+        </div>
+
+        <button
+            type="button"
+            class="settings-action settings-button"
+            onclick="openUsernameEditor()"
+        >
+            Edit
+        </button>
+    </div>
+
+
+    <form
+        
+        method="POST"
+        action="{{ url_for('settings.settings') }}"
+        class="settings-username-editor"
+        id="usernameEditor"
+        style="display: none;"
+    >
+         <input
+    type="hidden"
+    name="csrf_token"
+    value="{{ csrf_token() }}"
+>
+
+        <input
+            type="text"
+            name="username"
+            value="{{ user.username }}"
+            maxlength="50"
+            autocomplete="username"
+            required
+            class="settings-inline-input"
+            placeholder="Enter username"
+        >
+
+        <input
+            type="hidden"
+            name="email"
+            value="{{ user.email }}"
+        >
+
+        <div class="settings-username-password">
+
+            <input
+                type="password"
+                name="current_password"
+                required
+                class="settings-inline-input"
+                placeholder="Current password"
+                autocomplete="current-password"
+            >
+
+        </div>
+
+        <div class="settings-username-actions">
+
+            <button
+                type="submit"
+                class="settings-action settings-button"
+            >
+                Save
+            </button>
+
+            <button
+                type="button"
+                class="settings-action settings-cancel-button"
+                onclick="closeUsernameEditor()"
+            >
+                Cancel
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+            <!-- EMAIL ADDRESS -->
+
+            <div class="settings-item">
+
+                <div class="settings-item-info">
+
+                    <h3 class="settings-item-title">
+                        Email Address
+                    </h3>
+
+                    <p class="settings-item-description">
+                        Change the email address associated
+                        with your DriftBridge account.
+                    </p>
+
+                </div>
+
+
+                <div class="settings-item-value">
+
+                    {{ user.email }}
+
+                </div>
+
+
+                {% if session.get("pending_email_change") %}
+
+                    <span
+                        class="settings-status settings-status-pending"
+                    >
+                        Verification pending
+                    </span>
+
+                {% else %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('settings.request_email_change') }}"
+                        class="settings-inline-form"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <input
+                            type="email"
+                            name="email"
+                            value="{{ user.email }}"
+                            class="settings-inline-input"
+                            maxlength="120"
+                            autocomplete="email"
+                            required
+                        >
+
+                        <button
+                            type="submit"
+                            class="settings-action settings-button"
+                        >
+                            Send Code
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- EMAIL CHANGE VERIFICATION -->
+
+            {% if session.get("pending_email_change") %}
+
+                <div class="settings-verification-panel">
+
+                    <h3 class="settings-verification-title">
+                        Verify New Email Address
+                    </h3>
+
+
+                    <p class="settings-verification-description">
+
+                        We sent a 6-digit verification code to
+
+                        <span class="settings-pending-email">
+                            {{ session.get("pending_email_change") }}
+                        </span>.
+
+                        Enter the code below to complete the
+                        email address change.
+
+                    </p>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('settings.verify_email_change') }}"
+                        class="settings-otp-form"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <input
+                            type="text"
+                            name="otp"
+                            class="settings-otp-input"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            placeholder="6-digit code"
+                            aria-label="Verification code"
+                            required
+                        >
+
+                        <button
+                            type="submit"
+                            class="settings-action settings-button"
+                        >
+                            Verify & Update Email
+                        </button>
+
+                    </form>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('settings.request_email_change') }}"
+                        class="settings-resend-form"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="email"
+                            value="{{ session.get('pending_email_change') }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="settings-resend-button"
+                        >
+                            Resend verification code
+                        </button>
+
+                    </form>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- SECURITY -->
+
+        <section class="settings-section">
+
+            <h2 class="settings-section-title">
+                Security
+            </h2>
+
+            <p class="settings-section-description">
+                Protect your account and manage
+                verification methods.
+            </p>
+
+
+            <!-- PASSWORD -->
+
+<div class="settings-item">
+
+    <div class="settings-item-info">
+
+        <h3 class="settings-item-title">
+            Password
+        </h3>
+
+        <p class="settings-item-description">
+            Change your DriftBridge account password.
+        </p>
+
+    </div>
+
+
+    <div class="settings-item-value">
+        ••••••••••
+    </div>
+
+
+    <button
+        type="button"
+        class="settings-action"
+        id="open-password-change"
+    >
+        Change
+    </button>
+
+</div>
+
+
+<!-- PASSWORD CHANGE PANEL -->
+
+<div
+    class="settings-security-panel"
+    id="password-change-panel"
+    hidden
+>
+
+    <div class="settings-security-panel-header">
+
+        <div>
+
+            <h3 class="settings-security-panel-title">
+                Change Password
+            </h3>
+
+            <p class="settings-security-panel-description">
+                Enter your current password and choose a
+                new password. A verification code will be
+                sent to your verified email address.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form
+        method="POST"
+        action="{{ url_for('settings.request_password_change') }}"
+        class="settings-security-form"
+    >
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+        >
+
+
+        <div class="settings-form-group">
+
+            <label
+                for="current-password"
+                class="settings-form-label"
+            >
+                Current Password
+            </label>
+
+            <input
+                type="password"
+                id="current-password"
+                name="current_password"
+                class="settings-form-input"
+                autocomplete="current-password"
+                required
+            >
+
+        </div>
+
+
+        <div class="settings-form-group">
+
+            <label
+                for="new-password"
+                class="settings-form-label"
+            >
+                New Password
+            </label>
+
+            <input
+                type="password"
+                id="new-password"
+                name="new_password"
+                class="settings-form-input"
+                autocomplete="new-password"
+                minlength="8"
+                required
+            >
+
+        </div>
+
+
+        <div class="settings-form-group">
+
+            <label
+                for="confirm-password"
+                class="settings-form-label"
+            >
+                Confirm New Password
+            </label>
+
+            <input
+                type="password"
+                id="confirm-password"
+                name="confirm_password"
+                class="settings-form-input"
+                autocomplete="new-password"
+                minlength="8"
+                required
+            >
+
+        </div>
+
+
+        <div class="settings-security-actions">
+
+            <button
+                type="submit"
+                class="settings-primary-button"
+            >
+                Send Verification Code
+            </button>
+
+            <button
+                type="button"
+                class="settings-secondary-button"
+                id="cancel-password-change"
+            >
+                Cancel
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+<!-- PASSWORD OTP VERIFICATION -->
+
+<div
+    class="settings-security-panel"
+    id="password-otp-panel"
+    hidden
+>
+
+    <div class="settings-security-panel-header">
+
+        <div>
+
+            <h3 class="settings-security-panel-title">
+                Verify Password Change
+            </h3>
+
+            <p class="settings-security-panel-description">
+                Enter the 6-digit verification code sent to
+                your verified email address.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form
+        method="POST"
+        action="{{ url_for('settings.verify_password_change') }}"
+        class="settings-security-form"
+    >
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+        >
+
+
+        <div class="settings-form-group">
+
+            <label
+                for="password-change-otp"
+                class="settings-form-label"
+            >
+                Verification Code
+            </label>
+
+            <input
+                type="text"
+                id="password-change-otp"
+                name="otp"
+                class="settings-form-input"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="6"
+                pattern="[0-9]{6}"
+                placeholder="Enter 6-digit code"
+                required
+            >
+
+        </div>
+
+
+        <div class="settings-security-actions">
+
+            <button
+                type="submit"
+                class="settings-primary-button"
+            >
+                Verify & Change Password
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+            <!-- EMAIL VERIFICATION -->
+
+            <div class="settings-item">
+
+                <div class="settings-item-info">
+
+                    <h3 class="settings-item-title">
+                        Email Verification
+                    </h3>
+
+                    <p class="settings-item-description">
+                        Verify that you control your account
+                        email address.
+                    </p>
+
+                </div>
+
+
+                <div class="settings-item-value">
+
+                    {% if user.email_verified %}
+
+                        <span class="settings-status settings-status-verified">
+                            ● Verified
+                        </span>
+
+                    {% else %}
+
+                        <span class="settings-status settings-status-pending">
+                            ● Not verified
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                {% if user.email_verified %}
+
+    <!-- Email is already verified. No action needed. -->
+
+{% elif session.get("email_verification_pending") %}
+
+                    <span class="settings-status settings-status-pending">
+                        Verification pending
+                    </span>
+
+                {% else %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('settings.request_email_verification') }}"
+                        class="settings-inline-form"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="settings-action settings-button"
+                        >
+                            Verify
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ACCOUNT EMAIL VERIFICATION -->
+
+            {% if session.get("email_verification_pending") and not user.email_verified %}
+
+                <div class="settings-verification-panel">
+
+                    <h3 class="settings-verification-title">
+                        Verify Account Email
+                    </h3>
+
+                    <p class="settings-verification-description">
+
+                        We sent a 6-digit verification code to
+
+                        <span class="settings-pending-email">
+                            {{ user.email }}
+                        </span>.
+
+                        Enter the code below to verify your
+                        account email address.
+
+                    </p>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('settings.verify_account_email') }}"
+                        class="settings-otp-form"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <input
+                            type="text"
+                            name="otp"
+                            class="settings-otp-input"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            placeholder="6-digit code"
+                            aria-label="Email verification code"
+                            required
+                        >
+
+                        <button
+                            type="submit"
+                            class="settings-action settings-button"
+                        >
+                            Verify Email
+                        </button>
+
+                    </form>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('settings.request_email_verification') }}"
+                        class="settings-resend-form"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="settings-resend-button"
+                        >
+                            Resend verification code
+                        </button>
+
+                    </form>
+
+                </div>
+
+            {% endif %}
+
+
+
+            <!-- TWO FACTOR -->
+
+            <div class="settings-item">
+
+                <div class="settings-item-info">
+
+                    <h3 class="settings-item-title">
+                        Two-Factor Authentication
+                    </h3>
+
+                    <p class="settings-item-description">
+                        Add another verification step when
+                        signing in.
+                    </p>
+
+                </div>
+
+
+                <div class="settings-item-value">
+
+                    <span
+                        class="settings-status settings-status-neutral"
+                    >
+                        ● Not enabled
+                    </span>
+
+                </div>
+
+
+                <a
+                    href="#"
+                    class="settings-action"
+                    title="Two-factor authentication will be added later"
+                >
+                    Set Up
+                </a>
+
+            </div>
+
+
+            <div class="settings-security-note">
+
+    Sensitive account changes may require
+    additional verification through your
+    verified email address,
+    password, or two-factor authentication.
+
+</div>
+
+        </section>
+
+
+        <!-- PROFILE MANAGEMENT -->
+
+        <section class="settings-section">
+
+            <h2 class="settings-section-title">
+                Profile Management
+            </h2>
+
+            <p class="settings-section-description">
+                Manage information shown to other
+                DriftBridge users.
+            </p>
+
+
+            <div class="settings-item">
+
+                <div class="settings-item-info">
+
+                    <h3 class="settings-item-title">
+                        Profile
+                    </h3>
+
+                    <p class="settings-item-description">
+                        Edit your bio, interests, languages,
+                        country, and profile picture.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('profile.profile') }}"
+                    class="settings-action"
+                >
+                    Edit
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- SESSION -->
+
+        <section class="settings-section">
+
+            <h2 class="settings-section-title">
+                Session
+            </h2>
+
+            <p class="settings-section-description">
+                Manage your current DriftBridge session.
+            </p>
+
+
+            <div class="settings-item">
+
+                <div class="settings-item-info">
+
+                    <h3 class="settings-item-title">
+                        Log Out
+                    </h3>
+
+                    <p class="settings-item-description">
+                        Sign out of your current account.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('auth.logout') }}"
+                    class="settings-action"
+                >
+                    Log Out
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- ACCOUNT DELETION -->
+
+        <section class="settings-danger-section">
+
+            <h2 class="settings-section-title">
+                Delete Account
+            </h2>
+
+            <p class="settings-section-description">
+                Permanently delete your DriftBridge account
+                and associated data.
+            </p>
+
+
+            <div class="settings-item">
+
+                <div class="settings-item-info">
+
+                    <h3 class="settings-item-title">
+                        Permanently Delete Account
+                    </h3>
+
+                    <p class="settings-item-description">
+                        This action cannot be undone.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('profile.profile') }}#delete-account"
+                    class="settings-danger-action"
+                >
+                    Delete Account
+                </a>
+
+            </div>
+
+        </section>
+
+
+    </div>
+
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const openPasswordChangeButton =
+        document.getElementById("open-password-change");
+
+    const passwordChangePanel =
+        document.getElementById("password-change-panel");
+
+    const cancelPasswordChangeButton =
+        document.getElementById("cancel-password-change");
+
+    const passwordOtpPanel =
+        document.getElementById("password-otp-panel");
+
+
+    /*
+     * Open the password-change form.
+     */
+
+    if (
+        openPasswordChangeButton &&
+        passwordChangePanel
+    ) {
+
+        openPasswordChangeButton.addEventListener(
+            "click",
+            function () {
+
+                passwordChangePanel.hidden = false;
+
+                openPasswordChangeButton.hidden = true;
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Cancel the password-change form.
+     */
+
+    if (
+        cancelPasswordChangeButton &&
+        passwordChangePanel
+    ) {
+
+        cancelPasswordChangeButton.addEventListener(
+            "click",
+            function () {
+
+                passwordChangePanel.hidden = true;
+
+                if (openPasswordChangeButton) {
+                    openPasswordChangeButton.hidden = false;
+                }
+
+            }
+        );
+
+    }
+
+
+    /*
+     * If Flask reports that a password-change OTP
+     * is pending, show the OTP panel.
+     */
+
+const passwordChangePending =
+{{ "true" if session.get("password_change_pending") else "false" }};
+
+
+    if (
+        passwordChangePending &&
+        passwordOtpPanel
+    ) {
+
+        passwordOtpPanel.hidden = false;
+
+        if (passwordChangePanel) {
+            passwordChangePanel.hidden = true;
+        }
+
+        if (openPasswordChangeButton) {
+            openPasswordChangeButton.hidden = true;
+        }
+
+    }
+
+ });
+</script>
+
+<script>
+
+function openUsernameEditor() {
+
+    const display = document.getElementById("usernameDisplay");
+    const editor = document.getElementById("usernameEditor");
+
+    if (!display || !editor) {
+        return;
+    }
+
+    display.style.display = "none";
+    editor.style.display = "flex";
+
+}
+
+
+function closeUsernameEditor() {
+
+    const display = document.getElementById("usernameDisplay");
+    const editor = document.getElementById("usernameEditor");
+
+    if (!display || !editor) {
+        return;
+    }
+
+    editor.style.display = "none";
+    display.style.display = "flex";
+
+}
+
+</script>
+
+{% endblock %}

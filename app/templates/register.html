@@ -3,16 +3,16 @@
 {% block title %}Create Account — DriftBridge{% endblock %}
 
 {% block content %}
-<div style="max-width: 420px; margin: 48px auto; padding: 0 16px;">
+<div class="auth-container">
 
-    <div style="text-align: center; margin-bottom: 32px;">
+    <div class="auth-header">
         <svg width="56" height="56" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 12px;">
             <path d="M20 38c0-6.6 5.4-12 12-12s12 5.4 12 12" stroke="#2b7de9" stroke-width="4" stroke-linecap="round"/>
             <circle cx="32" cy="24" r="5" fill="#2b7de9"/>
             <path d="M16 44h32" stroke="#2dd4bf" stroke-width="4" stroke-linecap="round"/>
         </svg>
         <h1>Join DriftBridge</h1>
-        <p style="color: var(--neutral-500); margin-top: 4px;">Create your account to get started</p>
+        <p>Create your account to get started</p>
     </div>
 
     <div class="card">
@@ -30,28 +30,40 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password">Password</label>
-                <div style="position: relative;">
-                    <input type="password" class="form-control" id="password" name="password" required>
-                    <button type="button" onclick="togglePassword('password', this)"
-                            style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-                                   background: none; border: none; cursor: pointer; color: var(--neutral-400); font-size: 14px;">
-                        Show
-                    </button>
-                </div>
-            </div>
+    <label class="form-label" for="password">Password</label>
 
-            <div class="form-group">
-                <label class="form-label" for="confirm_password">Confirm Password</label>
-                <div style="position: relative;">
-                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-                    <button type="button" onclick="togglePassword('confirm_password', this)"
-                            style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-                                   background: none; border: none; cursor: pointer; color: var(--neutral-400); font-size: 14px;">
-                        Show
-                    </button>
-                </div>
-            </div>
+    <div style="position: relative;">
+        <input type="password" class="form-control" id="password" name="password" required>
+
+        <button type="button"
+                class="password-toggle"
+                onclick="togglePassword('password', this)">
+            Show
+        </button>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="form-label" for="confirm_password">Confirm Password</label>
+
+    <div style="position: relative;">
+        <input
+            type="password"
+            class="form-control"
+            id="confirm_password"
+            name="confirm_password"
+            required
+        >
+
+        <button
+            type="button"
+            class="password-toggle"
+            onclick="togglePassword('confirm_password', this)"
+        >
+            Show
+        </button>
+    </div>
+</div>
 
             <div class="form-group">
                 <label class="form-label" for="preferred_language">Preferred Language</label>
@@ -67,7 +79,7 @@
         </form>
     </div>
 
-    <p style="text-align: center; margin-top: 24px; color: var(--neutral-500);">
+    <p class="auth-footer">
         Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
     </p>
 </div>

@@ -1,0 +1,1181 @@
+{% extends "base.html" %}
+
+{% block title %}AI Content Flags - DriftBridge{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   DRIFTBRIDGE ADMIN — AI CONTENT FLAGS
+   ========================================================= */
+
+.admin-flags-page {
+    width: min(1100px, calc(100% - 32px));
+
+    margin: 0 auto;
+
+    padding: 34px 0 65px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.admin-flags-header {
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 26px;
+}
+
+.admin-flags-eyebrow {
+    margin-bottom: 6px;
+
+    color: #0284c7;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.16em;
+}
+
+.admin-flags-header h1 {
+    margin: 0;
+
+    color: #0f1f35;
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.035em;
+}
+
+.admin-flags-header p {
+    max-width: 650px;
+
+    margin: 7px 0 0;
+
+    color: #64748b;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   BACK BUTTON
+   ========================================================= */
+
+.admin-flags-back {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 38px;
+
+    padding: 0 15px;
+
+    border: 1px solid #d7e1eb;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #2563eb;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    text-decoration: none;
+
+    white-space: nowrap;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.admin-flags-back:hover {
+    background: #eff8ff;
+
+    border-color: #93c5fd;
+
+    transform: translateY(-1px);
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   FLAG LIST
+   ========================================================= */
+
+.admin-flags-list {
+    display: grid;
+
+    gap: 14px;
+}
+
+
+/* =========================================================
+   FLAG CARD
+   ========================================================= */
+
+.admin-flag-card {
+    overflow: hidden;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 5px 18px rgba(15, 23, 42, 0.045);
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.admin-flag-card:hover {
+    border-color: #cbddec;
+
+    box-shadow:
+        0 9px 26px rgba(15, 23, 42, 0.065);
+}
+
+
+/* =========================================================
+   FLAG HEADER
+   ========================================================= */
+
+.admin-flag-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 19px 21px;
+
+    border-bottom: 1px solid #edf2f7;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #f8fcff
+        );
+}
+
+.admin-flag-title {
+    margin: 0;
+
+    color: #17263b;
+
+    font-size: 15px;
+
+    font-weight: 750;
+}
+
+.admin-flag-date {
+    margin-top: 4px;
+
+    color: #94a3b8;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.admin-flag-status {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 25px;
+
+    padding: 0 10px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+
+    font-weight: 750;
+
+    white-space: nowrap;
+}
+
+.admin-flag-status.pending {
+    background: #fff7ed;
+
+    color: #c2410c;
+
+    border: 1px solid #fed7aa;
+}
+
+.admin-flag-status.reviewed {
+    background: #eff6ff;
+
+    color: #1d4ed8;
+
+    border: 1px solid #bfdbfe;
+}
+
+.admin-flag-status.actioned {
+    background: #ecfdf5;
+
+    color: #047857;
+
+    border: 1px solid #a7f3d0;
+}
+
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
+.admin-flag-body {
+    padding: 21px;
+}
+
+
+/* =========================================================
+   METADATA
+   ========================================================= */
+
+.admin-flag-meta {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+.admin-flag-meta-item {
+    min-width: 0;
+
+    padding: 13px;
+
+    border: 1px solid #edf2f7;
+
+    border-radius: 9px;
+
+    background: #f8fafc;
+}
+
+.admin-flag-meta-label {
+    margin-bottom: 5px;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+
+    font-weight: 750;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.06em;
+}
+
+.admin-flag-meta-value {
+    overflow: hidden;
+
+    color: #334155;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   SEVERITY
+   ========================================================= */
+
+.admin-flag-severity {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+.admin-flag-severity-dot {
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+}
+
+.admin-flag-severity-dot.high {
+    background: #ef4444;
+
+    box-shadow:
+        0 0 0 4px rgba(239, 68, 68, 0.09);
+}
+
+.admin-flag-severity-dot.medium {
+    background: #f59e0b;
+
+    box-shadow:
+        0 0 0 4px rgba(245, 158, 11, 0.09);
+}
+
+.admin-flag-severity-dot.low {
+    background: #22c55e;
+
+    box-shadow:
+        0 0 0 4px rgba(34, 197, 94, 0.09);
+}
+
+
+/* =========================================================
+   CONTENT BLOCK
+   ========================================================= */
+
+.admin-flag-content {
+    margin-bottom: 16px;
+
+    padding: 16px;
+
+    border-left: 3px solid #38bdf8;
+
+    border-radius: 0 9px 9px 0;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f7fcff,
+            #f8fafc
+        );
+}
+
+.admin-flag-content-label {
+    margin-bottom: 7px;
+
+    color: #64748b;
+
+    font-size: 10px;
+
+    font-weight: 750;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.06em;
+}
+
+.admin-flag-content-text {
+    color: #17263b;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+    white-space: pre-wrap;
+
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   AI REASON
+   ========================================================= */
+
+.admin-flag-ai-reason {
+    margin-bottom: 18px;
+
+    padding: 14px 15px;
+
+    border: 1px solid #dbeafe;
+
+    border-radius: 9px;
+
+    background: #eff8ff;
+}
+
+.admin-flag-ai-label {
+    margin-bottom: 6px;
+
+    color: #0369a1;
+
+    font-size: 10px;
+
+    font-weight: 750;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.06em;
+}
+
+.admin-flag-ai-text {
+    color: #42627f;
+
+    font-size: 12px;
+
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   REVIEW INFORMATION
+   ========================================================= */
+
+.admin-flag-review-info {
+    margin-bottom: 18px;
+
+    padding: 14px 15px;
+
+    border: 1px solid #edf2f7;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+}
+
+.admin-flag-review-row {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 7px 0;
+
+    border-top: 1px solid #f1f5f9;
+
+    font-size: 12px;
+}
+
+.admin-flag-review-row:first-child {
+    border-top: none;
+
+    padding-top: 0;
+}
+
+.admin-flag-review-row:last-child {
+    padding-bottom: 0;
+}
+
+.admin-flag-review-label {
+    color: #64748b;
+
+    font-weight: 600;
+}
+
+.admin-flag-review-value {
+    color: #334155;
+
+    font-weight: 650;
+
+    text-align: right;
+}
+
+
+/* =========================================================
+   ADMIN NOTES
+   ========================================================= */
+
+.admin-flag-notes {
+    margin-top: 10px;
+
+    padding: 12px 13px;
+
+    border-radius: 8px;
+
+    background: #f8fafc;
+
+    color: #475569;
+
+    font-size: 12px;
+
+    line-height: 1.55;
+
+    white-space: pre-wrap;
+}
+
+
+/* =========================================================
+   MODERATION FORM
+   ========================================================= */
+
+.admin-flag-form {
+    padding-top: 19px;
+
+    border-top: 1px solid #edf2f7;
+}
+
+.admin-flag-form-title {
+    margin: 0 0 15px;
+
+    color: #17263b;
+
+    font-size: 13px;
+
+    font-weight: 750;
+}
+
+.admin-flag-form-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(190px, 0.45fr)
+        minmax(0, 1fr);
+
+    gap: 14px;
+}
+
+.admin-flag-field {
+    min-width: 0;
+}
+
+.admin-flag-field label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #475569;
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+.admin-flag-field select,
+.admin-flag-field textarea {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d8e1eb;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #172033;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    outline: none;
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.admin-flag-field select {
+    height: 40px;
+
+    padding: 0 10px;
+}
+
+.admin-flag-field textarea {
+    min-height: 90px;
+
+    padding: 10px 11px;
+
+    line-height: 1.5;
+
+    resize: vertical;
+}
+
+.admin-flag-field select:focus,
+.admin-flag-field textarea:focus {
+    border-color: #60a5fa;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+
+/* =========================================================
+   SAVE BUTTON
+   ========================================================= */
+
+.admin-flag-submit {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 38px;
+
+    margin-top: 14px;
+
+    padding: 0 16px;
+
+    border: 1px solid #0284c7;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0284c7,
+            #0891b2
+        );
+
+    color: #ffffff;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 12px rgba(2, 132, 199, 0.16);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        filter 0.18s ease;
+}
+
+.admin-flag-submit:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 7px 16px rgba(2, 132, 199, 0.22);
+
+    filter: brightness(1.03);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.admin-flags-empty {
+    padding: 65px 25px;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 18px rgba(15, 23, 42, 0.04);
+}
+
+.admin-flags-empty-icon {
+    margin-bottom: 12px;
+
+    color: #22c55e;
+
+    font-size: 30px;
+}
+
+.admin-flags-empty h2 {
+    margin: 0;
+
+    color: #17263b;
+
+    font-size: 18px;
+}
+
+.admin-flags-empty p {
+    margin: 7px 0 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+    .admin-flags-page {
+        width: calc(100% - 20px);
+
+        padding-top: 22px;
+    }
+
+    .admin-flags-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .admin-flags-header h1 {
+        font-size: 26px;
+    }
+
+    .admin-flag-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-flag-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .admin-flags-page {
+        width: calc(100% - 14px);
+    }
+
+    .admin-flag-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+    .admin-flag-body {
+        padding: 17px;
+    }
+
+    .admin-flag-submit {
+        width: 100%;
+    }
+
+    .admin-flag-review-row {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 3px;
+    }
+
+    .admin-flag-review-value {
+        text-align: left;
+    }
+
+}
+
+</style>
+
+
+<div class="admin-flags-page">
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <header class="admin-flags-header">
+
+        <div>
+
+            <div class="admin-flags-eyebrow">
+                AI MODERATION
+            </div>
+
+            <h1>
+                Content Flag Review
+            </h1>
+
+            <p>
+                Review messages flagged by DriftBridge's local
+                AI toxicity detection system.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('admin.dashboard') }}"
+            class="admin-flags-back"
+        >
+            ← Back to Dashboard
+        </a>
+
+    </header>
+
+
+    {% if flags %}
+
+        <div class="admin-flags-list">
+
+            {% for flag in flags %}
+
+                <section class="admin-flag-card">
+
+                    <!-- =================================================
+                         HEADER
+                         ================================================= -->
+
+                    <header class="admin-flag-header">
+
+                        <div>
+
+                            <h2 class="admin-flag-title">
+                                Flag #{{ flag.id }}
+                            </h2>
+
+                            <div class="admin-flag-date">
+                                {{ flag.created_at.strftime(
+                                    "%d %b %Y, %I:%M %p"
+                                ) }}
+                            </div>
+
+                        </div>
+
+
+                        {% if flag.status == "pending" %}
+
+                            <span class="admin-flag-status pending">
+                                Pending
+                            </span>
+
+                        {% elif flag.status == "reviewed" %}
+
+                            <span class="admin-flag-status reviewed">
+                                Reviewed
+                            </span>
+
+                        {% elif flag.status == "actioned" %}
+
+                            <span class="admin-flag-status actioned">
+                                Actioned
+                            </span>
+
+                        {% else %}
+
+                            <span class="admin-flag-status">
+                                {{ flag.status|capitalize }}
+                            </span>
+
+                        {% endif %}
+
+                    </header>
+
+
+                    <div class="admin-flag-body">
+
+                        <!-- =================================================
+                             METADATA
+                             ================================================= -->
+
+                        <div class="admin-flag-meta">
+
+                            <div class="admin-flag-meta-item">
+
+                                <div class="admin-flag-meta-label">
+                                    Content Type
+                                </div>
+
+                                <div class="admin-flag-meta-value">
+                                    {{ flag.content_type }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="admin-flag-meta-item">
+
+                                <div class="admin-flag-meta-label">
+                                    User
+                                </div>
+
+                                <div class="admin-flag-meta-value">
+
+                                    {% if flag.user %}
+                                        {{ flag.user.username }}
+                                    {% else %}
+                                        Unknown user
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="admin-flag-meta-item">
+
+                                <div class="admin-flag-meta-label">
+                                    Severity
+                                </div>
+
+                                <div class="admin-flag-meta-value">
+
+                                    <span class="admin-flag-severity">
+
+                                        {% if flag.severity %}
+                                            <span
+                                                class="admin-flag-severity-dot
+                                                {{ flag.severity|lower }}"
+                                            ></span>
+                                        {% endif %}
+
+                                        {{ flag.severity|capitalize }}
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             FLAGGED CONTENT
+                             ================================================= -->
+
+                        <div class="admin-flag-content">
+
+                            <div class="admin-flag-content-label">
+                                Flagged Content
+                            </div>
+
+                            <div class="admin-flag-content-text">
+                                {{ flag.content_text }}
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             AI REASON
+                             ================================================= -->
+
+                        {% if flag.ai_reason %}
+
+                            <div class="admin-flag-ai-reason">
+
+                                <div class="admin-flag-ai-label">
+                                    AI Detection Reason
+                                </div>
+
+                                <div class="admin-flag-ai-text">
+                                    {{ flag.ai_reason }}
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <!-- =================================================
+                             REVIEW INFORMATION
+                             ================================================= -->
+
+                        {% if flag.reviewed_by %}
+
+                            <div class="admin-flag-review-info">
+
+                                <div class="admin-flag-review-row">
+
+                                    <span class="admin-flag-review-label">
+                                        Reviewed by
+                                    </span>
+
+                                    <span class="admin-flag-review-value">
+
+                                        {% if flag.reviewer %}
+                                            {{ flag.reviewer.username }}
+                                        {% else %}
+                                            Unknown administrator
+                                        {% endif %}
+
+                                    </span>
+
+                                </div>
+
+
+                                {% if flag.reviewed_at %}
+
+                                    <div class="admin-flag-review-row">
+
+                                        <span class="admin-flag-review-label">
+                                            Reviewed at
+                                        </span>
+
+                                        <span class="admin-flag-review-value">
+                                            {{ flag.reviewed_at.strftime(
+                                                "%d %b %Y, %I:%M %p"
+                                            ) }}
+                                        </span>
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if flag.admin_notes %}
+
+                                    <div class="admin-flag-notes">
+
+                                        <strong>
+                                            Admin Notes
+                                        </strong>
+
+                                        <br>
+
+                                        {{ flag.admin_notes }}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <!-- =================================================
+                             MODERATION FORM
+                             ================================================= -->
+
+                        {% if flag.status == "pending" %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'admin.update_flag',
+                                    flag_id=flag.id
+                                ) }}"
+                                class="admin-flag-form"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+
+                                <h3 class="admin-flag-form-title">
+                                    Moderation Decision
+                                </h3>
+
+
+                                <div class="admin-flag-form-grid">
+
+                                    <div class="admin-flag-field">
+
+                                        <label
+                                            for="status-{{ flag.id }}"
+                                        >
+                                            Status
+                                        </label>
+
+                                        <select
+                                            id="status-{{ flag.id }}"
+                                            name="status"
+                                            required
+                                        >
+
+                                            <option value="reviewed">
+                                                Reviewed
+                                            </option>
+
+                                            <option value="actioned">
+                                                Actioned
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <div class="admin-flag-field">
+
+                                        <label
+                                            for="notes-{{ flag.id }}"
+                                        >
+                                            Admin Notes
+                                        </label>
+
+                                        <textarea
+                                            id="notes-{{ flag.id }}"
+                                            name="admin_notes"
+                                            maxlength="2000"
+                                            placeholder="Add moderation notes..."
+                                        ></textarea>
+
+                                    </div>
+
+                                </div>
+
+
+                                <button
+                                    type="submit"
+                                    class="admin-flag-submit"
+                                >
+                                    Save Review
+                                </button>
+
+                            </form>
+
+                        {% endif %}
+
+                    </div>
+
+                </section>
+
+            {% endfor %}
+
+        </div>
+
+
+    {% else %}
+
+        <section class="admin-flags-empty">
+
+            <div class="admin-flags-empty-icon">
+                ✓
+            </div>
+
+            <h2>
+                No Content Flags
+            </h2>
+
+            <p>
+                There are currently no AI-flagged messages
+                waiting for review.
+            </p>
+
+        </section>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

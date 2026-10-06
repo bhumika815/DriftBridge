@@ -7,188 +7,1724 @@ Chat with {{ other_user.username }} - DriftBridge
 {% block content %}
 
 <style>
+    /* =========================================================
+       DRIFTBRIDGE CHAT
+       ========================================================= */
+
     .chat-container {
-        max-width: 800px;
-        margin: 30px auto;
-        padding: 20px;
+        width: min(900px, calc(100% - 32px));
+        margin: 24px auto 40px;
+        display: flex;
+        flex-direction: column;
     }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        margin-bottom: 14px;
+        color: var(--primary-600, #2b7de9);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    
+
+    /* =========================================================
+       CHAT HEADER
+       ========================================================= */
+
+    .chat-user-link {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    width: 100%;
+
+    color: inherit;
+    text-decoration: none;
+}
+
+.chat-user-link:hover {
+    text-decoration: none;
+}
 
     .chat-header {
-        background: white;
-        padding: 20px;
-        border-radius: 12px 12px 0 0;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 15px 18px;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.98),
+            rgba(239, 246, 255, 0.96)
+        );
+    border: 1px solid rgba(43, 125, 233, 0.16);
+    border-radius: 18px 18px 0 0;
+    box-shadow:
+        0 5px 20px rgba(43, 125, 233, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    overflow: hidden;
+    z-index: 2;
+}
+
+.chat-header::after {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    right: -90px;
+    top: -120px;
+    border-radius: 50%;
+    background: rgba(43, 125, 233, 0.08);
+    pointer-events: none;
+}
+
+    .chat-avatar {
+        width: 46px;
+        height: 46px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 17px;
+        font-weight: 800;
+        background: linear-gradient(
+            135deg,
+            var(--primary-500, #2b7de9),
+            #7048d8
+        );
+        box-shadow: 0 6px 16px rgba(43, 125, 233, 0.18);
     }
 
-    .chat-header h1 {
+    .chat-header-info {
+        min-width: 0;
+    }
+
+    .chat-header-info h1 {
         margin: 0;
+        font-size: 19px;
+        font-weight: 800;
+        color: var(--neutral-900, #111827);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
-    .chat-header p {
-        color: #666;
-        margin-bottom: 0;
+    .chat-header-info p {
+        margin: 3px 0 0;
+        color: var(--neutral-500, #64748b);
+        font-size: 12px;
     }
+
+    /* =========================================================
+       MESSAGES
+       ========================================================= */
 
     .messages {
-        background: #f1f3f3;
-        min-height: 400px;
-        max-height: 500px;
-        padding: 25px;
-        overflow-y: auto;
+    height: 520px;
+    min-height: 420px;
+    padding: 24px 20px;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(112, 72, 216, 0.055),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at bottom left,
+            rgba(43, 125, 233, 0.045),
+            transparent 32%
+        ),
+        #f8f9fc;
+    border-left: 1px solid rgba(148, 163, 184, 0.14);
+    border-right: 1px solid rgba(148, 163, 184, 0.14);
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+    .messages::-webkit-scrollbar {
+        width: 7px;
+    }
+
+    .messages::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+        background: rgba(100, 116, 139, 0.25);
+        border-radius: 10px;
     }
 
     .message {
-        background: white;
-        padding: 12px 16px;
-        margin-bottom: 12px;
-        border-radius: 10px;
-        max-width: 70%;
-        word-wrap: break-word;
-        position: relative;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
+    position: relative;
+    width: fit-content;
+    max-width: min(72%, 560px);
+    margin-bottom: 12px;
+    padding: 11px 14px;
+    border-radius: 18px 18px 18px 6px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f4f8ff
+        );
+
+    color: var(--neutral-800, #1f2937);
+
+    border: 1px solid rgba(43, 125, 233, 0.14);
+
+    box-shadow:
+        0 4px 14px rgba(15, 23, 42, 0.06),
+        0 1px 2px rgba(43, 125, 233, 0.05);
+
+    word-break: break-word;
+    cursor: pointer;
+    user-select: none;
+
+    transition:
+        transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+        box-shadow 0.22s ease,
+        border-color 0.22s ease;
+    
+    animation: messageAppear 0.28s ease both;
+}
+
+
+.message:hover {
+    transform: translateY(-2px);
+
+    border-color:
+        rgba(43, 125, 233, 0.25);
+
+    box-shadow:
+        0 9px 24px rgba(43, 125, 233, 0.12),
+        0 2px 5px rgba(15, 23, 42, 0.05);
+}
+
+
+.message.mine {
+    margin-left: auto;
+
+    border-radius: 18px 18px 6px 18px;
+
+    color: #ffffff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2b7de9 0%,
+            #4f7fe8 48%,
+            #7048d8 100%
+        );
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+
+    box-shadow:
+        0 7px 20px rgba(43, 125, 233, 0.20);
+
+    animation: messageAppearMine 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+
+.message.mine:hover {
+    transform: translateY(-2px) scale(1.01);
+
+    box-shadow:
+        0 11px 27px rgba(43, 125, 233, 0.25);
+}
+
+    .message:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(43, 125, 233, 0.10),
+        0 0 0 1px rgba(43, 125, 233, 0.08) inset;
+
+    border-color: rgba(43, 125, 233, 0.20);
+}
 
     .message.mine {
-        margin-left: auto;
-        background: #222;
-        color: white;
+    margin-left: auto;
+
+    border-radius: 17px 17px 5px 17px;
+
+    color: #ffffff;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary-600, #2b7de9),
+        #4f7fe8,
+        #7048d8
+    );
+
+    border: none;
+
+    box-shadow:
+        0 6px 18px rgba(43, 125, 233, 0.18);
+
+    animation: messageAppear 0.22s ease;
+}
+
+
+@keyframes messageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(5px) scale(0.98);
     }
 
-    .message.translatable {
-        border: 2px solid #4CAF50;
-        box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+    /* =========================================================
+   CHAT IMAGE
+   ========================================================= */
+
+.message-image {
+    width: min(100%, 420px);
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.message-image img {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    max-height: 360px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+    
+
+    /* ---------------------------------------------------------
+       Optimistic message
+       --------------------------------------------------------- */
+
+    .message.pending-send {
+        opacity: 0.78;
     }
 
-    .message.translatable:hover {
-        background: #f8f8f8;
-        transform: scale(1.02);
+    .message.pending-send .message-info {
+        opacity: 0.58;
     }
 
-    .message.mine.translatable:hover {
-        background: #333;
+    .message-send-status {
+        margin-top: 5px;
+        font-size: 9px;
+        line-height: 1;
+        opacity: 0.62;
     }
 
     .message-info {
-        font-size: 12px;
-        margin-bottom: 5px;
-        opacity: 0.7;
+        margin-bottom: 4px;
+        font-size: 10px;
+        line-height: 1.3;
+        opacity: 0.62;
+        font-weight: 600;
+    }
+
+    .message.mine .message-info {
+        opacity: 0.78;
     }
 
     .message-content {
-        position: relative;
+        font-size: 14px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+    }
+
+    /* =========================================================
+       TRANSLATION
+       ========================================================= */
+
+    .message.translatable {
+        border: 1px solid rgba(43, 125, 233, 0.18);
+    }
+
+    .message.translatable:hover {
+        box-shadow: 0 7px 20px rgba(43, 125, 233, 0.12);
+    }
+
+    .translation-hint {
+        margin-top: 6px;
+        font-size: 10px;
+        opacity: 0.55;
+        font-style: italic;
+    }
+
+    .translation-loading {
+        margin-top: 7px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        opacity: 0.72;
+        font-style: italic;
+    }
+
+    .translation-loading::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: translationSpin 0.7s linear infinite;
+    }
+
+    @keyframes translationSpin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .message.translation-pending {
+        cursor: wait;
+    }
+
+    .message.translation-complete {
+        cursor: default;
+    }
+
+    .message-translation {
+        margin-top: 9px;
+        padding: 8px 10px;
+        border-radius: 9px;
+        background: rgba(43, 125, 233, 0.07);
+        color: var(--primary-700, #1d4ed8);
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .message.mine .message-translation {
+        color: rgba(255, 255, 255, 0.92);
+        background: rgba(255, 255, 255, 0.12);
     }
 
     .translation-badge {
         display: inline-block;
-        margin-left: 8px;
-        padding: 2px 8px;
-        background: #4CAF50;
-        color: white;
-        border-radius: 4px;
-        font-size: 10px;
-        font-weight: bold;
-    }
-
-    .translation-popup {
-        position: absolute;
-        bottom: 100%;
-        left: 0;
-        right: 0;
-        background: #222;
-        color: white;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        z-index: 1000;
-        animation: slideUp 0.3s ease;
-    }
-
-    .translation-popup::after {
-        content: '';
-        position: absolute;
-        top: 100%;
-        left: 20px;
-        border: 8px solid transparent;
-        border-top-color: #222;
-    }
-
-    .translation-popup strong {
-        display: block;
-        margin-bottom: 8px;
-        color: #4CAF50;
-        font-size: 11px;
+        margin-bottom: 4px;
+        font-size: 9px;
+        font-weight: 800;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.7;
     }
 
-    .translation-popup p {
-        margin: 0;
-        font-size: 15px;
-        line-height: 1.5;
-    }
-
-    .translation-hint {
-        display: block;
-        font-size: 11px;
-        color: #4CAF50;
-        margin-top: 5px;
-        opacity: 0.8;
-    }
-
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+    /* =========================================================
+       EMPTY CHAT
+       ========================================================= */
 
     .empty-chat {
+        height: 100%;
+        min-height: 350px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
-        color: #666;
-        padding: 100px 20px;
+        color: var(--neutral-500, #64748b);
+        font-size: 14px;
     }
+
+    /* =========================================================
+       MESSAGE INPUT
+       ========================================================= */
 
     .message-form {
-        display: flex;
-        gap: 10px;
-        background: white;
-        padding: 15px;
-        border-radius: 0 0 12px 12px;
-    }
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #f8fbff
+        );
+
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-top: none;
+    border-radius: 0 0 18px 18px;
+
+    box-shadow:
+        0 8px 26px rgba(15, 23, 42, 0.06);
+}
 
     .message-form input {
-        flex: 1;
-        padding: 12px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        font-size: 15px;
+    flex: 1;
+    min-width: 0;
+
+    height: 44px;
+
+    padding: 0 15px;
+
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 13px;
+
+    outline: none;
+
+    background: #f8fafc;
+    color: var(--neutral-800, #1f2937);
+
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.message-form input:hover {
+    border-color: rgba(43, 125, 233, 0.35);
+}
+
+
+.message-form input:focus {
+    border-color: rgba(43, 125, 233, 0.55);
+
+    box-shadow:
+        0 0 0 3px rgba(43, 125, 233, 0.09);
+
+    background: #ffffff;
+}
+
+    .message-form input:focus {
+        border-color: rgba(43, 125, 233, 0.55);
+        box-shadow: 0 0 0 3px rgba(43, 125, 233, 0.09);
+        background: #ffffff;
     }
 
     .message-form button {
-        padding: 12px 20px;
+    height: 44px;
+    min-width: 82px;
+    padding: 0 19px;
+
+    border: none;
+    border-radius: 13px;
+
+    color: #ffffff;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary-600, #2b7de9),
+        #7048d8
+    );
+
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 14px rgba(43, 125, 233, 0.18);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        filter 0.18s ease;
+}
+
+.message-form button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 9px 20px rgba(43, 125, 233, 0.25);
+
+    filter: brightness(1.03);
+}
+
+.message-form button:active {
+    transform: translateY(0) scale(0.97);
+}
+
+.message-form button:disabled {
+    opacity: 0.65;
+    cursor: wait;
+    transform: none;
+}
+/* =========================================================
+   IMAGE BUTTON
+   ========================================================= */
+
+.image-button {
+    flex: 0 0 44px;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+
+    padding: 0 !important;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px !important;
+
+    color: var(--primary-600, #2b7de9) !important;
+
+    background: linear-gradient(
+        135deg,
+        #eef5ff,
+        #f3efff
+    ) !important;
+
+    border: 1px solid rgba(43, 125, 233, 0.16) !important;
+
+    font-size: 18px !important;
+
+    box-shadow:
+        0 4px 12px rgba(43, 125, 233, 0.10) !important;
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        background 0.18s ease !important;
+}
+
+.image-button:hover {
+    transform: translateY(-2px) rotate(-2deg);
+
+    background: linear-gradient(
+        135deg,
+        #e5f0ff,
+        #eee8ff
+    ) !important;
+
+    box-shadow:
+        0 8px 18px rgba(43, 125, 233, 0.16) !important;
+}
+
+.image-button:active {
+    transform: scale(0.94);
+}
+
+.image-button:disabled {
+    opacity: 0.55;
+    cursor: wait;
+    transform: none;
+}
+
+
+
+    /* =========================================================
+       INSTAGRAM-STYLE MESSAGE MENU
+       ========================================================= */
+
+    .message-action-menu {
+        position: fixed;
+        display: none;
+        min-width: 145px;
+        padding: 6px;
+        background: #ffffff;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 13px;
+        box-shadow: 0 14px 35px rgba(15, 23, 42, 0.18);
+        z-index: 10000;
+        animation: menuAppear 0.14s ease;
+    }
+
+    .message-action-menu.active {
+        display: block;
+    }
+
+    .message-menu-button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 10px 11px;
         border: none;
-        border-radius: 8px;
-        background: #222;
-        color: white;
+        border-radius: 9px;
+        background: transparent;
+        color: #dc2626;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: left;
         cursor: pointer;
     }
 
-    .message-form button:hover {
-        background: #444;
+    .message-menu-button:hover {
+        background: #fef2f2;
     }
 
-    .back-link {
-        display: inline-block;
-        margin-bottom: 15px;
-        text-decoration: none;
-        color: #333;
+    .message-menu-icon {
+        font-size: 15px;
     }
+
+    @keyframes menuAppear {
+        from {
+            opacity: 0;
+            transform: scale(0.96) translateY(-3px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* =========================================================
+       DELETE CONFIRMATION MODAL
+       ========================================================= */
+
+    .chat-modal-overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.58);
+        z-index: 11000;
+    }
+
+    .chat-modal-overlay.active {
+        display: flex;
+    }
+
+    .chat-modal {
+        width: min(360px, 100%);
+        padding: 22px;
+        background: #ffffff;
+        border-radius: 18px;
+        box-shadow: 0 25px 70px rgba(15, 23, 42, 0.28);
+        animation: modalAppear 0.16s ease;
+    }
+
+    .chat-modal h3 {
+        margin: 0;
+        color: #111827;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .chat-modal p {
+        margin: 8px 0 20px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .chat-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+    }
+
+    .chat-modal-actions button {
+        min-width: 82px;
+        height: 38px;
+        padding: 0 14px;
+        border-radius: 10px;
+        border: none;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .chat-modal-cancel {
+        color: #475569;
+        background: #f1f5f9;
+    }
+
+    .chat-modal-delete {
+        color: #ffffff;
+        background: #dc2626;
+    }
+
+    .chat-modal-delete:hover {
+        background: #b91c1c;
+    }
+
+    .chat-modal-delete:disabled {
+        opacity: 0.65;
+        cursor: wait;
+    }
+
+    @keyframes modalAppear {
+        from {
+            opacity: 0;
+            transform: scale(0.96);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* =========================================================
+   IMAGE VIEWER
+   ========================================================= */
+
+.image-viewer {
+    position: relative;
+    width: min(92vw, 1000px);
+    height: min(88vh, 800px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+}
+
+
+.image-viewer img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    max-width: 100%;
+    max-height: 100%;
+
+    object-fit: contain;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+
+.image-viewer-close {
+    position: absolute;
+
+    top: 0;
+    right: 0;
+
+    width: 42px;
+    height: 42px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e293b;
+
+    font-size: 28px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 2;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.25);
+
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease;
+}
+
+
+.image-viewer-close:hover {
+    background: #ffffff;
+    transform: scale(1.05);
+}
+
+    /* =========================================================
+       TOAST
+       ========================================================= */
+
+    .chat-toast {
+        position: fixed;
+        left: 50%;
+        bottom: 28px;
+        transform: translate(-50%, 20px);
+        display: none;
+        max-width: calc(100% - 40px);
+        padding: 10px 15px;
+        border-radius: 11px;
+        color: #ffffff;
+        background: #1e293b;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.22);
+        font-size: 12px;
+        font-weight: 700;
+        z-index: 12000;
+    }
+
+    .chat-toast.active {
+        display: block;
+        animation: toastAppear 0.18s ease forwards;
+    }
+
+    @keyframes toastAppear {
+        to {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    }
+
+    /* =========================================================
+       MOBILE
+       ========================================================= */
+
+    @media (max-width: 600px) {
+
+        .chat-container {
+            width: calc(100% - 20px);
+            margin-top: 15px;
+        }
+
+        .chat-header {
+            padding: 14px;
+        }
+
+        .messages {
+             height: calc(100vh - 300px);
+             min-height: 180px;
+             padding: 17px 12px;
+        }
+
+        .message {
+            max-width: 82%;
+        }
+
+        .message-form {
+            padding: 10px;
+        }
+
+        .message-form input {
+            height: 42px;
+        }
+
+        .message-form button {
+            height: 42px;
+            padding: 0 15px;
+        }
+    }
+/* =========================================================
+   DRIFTBRIDGE — DARK OCEAN NIGHT CHAT
+   ========================================================= */
+
+html,
+body {
+    background: #061522;
+}
+
+
+/* =========================================================
+   CHAT CONTAINER
+   ========================================================= */
+
+.chat-container {
+    width: min(760px, 100%);
+    height: calc(100vh - 80px);
+
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+
+    background:
+        radial-gradient(
+            circle at 50% -20%,
+            rgba(14, 165, 233, 0.16),
+            transparent 38%
+        ),
+        #061522;
+
+    overflow: hidden;
+
+    border-left: 1px solid rgba(56, 189, 248, 0.08);
+    border-right: 1px solid rgba(56, 189, 248, 0.08);
+
+    box-shadow:
+        0 0 60px rgba(0, 0, 0, 0.28);
+}
+
+
+/* =========================================================
+   REMOVE OLD BACK LINK FROM THE MAIN CHAT AREA
+   ========================================================= */
+
+.back-link {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   CHAT HEADER
+   ========================================================= */
+
+.chat-header {
+    flex: 0 0 auto;
+
+    min-height: 72px;
+
+    padding: 10px 16px;
+
+    display: flex;
+    align-items: center;
+
+    background:
+        linear-gradient(
+            180deg,
+            #081321,
+            #07101c
+        );
+
+    border: none;
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+
+    border-radius: 0;
+
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.28);
+
+    overflow: visible;
+
+    z-index: 10;
+}
+
+
+/* Remove decorative old header circle */
+
+.chat-header::after {
+    display: none;
+}
+
+
+/* =========================================================
+   HEADER USER LINK
+   ========================================================= */
+
+.chat-user-link {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    color: inherit;
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+
+.chat-avatar {
+    width: 46px;
+    height: 46px;
+
+    flex: 0 0 46px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            145deg,
+            #164e63,
+            #075985
+        );
+
+    border: 2px solid rgba(56, 189, 248, 0.25);
+
+    color: #e0f2fe;
+
+    font-size: 17px;
+    font-weight: 800;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.28),
+        0 0 18px rgba(14, 165, 233, 0.08);
+}
+
+
+/* =========================================================
+   HEADER TEXT
+   ========================================================= */
+
+.chat-header-info {
+    min-width: 0;
+}
+
+
+.chat-header-info h1 {
+    margin: 0;
+
+    color: #f1f5f9;
+
+    font-size: 15px;
+    font-weight: 750;
+
+    line-height: 1.2;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.chat-header-info p {
+    margin: 4px 0 0;
+
+    color: #8ca4ba;
+
+    font-size: 11px;
+
+    line-height: 1.2;
+}
+
+
+/* =========================================================
+   MESSAGES AREA
+   ========================================================= */
+
+.messages {
+    flex: 1 1 auto;
+
+    height: auto;
+    min-height: 0;
+
+    padding: 18px 18px 14px;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 110%,
+            rgba(8, 145, 178, 0.12),
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 85% 10%,
+            rgba(14, 165, 233, 0.07),
+            transparent 28%
+        ),
+        linear-gradient(
+            180deg,
+            #020a14 0%,
+            #03101c 45%,
+            #032236 100%
+        );
+
+    border: none;
+
+    overflow-y: auto;
+
+    scroll-behavior: smooth;
+}
+
+
+/* Ocean glow near bottom */
+
+.messages::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 120px;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            to top,
+            rgba(14, 165, 233, 0.035),
+            transparent
+        );
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+.messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.messages::-webkit-scrollbar-thumb {
+    background: rgba(125, 211, 252, 0.22);
+
+    border-radius: 20px;
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(125, 211, 252, 0.38);
+}
+
+
+/* =========================================================
+   MESSAGE BUBBLES
+   ========================================================= */
+
+.message {
+    max-width: min(72%, 520px);
+
+    margin-bottom: 9px;
+
+    padding: 9px 11px;
+
+    border-radius: 9px 15px 15px 15px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #d9e4ee,
+            #c7d5e1
+        );
+
+    color: #102235;
+
+    border: none;
+
+    box-shadow:
+        0 3px 10px rgba(0, 0, 0, 0.18);
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+.message:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 14px rgba(0, 0, 0, 0.24);
+}
+
+
+/* =========================================================
+   YOUR MESSAGE — WATER BLUE
+   ========================================================= */
+
+.message.mine {
+    margin-left: auto;
+
+    border-radius: 15px 9px 15px 15px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #2196e0,
+            #1976c9
+        );
+
+    color: #ffffff;
+
+    border: none;
+
+    box-shadow:
+        0 4px 14px rgba(14, 116, 196, 0.25);
+}
+
+
+/* =========================================================
+   MESSAGE ANIMATION
+   ========================================================= */
+
+.message {
+    animation:
+        oceanMessageIn 0.18s ease both;
+}
+
+
+@keyframes oceanMessageIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+
+/* =========================================================
+   MESSAGE INFO
+   ========================================================= */
+
+.message-info {
+    margin-bottom: 3px;
+
+    color: #587084;
+
+    font-size: 9px;
+
+    line-height: 1.2;
+
+    font-weight: 600;
+
+    opacity: 0.75;
+}
+
+
+.message.mine .message-info {
+    color: rgba(255, 255, 255, 0.72);
+
+    opacity: 1;
+}
+
+
+/* =========================================================
+   MESSAGE CONTENT
+   ========================================================= */
+
+.message-content {
+    font-size: 14px;
+
+    line-height: 1.4;
+
+    white-space: pre-wrap;
+}
+
+
+/* =========================================================
+   TRANSLATION HINT
+   ========================================================= */
+
+.translation-hint {
+    margin-top: 5px;
+
+    color: rgba(30, 64, 85, 0.62);
+
+    font-size: 9px;
+}
+
+
+.message.mine .translation-hint {
+    color: rgba(255, 255, 255, 0.62);
+}
+
+
+/* =========================================================
+   TRANSLATION RESULT
+   ========================================================= */
+
+.message-translation {
+    margin-top: 7px;
+
+    padding: 7px 8px;
+
+    border-radius: 8px;
+
+    background: rgba(14, 116, 196, 0.08);
+
+    color: #075985;
+
+    font-size: 12px;
+}
+
+
+.message.mine .message-translation {
+    background: rgba(255, 255, 255, 0.12);
+
+    color: #e0f2fe;
+}
+
+
+/* =========================================================
+   IMAGE MESSAGE
+   ========================================================= */
+
+.message-image {
+    width: min(100%, 380px);
+
+    overflow: hidden;
+
+    border-radius: 10px;
+}
+
+
+.message-image img {
+    display: block;
+
+    width: 100%;
+    max-width: 380px;
+
+    max-height: 330px;
+
+    object-fit: contain;
+
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   EMPTY CHAT
+   ========================================================= */
+
+.empty-chat {
+    min-height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px;
+
+    color: #7891a5;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   BOTTOM COMPOSER
+   ========================================================= */
+
+.message-form {
+    flex: 0 0 auto;
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 12px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #071522,
+            #050e18
+        );
+
+    border: none;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.16);
+
+    border-radius: 0;
+
+    box-shadow:
+        0 -8px 25px rgba(0, 0, 0, 0.20);
+
+    z-index: 20;
+}
+
+
+/* =========================================================
+   IMAGE BUTTON
+   ========================================================= */
+
+.image-button {
+    width: 40px !important;
+    height: 40px !important;
+
+    flex: 0 0 40px;
+
+    padding: 0 !important;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50% !important;
+
+    background: #0b1b2c !important;
+
+    border: 1px solid rgba(148, 163, 184, 0.20) !important;
+
+    color: #b9d5e8 !important;
+
+    font-size: 17px !important;
+
+    box-shadow: none !important;
+}
+
+
+.image-button:hover {
+    background: #10273c !important;
+
+    border-color: rgba(56, 189, 248, 0.35) !important;
+
+    transform: none !important;
+}
+
+
+/* =========================================================
+   MESSAGE INPUT
+   ========================================================= */
+
+.message-form input {
+    flex: 1;
+
+    min-width: 0;
+
+    height: 40px;
+
+    padding: 0 14px;
+
+    background: #111d2a;
+
+    border: 1px solid rgba(148, 163, 184, 0.18);
+
+    border-radius: 9px;
+
+    color: #e2e8f0;
+
+    font-size: 13px;
+
+    outline: none;
+
+    box-shadow: none;
+}
+
+
+.message-form input::placeholder {
+    color: #667c90;
+}
+
+
+.message-form input:focus {
+    background: #142333;
+
+    border-color: rgba(14, 165, 233, 0.48);
+
+    box-shadow:
+        0 0 0 2px rgba(14, 165, 233, 0.08);
+}
+
+
+/* =========================================================
+   SEND BUTTON
+   ========================================================= */
+
+#send-message-button {
+    width: 42px !important;
+    height: 40px !important;
+
+    flex: 0 0 42px;
+
+    padding: 0 !important;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            #2196e0,
+            #1477c1
+        ) !important;
+
+    color: #ffffff !important;
+
+    font-size: 0 !important;
+
+    box-shadow:
+        0 4px 12px rgba(14, 116, 196, 0.25) !important;
+}
+
+
+/* Replace "Send" text visually with arrow */
+
+#send-message-button::before {
+    content: "➤";
+
+    font-size: 17px;
+
+    line-height: 1;
+
+    transform: translateX(1px);
+}
+
+
+#send-message-button:hover {
+    transform: translateY(-1px) !important;
+
+    box-shadow:
+        0 6px 16px rgba(14, 116, 196, 0.35) !important;
+}
+
+
+/* =========================================================
+   DELETE MENU — DARK VERSION
+   ========================================================= */
+
+.message-action-menu {
+    background: #102033;
+
+    border: 1px solid rgba(148, 163, 184, 0.16);
+
+    box-shadow:
+        0 18px 45px rgba(0, 0, 0, 0.42);
+}
+
+
+.message-menu-button {
+    color: #fca5a5;
+}
+
+
+.message-menu-button:hover {
+    background: rgba(220, 38, 38, 0.12);
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+.chat-toast {
+    background: #102033;
+
+    border: 1px solid rgba(56, 189, 248, 0.14);
+
+    color: #dbeafe;
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.42);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .chat-container {
+        width: 100%;
+
+        height: calc(100vh - 64px);
+
+        margin: 0;
+
+        border: none;
+    }
+
+
+    .chat-header {
+        min-height: 66px;
+
+        padding: 8px 14px;
+    }
+
+
+    .chat-avatar {
+        width: 42px;
+        height: 42px;
+
+        flex-basis: 42px;
+    }
+
+
+    .chat-header-info h1 {
+        font-size: 14px;
+    }
+
+
+    .messages {
+        padding:
+            15px 12px
+            12px;
+    }
+
+
+    .message {
+        max-width: 82%;
+
+        padding: 8px 10px;
+    }
+
+
+    .message-content {
+        font-size: 14px;
+    }
+
+
+    .message-form {
+        padding: 8px;
+
+        gap: 6px;
+
+        padding-bottom:
+            calc(
+                8px +
+                env(safe-area-inset-bottom)
+            );
+    }
+
+
+    .image-button {
+        width: 38px !important;
+        height: 38px !important;
+
+        flex-basis: 38px;
+    }
+
+
+    .message-form input {
+        height: 38px;
+
+        font-size: 13px;
+    }
+
+
+    #send-message-button {
+        width: 40px !important;
+        height: 38px !important;
+
+        flex-basis: 40px;
+    }
+
+}
+
+
 </style>
+
+
 
 
 <main class="chat-container">
@@ -200,18 +1736,43 @@ Chat with {{ other_user.username }} - DriftBridge
         &larr; Back to Chats
     </a>
 
-    <div class="chat-header">
+    <!-- =====================================================
+         CHAT HEADER
+         ===================================================== -->
 
-        <h1>
-            {{ other_user.username }}
-        </h1>
 
-        <p>
-            DriftBridge connection
-        </p>
 
-    </div>
+<div class="chat-header">
 
+    <a
+        href="{{ url_for('profile.user_profile', user_id=other_user.id) }}"
+        class="chat-user-link"
+    >
+
+        <div class="chat-avatar">
+            {{ other_user.username[0]|upper }}
+        </div>
+
+        <div class="chat-header-info">
+
+            <h1>
+                {{ other_user.username }}
+            </h1>
+
+            <p>
+                DriftBridge connection
+            </p>
+
+        </div>
+
+    </a>
+
+</div>
+
+
+    <!-- =====================================================
+         MESSAGES
+         ===================================================== -->
 
     <div
         class="messages"
@@ -220,30 +1781,60 @@ Chat with {{ other_user.username }} - DriftBridge
 
         {% if messages %}
 
-    {% for message in messages %}
+            {% for message in messages %}
 
-        <div
-            class="message {% if message.sender_id == current_user.id %}mine{% endif %}"
-            data-message-id="{{ message.id }}"
-            data-original="{{ message.content }}"
-            data-original-lang="{{ message.original_language or 'en' }}"
+                <div
+    class="message {% if message.sender_id == current_user.id %}mine{% endif %}"
+    data-message-id="{{ message.id }}"
+    data-created-at="{{ message.created_at.isoformat() }}Z"
+    data-original="{{ message.content }}"
+    data-original-lang="{{ message.original_language or 'en' }}"
+    data-message-type="{{ message.message_type or 'text' }}"
+>
+
+                    <div class="message-info">
+
+                        {{ message.sender.username }}
+
+                        &middot;
+
+                        <span class="message-time">
+                            {{ message.created_at.strftime("%d %b %Y, %I:%M %p") }}
+                        </span>
+
+                    </div>
+
+                    {% if message.message_type == "image" and message.media_url %}
+
+    <div class="message-image">
+        <img
+            src="{{ message.media_url }}"
+            alt="Shared image"
+            loading="lazy"
         >
-
-            <div class="message-info">
-                {{ message.sender.username }}
-                &middot;
-                {{ message.created_at.strftime("%d %b %Y, %I:%M %p") }}
-            </div>
-
-            <div class="message-content">
-                {{ message.content }}
-            </div>
-
-        </div>
-
-    {% endfor %}
+    </div>
 
 {% else %}
+
+    <div class="message-content">
+        {{ message.content }}
+    </div>
+
+    {% if message.sender_id != current_user.id %}
+
+        <div class="translation-hint">
+            Tap message to translate
+        </div>
+
+    {% endif %}
+
+{% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
 
             <div
                 class="empty-chat"
@@ -257,30 +1848,186 @@ Chat with {{ other_user.username }} - DriftBridge
     </div>
 
 
+    <!-- =====================================================
+         MESSAGE INPUT
+         ===================================================== -->
+
     <form
-        class="message-form"
-        id="message-form"
-        method="POST"
+    class="message-form"
+    id="message-form"
+    method="POST"
+    enctype="multipart/form-data"
+>
+
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
     >
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <input
-            type="text"
-            id="message-input"
-            name="content"
-            placeholder="Write a message..."
-            autocomplete="off"
-            maxlength="2000"
-        >
+    <!-- Hidden image file picker -->
+    <input
+        type="file"
+        id="image-input"
+        name="image"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        hidden
+    >
 
-        <button type="submit">
-            Send
-        </button>
+    <!-- Image button -->
+    <button
+        type="button"
+        id="image-button"
+        class="image-button"
+        title="Send an image"
+        aria-label="Send an image"
+    >
+        📷
+    </button>
 
-    </form>
+    <input
+        type="text"
+        id="message-input"
+        name="content"
+        placeholder="Write a message..."
+        autocomplete="off"
+        maxlength="2000"
+    >
+
+    <button
+        type="submit"
+        id="send-message-button"
+    >
+        Send
+    </button>
+
+     </form>
 
 </main>
 
+
+<!-- =========================================================
+     MESSAGE ACTION MENU
+     ========================================================= -->
+
+<div
+    class="message-action-menu"
+    id="message-action-menu"
+>
+
+    <button
+        type="button"
+        class="message-menu-button"
+        id="delete-message-button"
+    >
+
+        <span class="message-menu-icon">
+            🗑
+        </span>
+
+        Delete
+
+    </button>
+
+</div>
+
+
+<!-- =========================================================
+     DELETE CONFIRMATION
+     ========================================================= -->
+
+<div
+    class="chat-modal-overlay"
+    id="delete-modal"
+>
+
+    <div
+        class="chat-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-modal-title"
+    >
+
+        <h3 id="delete-modal-title">
+            Delete message?
+        </h3>
+
+        <p>
+            This message will be removed from the conversation.
+        </p>
+
+        <div class="chat-modal-actions">
+
+            <button
+                type="button"
+                class="chat-modal-cancel"
+                id="cancel-delete-button"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                class="chat-modal-delete"
+                id="confirm-delete-button"
+            >
+                Delete
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     IMAGE VIEWER
+     ========================================================= -->
+
+<div
+    class="chat-modal-overlay"
+    id="image-viewer-modal"
+>
+
+    <div
+        class="image-viewer"
+        role="dialog"
+        aria-modal="true"
+    >
+
+        <button
+            type="button"
+            class="image-viewer-close"
+            id="image-viewer-close"
+            aria-label="Close image"
+        >
+            &times;
+        </button>
+
+        <img
+            id="image-viewer-image"
+            src=""
+            alt="Shared image"
+        >
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     TOAST
+     ========================================================= -->
+
+<div
+    class="chat-toast"
+    id="chat-toast"
+></div>
+
+
+<!-- =========================================================
+     SOCKET.IO
+     ========================================================= -->
 
 <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
 
@@ -291,17 +2038,294 @@ Chat with {{ other_user.username }} - DriftBridge
     const currentUsername = {{ current_user.username | tojson }};
 
     const socket = io();
+
     let socketConnected = false;
 
-    const messagesContainer = document.getElementById("messages");
-    const messageForm = document.getElementById("message-form");
-    const messageInput = document.getElementById("message-input");
+    let selectedMessageId = null;
+    let selectedMessageElement = null;
 
+    /*
+     * Translation state.
+     */
+    const translatingMessages = new Set();
+    const translatedMessages = new Set();
+
+    /*
+     * Optimistic messages waiting for server confirmation.
+     *
+     * clientMessageId -> DOM element
+     */
+    const pendingMessages = new Map();
+
+
+    const messagesContainer =
+        document.getElementById("messages");
+
+    const messageForm =
+        document.getElementById("message-form");
+
+    const messageInput =
+        document.getElementById("message-input");
+
+    const sendMessageButton =
+        document.getElementById("send-message-button");
+
+    const messageActionMenu =
+        document.getElementById("message-action-menu");
+
+    const deleteMessageButton =
+        document.getElementById("delete-message-button");
+
+    const imageInput =
+        document.getElementById("image-input");
+
+    const imageButton =
+        document.getElementById("image-button");
+
+    const deleteModal =
+        document.getElementById("delete-modal");
+
+    const imageViewerModal =
+        document.getElementById("image-viewer-modal");
+
+    const imageViewerImage =
+        document.getElementById("image-viewer-image");
+
+    const imageViewerClose =
+        document.getElementById("image-viewer-close");
+
+    const cancelDeleteButton =
+        document.getElementById("cancel-delete-button");
+
+    const confirmDeleteButton =
+        document.getElementById("confirm-delete-button");
+
+    const chatToast =
+        document.getElementById("chat-toast");
+
+    function openImageViewer(imageUrl) {
+
+    if (!imageUrl) {
+        return;
+    }
+
+    imageViewerImage.src = imageUrl;
+
+    imageViewerModal.classList.add(
+        "active"
+    );
+
+    imageViewerModal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+}
+
+
+function closeImageViewer() {
+
+    imageViewerModal.classList.remove(
+        "active"
+    );
+
+    imageViewerModal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+    imageViewerImage.src = "";
+}
+
+imageViewerClose.addEventListener(
+    "click",
+    closeImageViewer
+);
+
+
+imageViewerModal.addEventListener(
+    "click",
+    function (event) {
+
+        if (
+            event.target ===
+            imageViewerModal
+        ) {
+            closeImageViewer();
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "keydown",
+    function (event) {
+
+        if (
+            event.key === "Escape" &&
+            imageViewerModal.classList.contains(
+                "active"
+            )
+        ) {
+            closeImageViewer();
+        }
+
+    }
+);
+
+
+    /* =========================================================
+       TOAST
+       ========================================================= */
+
+    let toastTimer = null;
+
+    function showToast(message) {
+
+        chatToast.textContent = message;
+
+        chatToast.classList.add("active");
+
+        if (toastTimer) {
+            clearTimeout(toastTimer);
+        }
+
+        toastTimer = setTimeout(function () {
+
+            chatToast.classList.remove("active");
+
+        }, 2500);
+    }
+
+
+    /* =========================================================
+   IMAGE PICKER
+   ========================================================= */
+
+imageButton.addEventListener(
+    "click",
+    function () {
+        imageInput.click();
+    }
+);
+
+imageInput.addEventListener(
+    "change",
+    async function () {
+
+        const selectedFile =
+            imageInput.files[0];
+
+        if (!selectedFile) {
+            return;
+        }
+
+        console.log(
+            "[CHAT IMAGE] Selected:",
+            selectedFile.name,
+            selectedFile.type,
+            selectedFile.size
+        );
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "image",
+            selectedFile
+        );
+
+        const csrfToken =
+           messageForm.querySelector(
+              'input[name="csrf_token"]'
+           ).value;
+
+        formData.append(
+            "csrf_token",
+            csrfToken
+        );
+
+        try {
+
+            imageButton.disabled = true;
+
+            showToast(
+                "Uploading image..."
+            );
+
+            const response =
+                await fetch(
+                    `/chat/${conversationId}/upload-image`,
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            console.log(
+                "[CHAT IMAGE] Server response:",
+                response.status,
+                data
+            );
+
+            if (!response.ok || !data.success) {
+
+                throw new Error(
+                    data.message ||
+                    `Image upload failed (HTTP ${response.status}).`
+                );
+            }
+
+            console.log(
+                "[CHAT IMAGE] Upload successful:",
+                data
+            );
+
+            showToast(
+                "Image uploaded successfully."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "[CHAT IMAGE] Upload failed:",
+                error
+            );
+
+            showToast(
+                error.message ||
+                "Image upload failed."
+            );
+
+        } finally {
+
+            imageButton.disabled = false;
+
+            /*
+             * Reset the file input so selecting
+             * the same image again triggers change.
+             */
+            imageInput.value = "";
+        }
+    }
+);
+
+
+
+    /* =========================================================
+       SOCKET CONNECTION
+       ========================================================= */
 
     socket.on("connect", function () {
 
         socketConnected = true;
-        console.log("Connected to DriftBridge chat");
+
+        console.log(
+            "Connected to DriftBridge chat"
+        );
 
         socket.emit(
             "join_conversation",
@@ -309,275 +2333,1658 @@ Chat with {{ other_user.username }} - DriftBridge
                 conversation_id: conversationId
             }
         );
-
+        setTimeout(function () {
+        scrollMessagesToBottom();
+    }, 100);
     });
+
 
     socket.on("disconnect", function () {
+
         socketConnected = false;
-        console.warn("Socket.IO disconnected — messages will use HTTP fallback");
+
+        console.warn(
+            "Socket.IO disconnected."
+        );
     });
 
 
-    socket.on("new_message", function (data) {
+    /* =========================================================
+       SCROLL
+       ========================================================= */
 
-        const emptyChat = document.getElementById("empty-chat");
+    function scrollMessagesToBottom() {
+
+        messagesContainer.scrollTop =
+            messagesContainer.scrollHeight;
+    }
+
+
+    /* =========================================================
+       FORMAT MESSAGE TIME
+       ========================================================= */
+
+    function formatMessageTime(value) {
+
+        if (!value) {
+            return "";
+        }
+
+        const raw = String(value).trim();
+        let date = null;
+
+        /*
+         * ISO timestamps from the server are stored in UTC.
+         * If the value has no timezone marker, treat it as UTC.
+         */
+        if (/^\d{4}-\d{2}-\d{2}T/.test(raw)) {
+
+            const isoValue =
+                /Z$|[+-]\d{2}:?\d{2}$/.test(raw)
+                    ? raw
+                    : raw + "Z";
+
+            date = new Date(isoValue);
+        }
+
+        /*
+         * Socket.IO may send the existing backend display format:
+         * 22 Sep 2026, 05:39 PM
+         * Treat that value as UTC, then display it in the browser's
+         * local timezone.
+         */
+        if (!date || Number.isNaN(date.getTime())) {
+
+            const match =
+                raw.match(
+                    /^(\d{2}) ([A-Za-z]{3}) (\d{4}), (\d{2}):(\d{2}) (AM|PM)$/
+                );
+
+            if (match) {
+
+                const months = {
+                    Jan: 0,
+                    Feb: 1,
+                    Mar: 2,
+                    Apr: 3,
+                    May: 4,
+                    Jun: 5,
+                    Jul: 6,
+                    Aug: 7,
+                    Sep: 8,
+                    Oct: 9,
+                    Nov: 10,
+                    Dec: 11
+                };
+
+                let hour = Number(match[4]);
+
+                if (match[6] === "PM" && hour !== 12) {
+                    hour += 12;
+                }
+
+                if (match[6] === "AM" && hour === 12) {
+                    hour = 0;
+                }
+
+                date =
+                    new Date(
+                        Date.UTC(
+                            Number(match[3]),
+                            months[match[2]],
+                            Number(match[1]),
+                            hour,
+                            Number(match[5])
+                        )
+                    );
+            }
+        }
+
+        if (!date || Number.isNaN(date.getTime())) {
+            return raw;
+        }
+
+        return (
+            date.toLocaleDateString(
+                "en-GB",
+                {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                }
+            ) +
+            ", " +
+            date.toLocaleTimeString(
+                "en-US",
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            )
+        );
+    }
+
+
+    /* =========================================================
+       SORT MESSAGES CHRONOLOGICALLY
+       ========================================================= */
+
+    function sortMessagesChronologically() {
+
+        const messageElements =
+            Array.from(
+                messagesContainer.querySelectorAll(
+                    ".message"
+                )
+            );
+
+        messageElements.sort(function (a, b) {
+
+            const aId =
+                Number(
+                    a.dataset.messageId || 0
+                );
+
+            const bId =
+                Number(
+                    b.dataset.messageId || 0
+                );
+
+            /*
+             * Pending messages have no server ID yet.
+             * Keep them after confirmed messages until the server
+             * assigns their real message ID.
+             */
+            if (!aId && !bId) {
+                return 0;
+            }
+
+            if (!aId) {
+                return 1;
+            }
+
+            if (!bId) {
+                return -1;
+            }
+
+            return aId - bId;
+        });
+
+        messageElements.forEach(function (element) {
+            messagesContainer.appendChild(element);
+        });
+    }
+
+
+    /* =========================================================
+       CREATE MESSAGE ELEMENT
+       ========================================================= */
+
+    function createMessageElement(data, pending = false) {
+
+    const messageElement =
+        document.createElement("div");
+
+    messageElement.classList.add(
+        "message"
+    );
+
+    messageElement.setAttribute(
+        "data-message-id",
+        data.message_id || ""
+    );
+
+    messageElement.setAttribute(
+        "data-original",
+        data.content
+    );
+
+    messageElement.setAttribute(
+        "data-original-lang",
+        data.original_language || "en"
+    );
+    messageElement.setAttribute(
+        "data-message-type",
+        data.message_type || "text"
+    );
+
+    if (data.client_message_id) {
+
+        messageElement.setAttribute(
+            "data-client-message-id",
+            data.client_message_id
+        );
+    }
+
+    if (data.sender_id === currentUserId) {
+
+        messageElement.classList.add(
+            "mine"
+        );
+    }
+
+    if (pending) {
+
+        messageElement.classList.add(
+            "pending-send"
+        );
+    }
+
+    const infoElement =
+        document.createElement("div");
+
+    infoElement.classList.add(
+        "message-info"
+    );
+
+    infoElement.textContent =
+        data.sender +
+        " · " +
+        formatMessageTime(data.created_at);
+
+    let contentElement;
+
+if (
+    data.message_type === "image" &&
+    data.media_url
+) {
+
+    const imageContainer =
+        document.createElement("div");
+
+    imageContainer.classList.add(
+        "message-image"
+    );
+
+    const imageElement =
+        document.createElement("img");
+
+    imageElement.src =
+        data.media_url;
+
+    imageElement.alt =
+        "Shared image";
+
+    imageElement.loading =
+    "lazy";
+
+
+imageElement.addEventListener(
+    "click",
+    function (event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        openImageViewer(
+            data.media_url
+        );
+
+    }
+);
+
+
+imageElement.style.cursor =
+    "pointer";
+
+
+imageContainer.appendChild(
+    imageElement
+);
+
+    contentElement =
+        imageContainer;
+
+} else {
+
+    contentElement =
+        document.createElement("div");
+
+    contentElement.classList.add(
+        "message-content"
+    );
+
+    contentElement.textContent =
+        data.content;
+}
+
+    messageElement.appendChild(
+        infoElement
+    );
+
+    messageElement.appendChild(
+        contentElement
+    );
+
+    /*
+     * Only other users' messages are translatable.
+     * Pending messages must not show the translation hint.
+     */
+    if (
+    !pending &&
+    data.sender_id !== currentUserId &&
+    data.message_type !== "image"
+) {
+
+        const translationHint =
+            document.createElement("div");
+
+        translationHint.classList.add(
+            "translation-hint"
+        );
+
+        translationHint.textContent =
+            "Tap message to translate";
+
+        messageElement.appendChild(
+            translationHint
+        );
+    }
+
+    return messageElement;
+}
+
+
+/* =========================================================
+   APPEND SERVER MESSAGE
+   ========================================================= */
+
+    function appendMessage(data) {
+
+    const emptyChat =
+        document.getElementById("empty-chat");
+
+    if (emptyChat) {
+        emptyChat.remove();
+    }
+
+    /*
+     * If this is our own message and the server is confirming
+     * an optimistic message, replace the temporary element
+     * instead of creating a duplicate.
+     */
+    if (
+        data.sender_id === currentUserId &&
+        data.client_message_id
+    ) {
+
+        const pendingElement =
+            pendingMessages.get(
+                data.client_message_id
+            );
+
+        if (pendingElement) {
+
+            pendingMessages.delete(
+                data.client_message_id
+            );
+
+            pendingElement.classList.remove(
+                "pending-send"
+            );
+
+            pendingElement.setAttribute(
+                "data-message-id",
+                data.message_id
+            );
+
+            pendingElement.setAttribute(
+                "data-original",
+                data.content
+            );
+
+            pendingElement.setAttribute(
+                "data-original-lang",
+                data.original_language || "en"
+            );
+
+            const statusElement =
+                pendingElement.querySelector(
+                    ".message-send-status"
+                );
+
+            if (statusElement) {
+                statusElement.remove();
+            }
+
+            sortMessagesChronologically();
+
+            scrollMessagesToBottom();
+
+            return;
+        }
+    }
+
+    /*
+     * Prevent duplicate messages.
+     */
+    const existing =
+        document.querySelector(
+            '.message[data-message-id="' +
+            data.message_id +
+            '"]'
+        );
+
+    if (existing) {
+        return;
+    }
+
+    /*
+     * Create the actual server-confirmed message.
+     */
+    const messageElement =
+        createMessageElement(
+            data,
+            false
+        );
+
+    /*
+     * THIS WAS MISSING.
+     *
+     * Add the new message to the visible chat.
+     */
+    messagesContainer.appendChild(
+        messageElement
+    );
+
+    sortMessagesChronologically();
+
+    console.log(
+        "[CHAT DEBUG] new message rendered:",
+        data.message_id
+    );
+
+    /*
+     * Keep the newest message visible.
+     */
+    scrollMessagesToBottom();
+}
+
+
+    /* =========================================================
+       NEW MESSAGE
+       ========================================================= */
+
+    socket.on(
+    "new_message",
+    function (data) {
+
+        console.log(
+            "[CHAT DEBUG] new_message RECEIVED:",
+            performance.now(),
+            data
+        );
+
+        appendMessage(data);
+
+        console.log(
+            "[CHAT DEBUG] message RENDERED:",
+            performance.now(),
+            data.message_id
+        );
+    }
+);
+
+
+    /* =========================================================
+       TRANSLATION REQUEST
+       ========================================================= */
+
+    function requestTranslation(messageElement) {
+        /*
+         * Images do not contain translatable message text.
+         * Do not send image messages to the translation service.
+         */
+        if (
+            messageElement.dataset.messageType === "image"
+        ) {
+            return;
+        }
+
+        if (!socketConnected) {
+
+            showToast(
+                "Connect to the chat to translate messages."
+            );
+
+            return;
+        }
+
+
+        const messageId =
+            Number(
+                messageElement.dataset.messageId
+            );
+
+
+        if (!messageId) {
+            return;
+        }
+
+
+        if (
+            translatingMessages.has(
+                messageId
+            )
+        ) {
+            return;
+        }
+
+
+        if (
+            translatedMessages.has(
+                messageId
+            )
+        ) {
+            return;
+        }
+
+
+        translatingMessages.add(
+            messageId
+        );
+
+
+        messageElement.classList.add(
+            "translation-pending"
+        );
+
+
+        const oldHint =
+            messageElement.querySelector(
+                ".translation-hint"
+            );
+
+        if (oldHint) {
+            oldHint.remove();
+        }
+
+
+        const loadingElement =
+            document.createElement("div");
+
+        loadingElement.classList.add(
+            "translation-loading"
+        );
+
+        loadingElement.textContent =
+            "Translating...";
+
+        messageElement.appendChild(
+            loadingElement
+        );
+
+
+        console.log(
+            "Requesting translation once:",
+            messageId
+        );
+
+
+        socket.emit(
+            "request_translation",
+            {
+                message_id: messageId
+            }
+        );
+    }
+
+
+    /* =========================================================
+       TRANSLATION RESULT
+       ========================================================= */
+
+    socket.on(
+        "translation_result",
+        function (data) {
+
+            const messageId =
+                Number(
+                    data.message_id
+                );
+
+
+            translatingMessages.delete(
+                messageId
+            );
+
+            translatedMessages.add(
+                messageId
+            );
+
+
+            const messageElement =
+                document.querySelector(
+                    '.message[data-message-id="' +
+                    messageId +
+                    '"]'
+                );
+
+
+            if (!messageElement) {
+                return;
+            }
+
+
+            messageElement.classList.remove(
+                "translation-pending"
+            );
+
+            messageElement.classList.add(
+                "translation-complete"
+            );
+
+
+            const loadingElement =
+                messageElement.querySelector(
+                    ".translation-loading"
+                );
+
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+
+
+            const hint =
+                messageElement.querySelector(
+                    ".translation-hint"
+                );
+
+            if (hint) {
+                hint.remove();
+            }
+
+
+            const existingTranslation =
+                messageElement.querySelector(
+                    ".message-translation"
+                );
+
+            if (existingTranslation) {
+                existingTranslation.remove();
+            }
+
+
+            const translationElement =
+                document.createElement("div");
+
+            translationElement.classList.add(
+                "message-translation"
+            );
+
+
+            const badge =
+                document.createElement("div");
+
+            badge.classList.add(
+                "translation-badge"
+            );
+
+            badge.textContent =
+                "Translation";
+
+
+            const translatedText =
+                document.createElement("div");
+
+            translatedText.textContent =
+                data.translated_content;
+
+
+            translationElement.appendChild(
+                badge
+            );
+
+            translationElement.appendChild(
+                translatedText
+            );
+
+
+            const contentElement =
+                messageElement.querySelector(
+                    ".message-content"
+                );
+
+
+            if (contentElement) {
+
+                contentElement.insertAdjacentElement(
+                    "afterend",
+                    translationElement
+                );
+            }
+        }
+    );
+
+
+    /* =========================================================
+       TRANSLATION FAILED
+       ========================================================= */
+
+    socket.on(
+        "translation_failed",
+        function (data) {
+
+            const messageId =
+                Number(
+                    data.message_id
+                );
+
+
+            translatingMessages.delete(
+                messageId
+            );
+
+
+            const messageElement =
+                document.querySelector(
+                    '.message[data-message-id="' +
+                    messageId +
+                    '"]'
+                );
+
+
+            if (messageElement) {
+
+                messageElement.classList.remove(
+                    "translation-pending"
+                );
+
+
+                const loadingElement =
+                    messageElement.querySelector(
+                        ".translation-loading"
+                    );
+
+                if (loadingElement) {
+                    loadingElement.remove();
+                }
+
+
+                if (
+                    !messageElement.querySelector(
+                        ".translation-hint"
+                    )
+                ) {
+
+                    const hint =
+                        document.createElement("div");
+
+                    hint.classList.add(
+                        "translation-hint"
+                    );
+
+                    hint.textContent =
+                        "Tap message to try again";
+
+                    messageElement.appendChild(
+                        hint
+                    );
+                }
+            }
+
+
+            showToast(
+                data.reason ||
+                "Translation could not be completed."
+            );
+        }
+    );
+
+
+    /* =========================================================
+       MESSAGE CLICK / LONG PRESS
+       ========================================================= */
+
+    let longPressTimer = null;
+    let longPressTriggered = false;
+
+
+    function handleMessageClick(messageElement) {
+
+    /*
+     * Images are not translatable and should never open
+     * the delete menu through a normal click.
+     *
+     * The image itself opens the viewer.
+     * This guard prevents the parent message click from
+     * triggering translation if an image click reaches here.
+     */
+    if (
+        messageElement.dataset.messageType ===
+        "image"
+    ) {
+        return;
+    }
+
+
+    const isOwnMessage =
+        messageElement.classList.contains(
+            "mine"
+        );
+
+
+    if (isOwnMessage) {
+
+        /*
+         * Don't open Delete menu for a message that has not
+         * received its real database ID yet.
+         */
+        if (
+            !messageElement.dataset.messageId
+        ) {
+
+            showToast(
+                "Message is still being sent."
+            );
+
+            return;
+        }
+
+        openMessageMenu(
+            messageElement
+        );
+
+        return;
+    }
+
+
+    requestTranslation(
+        messageElement
+    );
+}
+
+
+messagesContainer.addEventListener(
+    "click",
+    function (event) {
+
+        /*
+         * Images have their own viewer behavior.
+         *
+         * This also handles images that were already present
+         * when the chat page loaded, not just newly received
+         * Socket.IO image messages.
+         */
+        const imageElement =
+            event.target.closest(
+                ".message-image img"
+            );
+
+
+        if (imageElement) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            openImageViewer(
+                imageElement.src
+            );
+
+            return;
+        }
+
+
+        const messageElement =
+            event.target.closest(
+                ".message"
+            );
+
+
+        if (!messageElement) {
+            return;
+        }
+
+
+        if (longPressTriggered) {
+
+            longPressTriggered = false;
+
+            return;
+        }
+
+
+        handleMessageClick(
+            messageElement
+        );
+    }
+);
+
+
+    /* =========================================================
+       LONG PRESS
+       ========================================================= */
+
+    messagesContainer.addEventListener(
+        "pointerdown",
+        function (event) {
+
+            const messageElement =
+                event.target.closest(
+                    ".message"
+                );
+
+
+            if (!messageElement) {
+                return;
+            }
+
+
+            if (
+                !messageElement.classList.contains(
+                    "mine"
+                )
+            ) {
+                return;
+            }
+
+
+            if (
+                !messageElement.dataset.messageId
+            ) {
+                return;
+            }
+
+
+            longPressTriggered = false;
+
+
+            longPressTimer =
+                setTimeout(
+                    function () {
+
+                        longPressTriggered = true;
+
+                        openMessageMenu(
+                            messageElement
+                        );
+
+                    },
+                    550
+                );
+        }
+    );
+
+
+    function cancelLongPress() {
+
+        if (longPressTimer) {
+
+            clearTimeout(
+                longPressTimer
+            );
+
+            longPressTimer = null;
+        }
+    }
+
+
+    messagesContainer.addEventListener(
+        "pointerup",
+        cancelLongPress
+    );
+
+    messagesContainer.addEventListener(
+        "pointercancel",
+        cancelLongPress
+    );
+
+    messagesContainer.addEventListener(
+        "pointerleave",
+        cancelLongPress
+    );
+
+
+    /* =========================================================
+       MESSAGE ACTION MENU
+       ========================================================= */
+
+    function openMessageMenu(messageElement) {
+
+        if (
+            !messageElement.classList.contains(
+                "mine"
+            )
+        ) {
+            return;
+        }
+
+
+        selectedMessageElement =
+            messageElement;
+
+
+        selectedMessageId =
+            Number(
+                messageElement.dataset.messageId
+            );
+
+
+        if (!selectedMessageId) {
+            return;
+        }
+
+
+        const rect =
+            messageElement.getBoundingClientRect();
+
+
+        messageActionMenu.classList.add(
+            "active"
+        );
+
+
+        let top =
+            rect.bottom + 7;
+
+
+        let left =
+            rect.right - 145;
+
+
+        const menuHeight =
+            messageActionMenu.offsetHeight || 48;
+
+
+        if (
+            top + menuHeight >
+            window.innerHeight - 10
+        ) {
+
+            top =
+                rect.top -
+                menuHeight -
+                7;
+        }
+
+
+        if (left < 10) {
+            left = 10;
+        }
+
+
+        if (
+            left + 145 >
+            window.innerWidth - 10
+        ) {
+
+            left =
+                window.innerWidth -
+                155;
+        }
+
+
+        messageActionMenu.style.top =
+            top + "px";
+
+        messageActionMenu.style.left =
+            left + "px";
+    }
+
+
+    function closeMessageMenu() {
+
+        messageActionMenu.classList.remove(
+            "active"
+        );
+    }
+    messagesContainer.addEventListener(
+       "scroll",
+        function () {
+           closeMessageMenu();
+        }
+    );
+
+
+    /* =========================================================
+       DELETE BUTTON
+       ========================================================= */
+
+    deleteMessageButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.stopPropagation();
+
+            closeMessageMenu();
+
+
+            if (!selectedMessageId) {
+                return;
+            }
+
+
+            deleteModal.classList.add(
+                "active"
+            );
+        }
+    );
+
+
+    /* =========================================================
+       CANCEL DELETE
+       ========================================================= */
+
+    cancelDeleteButton.addEventListener(
+        "click",
+        function () {
+
+            closeDeleteModal();
+        }
+    );
+
+
+    function closeDeleteModal() {
+
+        deleteModal.classList.remove(
+            "active"
+        );
+
+
+        selectedMessageId =
+            null;
+
+        selectedMessageElement =
+            null;
+
+
+        confirmDeleteButton.disabled =
+            false;
+
+        confirmDeleteButton.textContent =
+            "Delete";
+    }
+
+
+    /* =========================================================
+       CONFIRM DELETE
+       ========================================================= */
+
+    confirmDeleteButton.addEventListener(
+        "click",
+        function () {
+
+            if (!selectedMessageId) {
+                return;
+            }
+
+
+            if (!socketConnected) {
+
+                showToast(
+                    "Chat connection unavailable."
+                );
+
+                return;
+            }
+
+
+            confirmDeleteButton.disabled =
+                true;
+
+            confirmDeleteButton.textContent =
+                "Deleting...";
+
+
+            socket.emit(
+                "delete_message",
+                {
+                    message_id:
+                        selectedMessageId
+                }
+            );
+        }
+    );
+
+
+    /* =========================================================
+       MESSAGE DELETED
+       ========================================================= */
+
+    socket.on(
+        "message_deleted",
+        function (data) {
+
+            const messageId =
+                Number(
+                    data.message_id
+                );
+
+
+            const messageElement =
+                document.querySelector(
+                    '.message[data-message-id="' +
+                    messageId +
+                    '"]'
+                );
+
+
+            if (messageElement) {
+                messageElement.remove();
+            }
+
+
+            translatingMessages.delete(
+                messageId
+            );
+
+            translatedMessages.delete(
+                messageId
+            );
+
+
+            if (
+                selectedMessageId ===
+                messageId
+            ) {
+
+                closeDeleteModal();
+            }
+
+
+            const remainingMessages =
+                messagesContainer.querySelectorAll(
+                    ".message"
+                );
+
+
+            if (
+                remainingMessages.length === 0
+            ) {
+
+                const emptyChat =
+                    document.createElement(
+                        "div"
+                    );
+
+                emptyChat.classList.add(
+                    "empty-chat"
+                );
+
+                emptyChat.id =
+                    "empty-chat";
+
+                emptyChat.textContent =
+                    "No messages yet. Start the conversation.";
+
+                messagesContainer.appendChild(
+                    emptyChat
+                );
+
+                console.log(
+                     "[CHAT DEBUG] optimistic message RENDERED:",
+                     performance.now(),
+                     clientMessageId
+          );
+            }
+        }
+    );
+
+
+    /* =========================================================
+       DELETE ERROR
+       ========================================================= */
+
+    socket.on(
+        "delete_message_error",
+        function (data) {
+
+            confirmDeleteButton.disabled =
+                false;
+
+            confirmDeleteButton.textContent =
+                "Delete";
+
+            closeDeleteModal();
+
+            showToast(
+                data.error ||
+                "Message could not be deleted."
+            );
+        }
+    );
+
+
+    /* =========================================================
+       CLOSE MENU OUTSIDE
+       ========================================================= */
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                !messageActionMenu.contains(
+                    event.target
+                ) &&
+                !event.target.closest(
+                    ".message"
+                )
+            ) {
+
+                closeMessageMenu();
+            }
+        }
+    );
+
+
+    /* =========================================================
+       CLOSE DELETE MODAL
+       ========================================================= */
+
+    deleteModal.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                event.target ===
+                deleteModal
+            ) {
+
+                closeDeleteModal();
+            }
+        }
+    );
+
+
+    /* =========================================================
+       ESCAPE KEY
+       ========================================================= */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key !== "Escape") {
+                return;
+            }
+
+            closeMessageMenu();
+            closeDeleteModal();
+        }
+    );
+
+
+    /* =========================================================
+       CREATE CLIENT MESSAGE ID
+       ========================================================= */
+
+    function createClientMessageId() {
+
+        return (
+            Date.now().toString(36) +
+            "-" +
+            Math.random()
+                .toString(36)
+                .slice(2, 10)
+        );
+    }
+
+
+    /* =========================================================
+       OPTIMISTIC MESSAGE
+       ========================================================= */
+
+    function appendOptimisticMessage(
+        content,
+        clientMessageId
+    ) {
+
+        const emptyChat =
+            document.getElementById("empty-chat");
 
         if (emptyChat) {
             emptyChat.remove();
         }
 
 
-        const messageElement = document.createElement("div");
-
-        messageElement.classList.add("message");
-        messageElement.setAttribute("data-message-id", data.message_id);
-        messageElement.setAttribute("data-original", data.content);
-        messageElement.setAttribute("data-original-lang", data.original_language || 'en');
+        const now =
+            new Date();
 
 
-        if (data.sender_id === currentUserId) {
-            messageElement.classList.add("mine");
-        }
-
-
-        const infoElement = document.createElement("div");
-
-        infoElement.classList.add("message-info");
-
-        infoElement.textContent =
-            data.sender +
-            " · " +
-            data.created_at;
-
-
-        const contentElement = document.createElement("div");
-        contentElement.classList.add("message-content");
-
-        contentElement.textContent = data.content;
-
-
-        messageElement.appendChild(infoElement);
-        messageElement.appendChild(contentElement);
-
-
-        messagesContainer.appendChild(messageElement);
-
-
-        messagesContainer.scrollTop =
-            messagesContainer.scrollHeight;
-
-    });
-    // Handle translation request when recipient clicks a message
-    messagesContainer.addEventListener("click", function (event) {
-        const messageElement = event.target.closest(".message");
-
-        if (!messageElement) {
-            return;
-        }
-
-        // Do not translate your own messages
-        if (messageElement.classList.contains("mine")) {
-            return;
-        }
-
-        // Ignore clicks on translation-related elements
-        if (
-            event.target.classList.contains("original-word") ||
-            event.target.classList.contains("translated-word") ||
-            event.target.classList.contains("translation-hint")
-        ) {
-            return;
-        }
-
-        const messageId =
-            messageElement.getAttribute("data-message-id");
-
-        if (!messageId) {
-            return;
-        }
-
-        // Prevent duplicate translation requests
-        if (messageElement.dataset.translationPending === "true") {
-            return;
-        }
-
-        // If translation is already visible, hide it
-        const existingTranslation =
-            messageElement.querySelector(".message-translation");
-
-        if (existingTranslation) {
-            existingTranslation.remove();
-            messageElement.classList.remove("translation-visible");
-            return;
-        }
-
-        // Mark this message as waiting for a translation response
-        messageElement.dataset.translationPending = "true";
-
-        // Ask the server for translation
-        socket.emit("request_translation", {
-            message_id: Number(messageId)
-        });
-    });
-
-
-    // Receive translation from server
-    socket.on("translation_result", function (data) {
-
-        const messageElement =
-            document.querySelector(
-                `[data-message-id="${data.message_id}"]`
+        const formattedTime =
+            now.toLocaleDateString(
+                "en-GB",
+                {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                }
+            ) +
+            ", " +
+            now.toLocaleTimeString(
+                "en-US",
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
             );
 
-        if (!messageElement) {
-            return;
-        }
 
-        // Translation request has completed.
-        messageElement.dataset.translationPending = "false";
+        const data = {
+            message_id: "",
+            client_message_id:
+                clientMessageId,
+            sender_id: currentUserId,
+            sender: currentUsername,
+            content: content,
+            original_language: "en",
+            created_at: formattedTime
+        };
 
-        // Remove any previous translation.
-        const oldTranslation =
-            messageElement.querySelector(".message-translation");
 
-        if (oldTranslation) {
-            oldTranslation.remove();
-        }
-
-        /*
-         * IMPORTANT:
-         * Always display the complete translated sentence returned
-         * by the translation service.
-         *
-         * Do NOT build the visible translation from data.words.
-         * The word mapping is only metadata for hover behavior.
-         */
-        const translationElement =
-            document.createElement("div");
-
-        translationElement.classList.add(
-            "message-translation"
-        );
-
-        const translatedElement =
-            document.createElement("div");
-
-        translatedElement.classList.add(
-            "translated-text"
-        );
-
-        translatedElement.textContent =
-            data.translated_content || "";
-
-        translationElement.appendChild(
-            translatedElement
-        );
-
-        // Translation appears ABOVE the original message.
-        const contentElement =
-            messageElement.querySelector(".message-content");
-
-        if (contentElement) {
-            contentElement.before(
-                translationElement
-            );
-        }
-
-        messageElement.classList.add(
-            "translation-visible"
-        );
-    });
-
-    // Handle generic message errors (DB failure, length violation, etc.)
-    socket.on("message_error", function (data) {
-        alert(data.error || "An error occurred while sending your message.");
-    });
-
-    // Handle blocked messages
-    socket.on("message_blocked", function (data) {
-        alert("\u26A0\uFE0F " + data.error + "\n\n" + data.reason);
-    });
-
-    // Handle translation failure without stacking duplicate hints
-    socket.on("translation_failed", function (data) {
-        const messageElement =
-            document.querySelector(
-                `[data-message-id="${data.message_id}"]`
+        const element =
+            createMessageElement(
+                data,
+                true
             );
 
-        if (!messageElement) {
-            return;
-        }
 
-        // Translation request completed
-        messageElement.dataset.translationPending = "false";
-
-        // Remove any previous translation failure hint
-        const oldHint =
-            messageElement.querySelector(".translation-hint");
-
-        if (oldHint) {
-            oldHint.remove();
-        }
-
-        const hint =
-            document.createElement("small");
-
-        hint.classList.add("translation-hint");
-        hint.textContent =
-            "Translation unavailable";
-
-        const contentElement =
-            messageElement.querySelector(".message-content");
-
-        if (contentElement) {
-            contentElement.appendChild(hint);
-        }
-    });
+        messagesContainer.appendChild(
+            element
+        );
 
 
-    messageForm.addEventListener("submit", function (event) {
+        pendingMessages.set(
+            clientMessageId,
+            element
+        );
 
-        var content = messageInput.value.trim();
+
+        scrollMessagesToBottom();
+
+
+        return element;
+    }
+
+
+    /* =========================================================
+       MESSAGE SEND
+       ========================================================= */
+
+    messageForm.addEventListener(
+    "submit",
+    function (event) {
+
+        event.preventDefault();
+
+        const content =
+            messageInput.value.trim();
 
         if (!content) {
-            event.preventDefault();
+            showToast(
+                "Message cannot be empty."
+            );
             return;
         }
 
         if (content.length > 2000) {
-            event.preventDefault();
-            alert("Messages must be 2000 characters or fewer.");
+            showToast(
+                "Message must be 2000 characters or fewer."
+            );
             return;
         }
 
-        if (socketConnected) {
-            event.preventDefault();
-
-            socket.emit(
-                "send_message",
-                {
-                    conversation_id: conversationId,
-                    content: content
-                }
+        if (!socketConnected) {
+            showToast(
+                "Connecting to chat..."
             );
 
-            messageInput.value = "";
-            messageInput.focus();
+            socket.connect();
+
+            return;
         }
-        // If Socket.IO is NOT connected, let the form submit normally
-        // via HTTP POST to the /chat/<id> fallback route.
+
+        const clientMessageId =
+            createClientMessageId();
+
+        /*
+         * Show the message immediately.
+         */
+        appendOptimisticMessage(
+            content,
+            clientMessageId
+        );
+
+        /*
+         * Clear the input immediately.
+         */
+        messageInput.value = "";
+        messageInput.focus();
+
+        /*
+         * Send through Socket.IO.
+         */
+
+         console.log(
+            "[CHAT DEBUG] socket.emit SEND:",
+            performance.now(),
+            content
+         ); 
+
+        console.log(
+            "[CHAT DEBUG] socket.emit SEND:",
+            performance.now(),
+            content
+        );
+        socket.emit(
+            "send_message",
+        
+            {
+                conversation_id:
+                    conversationId,
+
+                content:
+                    content,
+
+                client_message_id:
+                    clientMessageId
+            }
+        );
+    }
+);
+
+
+    /* =========================================================
+       MESSAGE ERRORS
+       ========================================================= */
+
+    socket.on(
+        "message_error",
+        function (data) {
+
+            showToast(
+                data.error ||
+                "Message could not be sent."
+            );
+        }
+    );
+
+
+    socket.on(
+        "message_blocked",
+        function (data) {
+
+            showToast(
+                data.error ||
+                "Message could not be sent."
+            );
+        }
+    );
+
+
+    /* =========================================================
+       INITIAL TIMESTAMP NORMALIZATION
+       ========================================================= */
+
+    document
+        .querySelectorAll(".message[data-created-at]")
+        .forEach(function (messageElement) {
+
+            const timeElement =
+                messageElement.querySelector(
+                    ".message-time"
+                );
+
+            if (!timeElement) {
+                return;
+            }
+
+            timeElement.textContent =
+                formatMessageTime(
+                    messageElement.dataset.createdAt
+                );
+        });
+
+
+    /* =========================================================
+       INITIAL MESSAGE ORDER
+       ========================================================= */
+
+    sortMessagesChronologically();
+
+
+/* =========================================================
+   INITIAL SCROLL
+   ========================================================= */
+
+window.addEventListener(
+    "load",
+    function () {
+
+        scrollMessagesToBottom();
+
+        setTimeout(
+            function () {
+                scrollMessagesToBottom();
+            },
+            300
+        );
+
+    }
+);
+
+
+/*
+ * Images can change the message container height
+ * after the initial page load.
+ */
+messagesContainer
+    .querySelectorAll("img")
+    .forEach(function (image) {
+
+        image.addEventListener(
+            "load",
+            function () {
+                scrollMessagesToBottom();
+            }
+        );
 
     });
 
 
-    messagesContainer.scrollTop =
-        messagesContainer.scrollHeight;
+scrollMessagesToBottom();
 
 </script>
 
 {% endblock %}
-
-
-
-

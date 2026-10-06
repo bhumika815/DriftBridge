@@ -1,22 +1,27 @@
 import logging
 
-from flask import Flask, render_template
+from flask import Flask, redirect, render_template, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_bcrypt import Bcrypt
 from flask_socketio import SocketIO
 from flask_wtf import CSRFProtect
 from importlib import import_module
 
 from app.config import Config
+from app.services.ai_service import get_ai_service
 
 
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 bcrypt = Bcrypt()
-socketio = SocketIO()
+socketio = SocketIO(
+    logger=True,
+    engineio_logger=True,
+    async_mode="threading"
+)
 csrf = CSRFProtect()
 
 logger = logging.getLogger(__name__)
@@ -27,6 +32,11 @@ def create_app():
     app = Flask(__name__)
 
     app.config.from_object(Config)
+
+    # Initialize the AI service during application startup.
+    # This prevents the first chat message from triggering
+    # Argos/Stanza initialization.
+    get_ai_service()
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -43,11 +53,14 @@ def create_app():
     from app.models.conversation import Conversation
     from app.models.message import Message
     from app.models.content_flag import ContentFlag
-    from app.models.story import Story, StoryView
+    from app.models.story import Story, StoryView, StoryLike, StoryComment
+    from app.models.user_block import UserBlock
+    from app.routes.admin import admin_bp
 
     from app.routes.bottle import bottle_bp
     from app.routes.auth import auth_bp
     from app.routes.profile import profile_bp
+    from app.routes.settings import settings_bp
     from app.routes.chat import chat_bp
     from app.routes.story import story_bp
 
@@ -57,15 +70,20 @@ def create_app():
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(profile_bp)
+    app.register_blueprint(settings_bp)
     app.register_blueprint(bottle_bp)
     app.register_blueprint(chat_bp)
     app.register_blueprint(story_bp)
-
+    app.register_blueprint(admin_bp)
+    
     # Load Socket.IO event handlers
     import_module("app.sockets.chat_socket")
 
     @app.route("/")
     def home():
+        if current_user.is_authenticated:
+            return redirect(url_for("bottle.pool"))
+
         return render_template("landing.html")
 
     @app.errorhandler(403)

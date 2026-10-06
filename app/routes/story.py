@@ -8,9 +8,9 @@ from flask_login import login_required, current_user
 from datetime import datetime
 
 from app import db
-from app.models.story import Story, StoryView
+from app.models.story import Story, StoryView, StoryLike, StoryComment
 from app.models.conversation import Conversation
-from app.services import check_content_safety
+
 
 
 story_bp = Blueprint(
@@ -111,6 +111,142 @@ def view_story(story_id):
     return render_template("view_story.html", story=story)
 
 
+@story_bp.route("/<int:story_id>/like", methods=["POST"])
+@login_required
+def toggle_like(story_id):
+    """Like or unlike a Diary."""
+
+    story = db.session.get(Story, story_id)
+
+    if story is None:
+        return jsonify({
+            "success": False,
+            "message": "Diary not found."
+        }), 404
+
+    existing_like = StoryLike.query.filter_by(
+        story_id=story.id,
+        user_id=current_user.id
+    ).first()
+
+    if existing_like:
+        # Unlike
+        db.session.delete(existing_like)
+        liked = False
+    else:
+        # Like
+        like = StoryLike(
+            story_id=story.id,
+            user_id=current_user.id
+        )
+        db.session.add(like)
+        liked = True
+
+    db.session.commit()
+
+    like_count = StoryLike.query.filter_by(
+        story_id=story.id
+    ).count()
+
+    return jsonify({
+        "success": True,
+        "liked": liked,
+        "like_count": like_count
+    })
+
+
+
+@story_bp.route("/<int:story_id>/comment", methods=["POST"])
+@login_required
+def add_comment(story_id):
+    """Add a comment to a Diary."""
+
+    story = db.session.get(Story, story_id)
+
+    if story is None:
+        return jsonify({
+            "success": False,
+            "message": "Diary not found."
+        }), 404
+
+    data = request.get_json(silent=True) or {}
+    comment_text = data.get("comment", "").strip()
+
+    if not comment_text:
+        return jsonify({
+            "success": False,
+            "message": "Comment cannot be empty."
+        }), 400
+
+    if len(comment_text) > 500:
+        return jsonify({
+            "success": False,
+            "message": "Comment must be 500 characters or less."
+        }), 400
+
+    comment = StoryComment(
+        story_id=story.id,
+        user_id=current_user.id,
+        comment=comment_text
+    )
+
+    db.session.add(comment)
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "comment": {
+            "id": comment.id,
+            "username": current_user.username,
+            "comment": comment.comment
+        }
+    })
+
+@story_bp.route("/<int:story_id>/comments")
+@login_required
+def get_comments(story_id):
+    """Get comments according to Diary comment privacy rules."""
+
+    story = db.session.get(Story, story_id)
+
+    if story is None:
+        return jsonify({
+            "success": False,
+            "message": "Diary not found."
+        }), 404
+
+    if story.user_id == current_user.id:
+        # Diary owner sees ALL comments.
+        comments = StoryComment.query.filter_by(
+            story_id=story.id
+        ).order_by(
+            StoryComment.created_at.asc()
+        ).all()
+
+    else:
+        # Other users see ONLY their own comment.
+        comments = StoryComment.query.filter_by(
+            story_id=story.id,
+            user_id=current_user.id
+        ).order_by(
+            StoryComment.created_at.asc()
+        ).all()
+
+    return jsonify({
+        "success": True,
+        "comments": [
+            {
+                "id": comment.id,
+                "username": comment.user.username,
+                "comment": comment.comment,
+                "created_at": comment.created_at.strftime("%B %d, %Y")
+            }
+            for comment in comments
+        ]
+    })
+
+
+
 @story_bp.route("/<int:story_id>/delete", methods=["POST"])
 @login_required
 def delete_story(story_id):
@@ -183,7 +319,7 @@ def story_viewers(story_id):
 @story_bp.route("/user/<int:user_id>")
 @login_required
 def user_stories(user_id):
-    """View all active stories from a specific user"""
+    """View all Diaries from a specific user."""
     
     from app.models.user import User
     user = db.session.get(User, user_id)
@@ -192,10 +328,10 @@ def user_stories(user_id):
         flash("User not found.", "error")
         return redirect(url_for("story.feed"))
     
-    # Get user's active stories
+    # Get all of the user's Diaries.
+    # Expiration only controls visibility in the main Diary Feed.
     stories = Story.query.filter(
-        Story.user_id == user_id,
-        Story.expires_at > datetime.utcnow()
+        Story.user_id == user_id
     ).order_by(
         Story.created_at.asc()
     ).all()
@@ -204,7 +340,7 @@ def user_stories(user_id):
     visible_stories = [s for s in stories if s.is_visible_to(current_user)]
     
     if not visible_stories:
-        flash("No active stories from this user.", "error")
+        flash("No Diaries available from this user.", "error")
         return redirect(url_for("story.feed"))
     
     return render_template(

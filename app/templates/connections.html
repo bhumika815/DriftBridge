@@ -8,46 +8,87 @@ My Connections - DriftBridge
 
 <div class="connections-container">
 
+    <!-- =========================
+         PAGE HEADER
+         ========================= -->
+
     <div class="page-header">
         <h1>My Connections</h1>
         <p>People you've connected with through bottles.</p>
     </div>
 
-    <!-- Bottles I sent -->
+
+    <!-- =========================
+         PEOPLE WHO KEPT MY BOTTLES
+         ========================= -->
 
     <div class="connection-section">
+
         <h2>People Who Kept My Bottles</h2>
 
         {% if sent_connections %}
 
-            {% for bottle in sent_connections %}
+            <div class="connection-list">
 
-                <div class="connection-card">
+                {% for bottle in sent_connections %}
 
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                        <div class="avatar avatar-primary">
-                            {{ bottle.receiver.username[0]|upper }}
+                    <div class="connection-card">
+
+                        <div class="connection-person">
+
+                            <div class="avatar avatar-primary">
+                                {{ bottle.receiver.username[0]|upper }}
+                            </div>
+
+                            <div class="connection-person-info">
+                                <h3>
+                                    {{ bottle.receiver.username }}
+                                </h3>
+
+                                <span>
+                                    Connected through a bottle
+                                </span>
+                            </div>
+
                         </div>
-                        <h3 style="margin: 0;">{{ bottle.receiver.username }}</h3>
+
+
+                        <div class="connection-message">
+
+                            <span class="connection-message-label">
+                                Your bottle
+                            </span>
+
+                            <p>
+                                {{ bottle.message }}
+                            </p>
+
+                        </div>
+
+
+                        {% if sent_conversations.get(bottle.receiver_id) %}
+
+                            <div class="connection-actions">
+
+                                <a
+                                    href="{{ url_for(
+                                        'chat.chat',
+                                        conversation_id=sent_conversations[bottle.receiver_id]
+                                    ) }}"
+                                    class="btn btn-primary btn-sm"
+                                >
+                                    Chat with {{ bottle.receiver.username }}
+                                </a>
+
+                            </div>
+
+                        {% endif %}
+
                     </div>
 
-                    <div class="connection-message">
-                        <strong>Your bottle:</strong>
-                        {{ bottle.message }}
-                    </div>
+                {% endfor %}
 
-                    {% if sent_conversations.get(bottle.id) %}
-                        <div class="connection-actions">
-                            <a href="{{ url_for('chat.chat', conversation_id=sent_conversations[bottle.id]) }}"
-                               class="btn btn-primary btn-sm">
-                                Chat with {{ bottle.receiver.username }}
-                            </a>
-                        </div>
-                    {% endif %}
-
-                </div>
-
-            {% endfor %}
+            </div>
 
         {% else %}
 
@@ -60,49 +101,92 @@ My Connections - DriftBridge
     </div>
 
 
-    <!-- Bottles I received -->
+    <!-- =========================
+         BOTTLES I KEPT
+         ========================= -->
 
     <div class="connection-section">
+
         <h2>Bottles I Kept</h2>
 
         {% if received_connections %}
 
-            {% for bottle in received_connections %}
+            <div class="connection-list">
 
-                <div class="connection-card">
+                {% for bottle in received_connections %}
 
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                        <div class="avatar avatar-accent">
-                            {{ bottle.sender.username[0]|upper }}
+                    <div class="connection-card">
+
+                        <div class="connection-person">
+
+                            <div class="avatar avatar-accent">
+                                {{ bottle.sender.username[0]|upper }}
+                            </div>
+
+                            <div class="connection-person-info">
+                                <h3>
+                                    {{ bottle.sender.username }}
+                                </h3>
+
+                                <span>
+                                    Connected through a bottle
+                                </span>
+                            </div>
+
                         </div>
-                        <h3 style="margin: 0;">{{ bottle.sender.username }}</h3>
+
+
+                        <div class="connection-message">
+
+                            <span class="connection-message-label">
+                                Their bottle
+                            </span>
+
+                            <p>
+                                {{ bottle.message }}
+                            </p>
+
+                        </div>
+
+
+                        {% if received_conversations.get(bottle.sender_id) %}
+
+                            <div class="connection-actions">
+
+                                <a
+                                    href="{{ url_for(
+                                        'chat.chat',
+                                        conversation_id=received_conversations[bottle.sender_id]
+                                    ) }}"
+                                    class="btn btn-primary btn-sm"
+                                >
+                                    Chat with {{ bottle.sender.username }}
+                                </a>
+
+                            </div>
+
+                        {% endif %}
+
                     </div>
 
-                    <div class="connection-message">
-                        <strong>Their bottle:</strong>
-                        {{ bottle.message }}
-                    </div>
+                {% endfor %}
 
-                    {% if received_conversations.get(bottle.id) %}
-                        <div class="connection-actions">
-                            <a href="{{ url_for('chat.chat', conversation_id=received_conversations[bottle.id]) }}"
-                               class="btn btn-primary btn-sm">
-                                Chat with {{ bottle.sender.username }}
-                            </a>
-                        </div>
-                    {% endif %}
-
-                </div>
-
-            {% endfor %}
+            </div>
 
         {% else %}
 
             <div class="empty-state">
+
                 <p>You haven't kept anyone's bottle yet.</p>
-                <a href="{{ url_for('bottle.bottle_pool') }}" class="btn btn-primary" style="margin-top: 16px;">
+
+                <a
+                    href="{{ url_for('bottle.bottle_pool') }}"
+                    class="btn btn-primary"
+                    style="margin-top: 16px;"
+                >
                     Browse Bottle Pool
                 </a>
+
             </div>
 
         {% endif %}

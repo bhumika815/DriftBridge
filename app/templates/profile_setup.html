@@ -1,0 +1,892 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+
+                    <h2 class="mb-2">Set Up Your Profile</h2>
+
+                    <p class="text-muted mb-4">
+                        Tell us a little about yourself so DriftBridge can help
+                        you discover people with similar interests.
+                    </p>
+
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            {{ error }}
+                        </div>
+                    {% endif %}
+
+                    <form method="POST"
+                          action="{{ url_for('profile.profile_setup') }}"
+                          enctype="multipart/form-data"
+                          id="profileSetupForm">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <!-- ============================= -->
+                        <!-- PROFILE PICTURE                -->
+                        <!-- ============================= -->
+
+                        <div class="mb-4">
+                            <label for="profile_image" class="form-label">
+                                Profile Picture
+                            </label>
+
+                            <input
+                                type="file"
+                                class="form-control"
+                                id="profile_image"
+                                name="profile_image"
+                                accept="image/png,image/jpeg,image/webp"
+                            >
+
+                            <div class="form-text">
+                                Upload a JPG, PNG, or WebP image.
+                            </div>
+                        </div>
+
+
+                        <!-- ============================= -->
+                        <!-- DATE OF BIRTH                  -->
+                        <!-- ============================= -->
+
+                        <div class="mb-3">
+                            <label for="date_of_birth" class="form-label">
+                                Date of Birth
+                            </label>
+
+                            <input
+                                type="date"
+                                class="form-control"
+                                id="date_of_birth"
+                                name="date_of_birth"
+                                required
+                            >
+
+                            <div class="form-text">
+                                Your age will be calculated automatically.
+                            </div>
+                        </div>
+
+
+                        <!-- ============================= -->
+                        <!-- AGE                            -->
+                        <!-- ============================= -->
+
+                        <div class="mb-3">
+                            <label for="calculated_age" class="form-label">
+                                Age
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="calculated_age"
+                                readonly
+                                placeholder="Your age will appear here"
+                            >
+                        </div>
+
+
+                        <!-- ============================= -->
+                        <!-- GENDER                         -->
+                        <!-- ============================= -->
+
+                        <div class="mb-3">
+                            <label for="gender" class="form-label">
+                                Gender
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="gender"
+                                name="gender"
+                                required
+                            >
+                                <option value="">Select gender</option>
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+
+                        <!-- ============================= -->
+                        <!-- COUNTRY                        -->
+                        <!-- ============================= -->
+
+                        <div class="mb-3">
+                            <label for="country" class="form-label">
+                                Country
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="country"
+                                name="country"
+                                required
+                            >
+                                <option value="">Select your country</option>
+
+                                <option value="Afghanistan">Afghanistan</option>
+                                <option value="Albania">Albania</option>
+                                <option value="Algeria">Algeria</option>
+                                <option value="Argentina">Argentina</option>
+                                <option value="Australia">Australia</option>
+                                <option value="Austria">Austria</option>
+                                <option value="Bangladesh">Bangladesh</option>
+                                <option value="Belgium">Belgium</option>
+                                <option value="Bhutan">Bhutan</option>
+                                <option value="Brazil">Brazil</option>
+                                <option value="Canada">Canada</option>
+                                <option value="Chile">Chile</option>
+                                <option value="China">China</option>
+                                <option value="Colombia">Colombia</option>
+                                <option value="Croatia">Croatia</option>
+                                <option value="Cuba">Cuba</option>
+                                <option value="Czech Republic">Czech Republic</option>
+                                <option value="Denmark">Denmark</option>
+                                <option value="Egypt">Egypt</option>
+                                <option value="Ethiopia">Ethiopia</option>
+                                <option value="Finland">Finland</option>
+                                <option value="France">France</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Germany">Germany</option>
+                                <option value="Ghana">Ghana</option>
+                                <option value="Greece">Greece</option>
+                                <option value="Hungary">Hungary</option>
+                                <option value="Iceland">Iceland</option>
+                                <option value="India">India</option>
+                                <option value="Indonesia">Indonesia</option>
+                                <option value="Iran">Iran</option>
+                                <option value="Iraq">Iraq</option>
+                                <option value="Ireland">Ireland</option>
+                                <option value="Israel">Israel</option>
+                                <option value="Italy">Italy</option>
+                                <option value="Japan">Japan</option>
+                                <option value="Jordan">Jordan</option>
+                                <option value="Kazakhstan">Kazakhstan</option>
+                                <option value="Kenya">Kenya</option>
+                                <option value="Kuwait">Kuwait</option>
+                                <option value="Lebanon">Lebanon</option>
+                                <option value="Malaysia">Malaysia</option>
+                                <option value="Maldives">Maldives</option>
+                                <option value="Mexico">Mexico</option>
+                                <option value="Morocco">Morocco</option>
+                                <option value="Myanmar">Myanmar</option>
+                                <option value="Nepal">Nepal</option>
+                                <option value="Netherlands">Netherlands</option>
+                                <option value="New Zealand">New Zealand</option>
+                                <option value="Nigeria">Nigeria</option>
+                                <option value="Norway">Norway</option>
+                                <option value="Oman">Oman</option>
+                                <option value="Pakistan">Pakistan</option>
+                                <option value="Peru">Peru</option>
+                                <option value="Philippines">Philippines</option>
+                                <option value="Poland">Poland</option>
+                                <option value="Portugal">Portugal</option>
+                                <option value="Qatar">Qatar</option>
+                                <option value="Romania">Romania</option>
+                                <option value="Russia">Russia</option>
+                                <option value="Saudi Arabia">Saudi Arabia</option>
+                                <option value="Singapore">Singapore</option>
+                                <option value="South Africa">South Africa</option>
+                                <option value="South Korea">South Korea</option>
+                                <option value="Spain">Spain</option>
+                                <option value="Sri Lanka">Sri Lanka</option>
+                                <option value="Sweden">Sweden</option>
+                                <option value="Switzerland">Switzerland</option>
+                                <option value="Taiwan">Taiwan</option>
+                                <option value="Thailand">Thailand</option>
+                                <option value="Tunisia">Tunisia</option>
+                                <option value="Turkey">Turkey</option>
+                                <option value="Ukraine">Ukraine</option>
+                                <option value="United Arab Emirates">
+                                    United Arab Emirates
+                                </option>
+                                <option value="United Kingdom">
+                                    United Kingdom
+                                </option>
+                                <option value="United States">
+                                    United States
+                                </option>
+                                <option value="Uzbekistan">Uzbekistan</option>
+                                <option value="Venezuela">Venezuela</option>
+                                <option value="Vietnam">Vietnam</option>
+                                <option value="Zimbabwe">Zimbabwe</option>
+                            </select>
+                        </div>
+
+
+                        <!-- ============================= -->
+                        <!-- KNOWN LANGUAGES                -->
+                        <!-- ============================= -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label">
+                                Known / Spoken Languages
+                            </label>
+
+                            <div class="multi-select"
+                                 id="languagesMultiSelect">
+
+                                <div class="multi-select-box"
+                                     tabindex="0">
+
+                                    <div class="selected-items"
+                                         id="selectedLanguages">
+                                        <span class="multi-select-placeholder">
+                                            Select languages
+                                        </span>
+                                    </div>
+
+                                    <span class="multi-select-arrow">
+                                        ▼
+                                    </span>
+                                </div>
+
+                                <div class="multi-select-dropdown">
+
+                                    <input
+                                        type="text"
+                                        class="multi-select-search"
+                                        placeholder="Search languages..."
+                                        autocomplete="off"
+                                    >
+
+                                    <div class="multi-select-options">
+
+                                        {% for code, language in languages.items() %}
+
+                                            <label class="multi-select-option"
+                                                   data-label="{{ language|lower }}">
+
+                                                <input
+                                                    type="checkbox"
+                                                    name="languages_spoken"
+                                                    value="{{ code }}"
+                                                >
+
+                                                <span>{{ language }}</span>
+
+                                            </label>
+
+                                        {% endfor %}
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-text">
+                                Select all languages you know or speak.
+                            </div>
+
+                        </div>
+
+
+                        <!-- ============================= -->
+                        <!-- INTERESTS                      -->
+                        <!-- ============================= -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label">
+                                Interests
+                            </label>
+
+                            <div class="multi-select"
+                                 id="interestsMultiSelect">
+
+                                <div class="multi-select-box"
+                                     tabindex="0">
+
+                                    <div class="selected-items"
+                                         id="selectedInterests">
+                                        <span class="multi-select-placeholder">
+                                            Select interests
+                                        </span>
+                                    </div>
+
+                                    <span class="multi-select-arrow">
+                                        ▼
+                                    </span>
+                                </div>
+
+                                <div class="multi-select-dropdown">
+
+                                    <input
+                                        type="text"
+                                        class="multi-select-search"
+                                        placeholder="Search interests..."
+                                        autocomplete="off"
+                                    >
+
+                                    <div class="multi-select-options">
+
+                                        {% for interest in interests_list %}
+
+                                            <label class="multi-select-option"
+                                                   data-label="{{ interest|lower }}">
+
+                                                <input
+                                                    type="checkbox"
+                                                    name="interests"
+                                                    value="{{ interest }}"
+                                                >
+
+                                                <span>{{ interest }}</span>
+
+                                            </label>
+
+                                        {% endfor %}
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-text">
+                                Select the interests you enjoy.
+                            </div>
+
+                        </div>
+
+
+                        <!-- ============================= -->
+                        <!-- LEARNING LANGUAGE              -->
+                        <!-- ============================= -->
+
+                        <div class="mb-3">
+
+                            <label for="preferred_language"
+                                   class="form-label">
+
+                                Learning Language
+
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="preferred_language"
+                                name="preferred_language"
+                                required
+                            >
+
+                                {% for code, language in languages.items() %}
+
+                                    <option
+                                        value="{{ code }}"
+                                        {% if code == "en" %}selected{% endif %}
+                                    >
+                                        {{ language }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                            <div class="form-text">
+                                Messages can be translated into this language.
+                            </div>
+
+                        </div>
+
+
+                        <!-- ============================= -->
+                        <!-- BIO                            -->
+                        <!-- ============================= -->
+
+                        <div class="mb-4">
+
+                            <label for="bio" class="form-label">
+                                Bio
+                            </label>
+
+                            <textarea
+                                class="form-control"
+                                id="bio"
+                                name="bio"
+                                rows="4"
+                                maxlength="500"
+                                placeholder="Tell people a little about yourself..."
+                            ></textarea>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary w-100"
+                        >
+                            Save Profile
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ===================================================== -->
+<!-- MULTI-SELECT STYLING                                  -->
+<!-- ===================================================== -->
+
+<style>
+
+    .multi-select {
+        position: relative;
+        width: 100%;
+    }
+
+    .multi-select-box {
+        min-height: 44px;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        background: #fff;
+        padding: 6px 40px 6px 10px;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .multi-select-box:focus {
+        outline: none;
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+
+    .multi-select-arrow {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        pointer-events: none;
+        font-size: 12px;
+    }
+
+    .multi-select-placeholder {
+        color: #6c757d;
+    }
+
+    .selected-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #e9f2ff;
+        border: 1px solid #cfe2ff;
+        color: #0d6efd;
+        border-radius: 20px;
+        padding: 4px 9px;
+        font-size: 14px;
+    }
+
+    .selected-chip button {
+        border: none;
+        background: transparent;
+        color: inherit;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    .multi-select-dropdown {
+        display: none;
+        position: absolute;
+        z-index: 1000;
+        top: calc(100% + 4px);
+        left: 0;
+        width: 100%;
+        background: #fff;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        padding: 10px;
+    }
+
+    .multi-select.open .multi-select-dropdown {
+        display: block;
+    }
+
+    .multi-select-search {
+        width: 100%;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        outline: none;
+    }
+
+    .multi-select-search:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+    }
+
+    .multi-select-options {
+        max-height: 220px;
+        overflow-y: auto;
+    }
+
+    .multi-select-option {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 7px 8px;
+        margin: 0;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: normal;
+    }
+
+    .multi-select-option:hover {
+        background: #f5f5f5;
+    }
+
+    .multi-select-option input {
+        cursor: pointer;
+    }
+
+</style>
+
+
+<!-- ===================================================== -->
+<!-- MULTI-SELECT + AGE JAVASCRIPT                         -->
+<!-- ===================================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* ================================================= */
+    /* AGE CALCULATION                                   */
+    /* ================================================= */
+
+    const dobInput = document.getElementById("date_of_birth");
+    const ageInput = document.getElementById("calculated_age");
+
+    function calculateAge() {
+
+        if (!dobInput.value) {
+            ageInput.value = "";
+            return;
+        }
+
+        const birthDate = new Date(dobInput.value);
+        const today = new Date();
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+
+        const monthDifference =
+            today.getMonth() - birthDate.getMonth();
+
+        if (
+            monthDifference < 0 ||
+            (
+                monthDifference === 0 &&
+                today.getDate() < birthDate.getDate()
+            )
+        ) {
+            age--;
+        }
+
+        if (age >= 0) {
+            ageInput.value = age + " years";
+        } else {
+            ageInput.value = "";
+        }
+    }
+
+    dobInput.addEventListener("change", calculateAge);
+
+
+    /* ================================================= */
+    /* MULTI-SELECT COMPONENT                            */
+    /* ================================================= */
+
+    function setupMultiSelect(containerId, selectedItemsId) {
+
+        const container =
+            document.getElementById(containerId);
+
+        const box =
+            container.querySelector(".multi-select-box");
+
+        const dropdown =
+            container.querySelector(".multi-select-dropdown");
+
+        const search =
+            container.querySelector(".multi-select-search");
+
+        const options =
+            container.querySelectorAll(".multi-select-option");
+
+        const selectedItems =
+            document.getElementById(selectedItemsId);
+
+
+        /* --------------------------------------------- */
+        /* OPEN / CLOSE                                  */
+        /* --------------------------------------------- */
+
+        box.addEventListener("click", function () {
+
+            document
+                .querySelectorAll(".multi-select.open")
+                .forEach(function (other) {
+
+                    if (other !== container) {
+                        other.classList.remove("open");
+                    }
+
+                });
+
+            container.classList.toggle("open");
+
+            if (container.classList.contains("open")) {
+                search.focus();
+            }
+
+        });
+
+
+        /* --------------------------------------------- */
+        /* PREVENT SEARCH CLICK FROM CLOSING             */
+        /* --------------------------------------------- */
+
+        dropdown.addEventListener("click", function (event) {
+            event.stopPropagation();
+        });
+
+
+        /* --------------------------------------------- */
+        /* UPDATE SELECTED CHIPS                         */
+        /* --------------------------------------------- */
+
+        function updateSelectedItems() {
+
+            selectedItems.innerHTML = "";
+
+            let selectedCount = 0;
+
+            options.forEach(function (option) {
+
+                const checkbox =
+                    option.querySelector("input[type='checkbox']");
+
+                if (checkbox.checked) {
+
+                    selectedCount++;
+
+                    const chip =
+                        document.createElement("span");
+
+                    chip.className = "selected-chip";
+
+                    chip.innerHTML =
+                        "<span>" +
+                        option.querySelector("span").textContent +
+                        "</span>" +
+                        "<button type='button' " +
+                        "aria-label='Remove'>" +
+                        "×" +
+                        "</button>";
+
+                    chip.querySelector("button")
+                        .addEventListener("click", function (event) {
+
+                            event.stopPropagation();
+
+                            checkbox.checked = false;
+
+                            updateSelectedItems();
+
+                        });
+
+                    selectedItems.appendChild(chip);
+                }
+
+            });
+
+
+            if (selectedCount === 0) {
+
+                const placeholder =
+                    document.createElement("span");
+
+                placeholder.className =
+                    "multi-select-placeholder";
+
+                placeholder.textContent =
+                    containerId === "languagesMultiSelect"
+                        ? "Select languages"
+                        : "Select interests";
+
+                selectedItems.appendChild(placeholder);
+            }
+        }
+
+
+        /* --------------------------------------------- */
+        /* CHECKBOX CHANGE                               */
+        /* --------------------------------------------- */
+
+        options.forEach(function (option) {
+
+            const checkbox =
+                option.querySelector("input[type='checkbox']");
+
+            checkbox.addEventListener(
+                "change",
+                updateSelectedItems
+            );
+
+        });
+
+
+        /* --------------------------------------------- */
+        /* SEARCH                                        */
+        /* --------------------------------------------- */
+
+        search.addEventListener("input", function () {
+
+            const searchValue =
+                search.value.toLowerCase().trim();
+
+            options.forEach(function (option) {
+
+                const label =
+                    option.dataset.label;
+
+                if (label.includes(searchValue)) {
+                    option.style.display = "flex";
+                } else {
+                    option.style.display = "none";
+                }
+
+            });
+
+        });
+
+
+        /* --------------------------------------------- */
+        /* INITIAL STATE                                 */
+        /* --------------------------------------------- */
+
+        updateSelectedItems();
+    }
+
+
+    setupMultiSelect(
+        "languagesMultiSelect",
+        "selectedLanguages"
+    );
+
+    setupMultiSelect(
+        "interestsMultiSelect",
+        "selectedInterests"
+    );
+
+
+    /* ================================================= */
+    /* CLOSE WHEN CLICKING OUTSIDE                       */
+    /* ================================================= */
+
+    document.addEventListener("click", function (event) {
+
+        document
+            .querySelectorAll(".multi-select")
+            .forEach(function (container) {
+
+                if (!container.contains(event.target)) {
+                    container.classList.remove("open");
+                }
+
+            });
+
+    });
+
+
+    /* ================================================= */
+    /* ESCAPE KEY                                       */
+    /* ================================================= */
+
+    document.addEventListener("keydown", function (event) {
+
+        if (event.key === "Escape") {
+
+            document
+                .querySelectorAll(".multi-select")
+                .forEach(function (container) {
+                    container.classList.remove("open");
+                });
+
+        }
+
+    });
+
+
+    /* ================================================= */
+    /* FORM VALIDATION                                  */
+    /* ================================================= */
+
+    const form =
+        document.getElementById("profileSetupForm");
+
+    form.addEventListener("submit", function (event) {
+
+        const selectedLanguages =
+            document.querySelectorAll(
+                "input[name='languages_spoken']:checked"
+            );
+
+        const selectedInterests =
+            document.querySelectorAll(
+                "input[name='interests']:checked"
+            );
+
+        if (selectedLanguages.length === 0) {
+
+            event.preventDefault();
+
+            alert(
+                "Please select at least one known or spoken language."
+            );
+
+            return;
+        }
+
+        if (selectedInterests.length === 0) {
+
+            event.preventDefault();
+
+            alert(
+                "Please select at least one interest."
+            );
+
+            return;
+        }
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

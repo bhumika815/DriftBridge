@@ -25,6 +25,13 @@ class User(UserMixin, db.Model):
         nullable=False
     )
 
+    email_verified = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False,
+        server_default="0"
+    )
+
     password_hash = db.Column(
         db.String(255),
         nullable=False
@@ -40,10 +47,39 @@ class User(UserMixin, db.Model):
         nullable=True
     )
 
-    # Language preference for translation
+    age = db.Column(
+        db.Integer,
+        nullable=True
+    )
+
+    country = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    date_of_birth = db.Column(
+        db.Date,
+        nullable=True
+    )
+
+    gender = db.Column(
+        db.String(20),
+        nullable=True
+    )
+
+    profile_image_url = db.Column(
+        db.String(500),
+        nullable=True
+    )
+
+    languages_spoken = db.Column(
+        db.String(500),
+        nullable=True
+    )
+
     preferred_language = db.Column(
         db.String(10),
-        default='en',
+        default="en",
         nullable=False
     )
 
@@ -59,24 +95,38 @@ class User(UserMixin, db.Model):
         nullable=False,
         server_default="0"
     )
+    is_suspended = db.Column(
+    db.Boolean,
+    default=False,
+    nullable=False,
+    server_default="0"
+)
 
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow
     )
 
-    # Bottles sent by this user
+    # Bottles sent by this user.
     sent_bottles = db.relationship(
         "Bottle",
         foreign_keys="Bottle.sender_id",
-        backref="sender",
+        back_populates="sender",
         lazy=True
     )
 
-    # Bottles received/kept by this user
+    # Bottles specifically sent to this user.
+    targeted_bottles = db.relationship(
+        "Bottle",
+        foreign_keys="Bottle.target_user_id",
+        back_populates="target_user",
+        lazy=True
+    )
+
+    # Bottles accepted/kept by this user.
     received_bottles = db.relationship(
         "Bottle",
         foreign_keys="Bottle.receiver_id",
-        backref="receiver",
+        back_populates="receiver",
         lazy=True
     )

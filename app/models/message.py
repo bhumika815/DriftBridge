@@ -31,8 +31,24 @@ class Message(db.Model):
     # Original language of the message
     original_language = db.Column(
         db.String(10),
-        default='en',
+        default="en",
         nullable=False
+    )
+
+    # Type of message:
+    # text = normal text message
+    # image = uploaded image message
+    message_type = db.Column(
+        db.String(20),
+        default="text",
+        nullable=False
+    )
+
+    # Cloudinary URL for image messages.
+    # NULL for normal text messages.
+    media_url = db.Column(
+        db.Text,
+        nullable=True
     )
 
     created_at = db.Column(
